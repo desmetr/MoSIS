@@ -1,0 +1,46 @@
+control Controller
+entity Track1
+entity Track2
+entity Track3
+activate Controller
+activate Track1
+activate Track2
+activate Track3
+
+Controller->Track1: Red Light
+Controller->Track2: Red Light
+Controller->Track3: Red Light
+Controller->Track1: Train Sensor Request
+Controller->Track2: Train Sensor Request
+
+alt two trains on tracks case 1
+Controller<--Track1: Train Detected
+Controller<--Track2: Train Detected
+Controller->Track1: Green Light
+Controller->Track2: Red Light
+
+else two trains on tracks case 2
+Controller<--Track2: Train Detected
+Controller<--Track1: Train Detected
+Controller->Track2: Green Light
+Controller->Track1: Red Light
+
+else one train on track case 1
+Controller<--Track1: Train Detected
+Controller<--Track2: No Train Detected
+Controller->Track1: Green Light
+
+else one train on track case 2
+Controller<--Track1: No Train Detected
+Controller<--Track2: Train Detected
+Controller->Track2: Green Light
+
+else no trains on tracks
+Controller<--Track1: No Train Detected
+Controller<--Track2: No Train Detected
+end
+
+deactivate Controller
+deactivate Track1
+deactivate Track2
+deactivate Track3
