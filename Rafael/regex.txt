@@ -1,8 +1,9 @@
-alphabet = {E,R,G,X,1,2,3, }
+alphabet = {E,R,G,X,1,2,3}
 
 Use case 3:
 
-if a train is on the junction, all traffic lights will remain red until that train has left the junction
+if a train is on the junction, all traffic lights will remain red
+until that train has left the junction
 	junction = segment 3
 
 	= POSITIVE MATCH

@@ -198,6 +198,7 @@ class NumberScanner(Scanner):
 	def entry(self, state, input):
 		pass
 
+## An example scanner, see http://msdl.cs.mcgill.ca/people/hv/teaching/SoftwareDesign/COMP304B2003/assignments/assignment3/solution/
 class CellRefScanner(Scanner):
 	def __init__(self, stream):
 		# superclass constructor
@@ -306,3 +307,149 @@ class CellRefScanner(Scanner):
 			self.rowIsAbsolute = True
 		elif state == "S6":
 			self.row = ord(string.lower(input)) - ord('0')
+
+
+class UseCase3Scanner(Scanner):
+	def __init__(self, stream):
+   		# superclass constructor
+		Scanner.__init__(self, stream)
+
+		# define alphabet
+		self.alphabet = ['E', 'R', 'G', 'X', '1', '2', '3', ' ']
+
+		# define accepting states
+		self.accepting_states=["S14"]
+
+	def __str__(self):
+  		return self.string
+
+  	def transition(self, state, input):
+		"""
+		Encodes transitions and actions
+		"""
+
+		if state == None:
+			self.string = ""
+			self.seenR1 = False
+			self.seenR2 = False
+			return "S0"
+
+		elif state == "S0":
+			if input == 'E':
+				return "S1"
+			elif input != 'E':
+				return "S0"
+			else:
+				return None
+
+		elif state == "S1":
+			if input == ' ':
+				return "S2"
+			else:
+				return None
+
+		elif state == "S2":
+			if input == '3':
+				return "S3"
+			else:
+				return None
+
+		elif state == "S3":
+			if input == 'R':
+				return "S4"
+			elif input == 'X':
+				if self.seenR1 or self.seenR2:
+					return "S3"
+				else:
+					return None
+			elif input != 'R':
+				return "S3"
+			else:
+				return None
+
+		elif state == "S4":
+			if input == ' ':
+				return "S5"
+			else:
+				return None
+
+		elif state == "S5":
+			if input == '1':
+				self.seenR1 = True
+				return "S6"
+			elif input == '2':
+				self.seenR2 = True
+				return "S7"
+			else:
+				return None
+
+		elif state == "S6":
+			if input == 'R':
+				self.seenR1 = False
+				return "S8"
+			elif input != 'R' and input != 'X':
+				return "S6"
+			else:
+				return None
+
+		elif state == "S7":
+			if input == 'R':
+				self.seenR2 = False
+				return "S8"
+			elif input != 'R' and input != 'X':
+				return "S7"
+			else:
+				return None
+
+		elif state == "S8":
+			if input == ' ':
+				return "S9"
+			else:
+				return None
+
+		elif state == "S9":
+			if input == '1':
+				self.seenR1 = True
+				return "S10"
+			elif input == '2':
+				self.seenR2 = True
+				return "S11"
+			else:
+				return None
+
+		elif state == "S10":
+			if input == 'X':
+				self.seenR1 = False
+				return "S12"
+			elif input != 'R' and input != 'X':
+				return "S10"
+			else:
+				return None
+
+		elif state == "S11":
+			if input == 'X':
+				self.seenR2 = False
+				return "S12"
+			elif input != 'R' and input != 'X':
+				return "S11"
+			else:
+				return None
+
+		elif state == "S12":
+			if input == ' ':
+				return "S13"
+			else:
+				return None
+
+		elif state == "S13":
+			if input == '3':
+				return "S14"
+			else:
+				return None
+
+		else:
+			return None
+
+	def entry(self, state, input):
+		if input in self.alphabet:
+			self.string += input

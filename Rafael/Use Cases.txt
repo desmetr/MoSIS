@@ -1,6 +1,7 @@
 3. If a train is on the junction, all traffic lights will remain red until that train has left the junction.
 
 Use Case: TrainOnJunction
+Actors: Train
 Scope: Railway Junction Control System
 Intention: Lights have to remain red while the train is on the junction.
 Level: User Goal
@@ -17,6 +18,7 @@ Extensions:
 4. If two trains are waiting to enter the junction at the same time, permission will be granted in order of arrival (i.e., the first train to arrive will get a green light, and the second one has to wait).
 
 Use Case: TwoWaitingTrains
+Actors: Train on segment 1, train on segment 2
 Scope: Railway Junction Control System
 Intention: Give permission to one train at a time to enter the junction, based on the order of arrival.
 Level: User Goal
