@@ -1,0 +1,317 @@
+<body bgcolor="#ffffff">
+
+<div class="portlet">    
+ <div class="portletBody">
+
+     <table border="0" cellpadding="4" cellspacing="0" width="100%" summary="table for MSDL standard page banner">
+
+ <tbody><tr>
+<!--  
+  <td valign="top" width="214" align="left">
+   <a href="http://msdl.cs.mcgill.ca/"><img border="0" src="/images/MSDLlogo.2.small.gif" align="left"></a>
+  </td>
+-->
+
+  <td valign="middle" align="right" width="100%" cellpadding="3">
+   <div class="pagetitle">Checking Requirements: Use Cases, Sequence Diagrams, Regular Expressions and State Automata&nbsp;</div>
+  </td>
+ </tr>
+
+</tbody></table>
+
+
+  
+  
+ </div>
+</div>
+
+<table border="0" cellpadding="0" cellspacing="0" summary="home page" width="100%">
+ <tbody><tr>
+  <td valign="top" align="left">
+
+
+<div class="portlet">
+
+<h2>General information</h2>
+  <div class="portletBody">
+   <div class="portletContent odd">
+<p>
+</p><ul>
+<li>The due date is 18 October, before 23:55.</li>
+<li>Submissions must be done via <a href="https://blackboard.uantwerpen.be">BlackBoard</a>.
+Beware that BlackBoard's clock may differ slightly from yours.
+<i>All</i> results must be uploaded to BlackBoard and accessible from links in the main (index.html) file.</li>
+<li>The assignment must be made in groups of maximum 2 people.
+It is understood that all partners will understand the complete assignment (and will be able to answer questions about it).
+Clearly identify who did what. Groups should be made up, whenever possible, of one international and one local student.</li>
+<li>Grading will be done based on correctness and completeness of the solution.
+Do not forget to document your requirements, assumptions, design, implementation and modelling and simulation results in detail!</li>
+<li>To get feedback about the assignment workload, provide the number of hours you spent on this assignment.</li>
+<li>Contact: <a href="mailto:Hans.Vangheluwe@uantwerpen.be">Hans Vangheluwe</a>.</li>
+</ul>
+<p></p>
+</div>
+</div>
+
+<h2>Goals</h2>
+  <div class="portletBody">
+   <div class="portletContent odd">
+<p>
+In this assignment, you will use the Use Cases, UML Sequence Diagrams, Regular Expressions, and State Automata modelling languages to design and verify a railway junction controller.
+You will also make the link to an output trace an actual implementation in Python to perform the checking.
+At the end, you will be able to automatically determine, based on the obtained trace file, whether all requirements are satisfied or not.
+</p>
+
+<img src="overview.png">
+</div>
+</div>
+
+<h2>The problem</h2>
+  <div class="portletBody">
+   <div class="portletContent odd">
+<p>
+You are given an implementation of a railway junction controller, which needs to set the traffic signals of the segments coming in to the junction.
+It is necessary to check whether or not the specified requirements are validated.
+You are, however, only given access to a trace file of the execution.
+This trace file contains debugging information about the junction, such as all incoming signals, outgoing signals, and internal timers that get triggered.
+Due to this verbosity, and the total runtime of the execution, the file is quite long, and therefore validating the requirements is not to be done manually.
+</p>
+
+<p>
+The validation will thus be done automatically.
+You will first model a set of Regular Expressions, and then a set of Finite State Automata, which you will subsequently encode, to automatically verify whether the system implementation complies with the system specification given in the requirements below (and modelled visually in Sequence Diagram form).
+</p>
+
+<p>
+The structure of the junction is described in the following UML Class Diagram:<br>
+<br>
+<img src="Junction.svg" width="600px">
+</p>
+
+<p>
+The behaviour can be described as follows:
+</p><ul>
+<li>By default, all traffic lights that prevent the entry to the junction are set to red for safety.</li>
+<li>The railway segments continuously check for the presence of a train on that segment. As soon as a train is detected, a signal is sent to the controller.</li>
+<li>The controller will process these incoming signals, and will put the traffic light of the requesting segment to green. This on the condition that there is currently no train on the junction itself, and that the traffic light on the other entry to the junction is red too.</li>
+<li>As soon as a train has entered the junction, all traffic lights for entry to the junction are put to red again.</li>
+<li>If it is detected that the junction is clear again, new (or queued) requests are handled.</li>
+<li>For safety, the signal to the traffic light is sent out every second (such that traffic lights can detect if there is a problem with the connection).</li>
+</ul>
+<p></p>
+
+<p>
+The behaviour to be verified (use cases) is as follows:
+</p><ol>
+<li>If a train wants to enter the junction, it will eventually get a green light.</li>
+<li>If a train enters the junction, all traffic lights to the junction become red.</li>
+<li>If a train is on the junction, all traffic lights will remain red until that train has left the junction.</li>
+<li>If two trains are waiting to enter the junction at the same time, permission will be granted in order of arrival (i.e., the first train to arrive will get a green light, and the second one has to wait).</li>
+<li>The controller will send the traffic light signals out every second.</li>
+</ol>
+
+For simplicity, you will only need to check use case 3 and 4.
+<p></p>
+
+<p>
+Note that the trace will not terminate while there are still trains on any of the tracks.
+That is, for every enter event, there will be an exit event in the trace.
+You can use this information to make some of the rules a little simpler.
+For example, if a train wants to enter the junction, the trace will only terminate when that train has left the junction.
+</p>
+
+<p>
+You will need to perform the following tasks step by step:
+</p><ol>
+<li> Write full Use Cases using the <a href="http://www.cs.mcgill.ca/~joerg/SEL/COMP-533_Handouts_files/COMP-533%204%20Use%20Cases.pdf" target="_blank">use case template</a> for ONLY use cases 3 and 4.
+</li><li> Design the dynamic interaction behaviour in UML Sequence Diagrams for the above use cases (in this assignment, you only need to verify TWO use cases: use case 3 and use case 4), using the textual rendering tool <a href="http://plantuml.com/">PlantUML</a>, or using the online tool <a href="https://www.websequencediagrams.com/">WebSequenceDiagrams</a>.
+Start from the Class Diagram to know what objects and methods you can use.</li>
+<li> Write regular expressions (refer to the format of the given <a href="trace.txt">output trace</a>) for verifying the above use cases.
+
+To make life easier, we use abbreviations to shorten the messages that you need to recognize in your RegExp/FSA. Here are the mappings:
+<pre>E := A train enters the specified segment
+R := A red signal is sent to the specified segment
+G := A green signal is sent to the specified segment
+X := A train leaves the specified segment
+</pre>
+Beyond that, each segment has a simple encoding:
+<pre>1 := left incoming railway segment
+2 := right incoming railway segment
+3 := outgoing railway segment
+</pre>
+For example, "G 1" means that the left incoming railway segment got a green light.
+As you can see, any message in the output file which starts with "#" is some comments to make the output readable. 
+You need to ignore these messages when you do verification.
+
+The following is a complete example regular expression for use case 1<!-- (see this <a href="example.py">example</a> for a solution using the Python <tt>re</tt> module)-->: <br>
+<pre>Regular expression pattern for rule 1 (for segment 1):
+^((([^E].*)|(E [23]))\n)*(E 1\n(.*\n)*G 1\n((([^E].*)|(E [23]))\n)*)*$
+
+For segment 2:
+^((([^E].*)|(E [13]))\n)*(E 2\n(.*\n)*G 2\n((([^E].*)|(E [13]))\n)*)*$
+</pre>
+
+An explanation of rule 1 for segment 1 follows:
+we try to find an E 1, for which we can skip over everything that is not equal to E 1.
+As soon as E 1 is then found, we keep matching everything until we find a green light for segment 1.
+After that, we can match anything except for E 1 again.
+Note that "anything except for E 1" is encoded as
+<pre>(([^E].*)|(E [23]))\n
+</pre>
+<p></p>
+
+<p>
+As you want this to be correct for both incoming segments, you need to run both of them seperately.
+If all of them match, then the output is as expected.
+However, if either of them doesn't match, an error is found.
+<!-- This is implemented in the <a href="example.py">example Python script</a>, using the Python <tt>re</tt> module.-->
+</p>
+
+<p>
+ <b>Clarification</b>: the above uses a Regular Expression notation commonly used in UNIX Regular Expressions
+ (as used in the stream editor <tt>sed</tt> for example).
+ </p><ul>
+  <li><tt>[eE]</tt> stands for <tt>e</tt> <em>or</em> <tt>E</tt>.
+  </li><li><tt>[a-z]</tt> stands for one of the characters in the range <tt>a</tt> to <tt>z</tt>.
+  </li><li><tt>^</tt> means "match at the beginning of a line/string".
+  </li><li><tt>$</tt> means "match at the end of the line/string".
+  </li><li><tt>X|Y</tt> means "match either X or Y", with X and Y both sub-expressions.
+  </li><li><tt>[^x]</tt> means <em>not</em> <tt>x</tt>, so 
+      <tt>[^E].*\n</tt> matches every line except those that start with the <tt>E</tt> character
+  </li><li> <tt>.</tt> matches any single character. <!--Depending on the used program, the . might either match a newline or not. In the Python <tt>re</tt> module, this does not match a newline by default.-->
+  </li><li> <tt>X?</tt> matches 0 or 1 repetitions of <tt>X</tt>.
+  </li><li> <tt>X*</tt> matches 0 or more repetitions of <tt>X</tt>.
+  </li><li> <tt>X+</tt> matches 1 or more repetitions of <tt>X</tt>.
+  </li><li><tt>\</tt> is used to escape meta-characters such as <tt>(</tt>.
+      If you want to match the character <tt>(</tt>, you need the pattern <tt>\(</tt>.
+  </li><li>The <tt>(</tt> and <tt>)</tt> meta-characters are used to memorize 
+      a match for later use. They can be used around arbitrarily complex patterns.
+      For example <tt>([0-9]+)</tt> matches any non-empty sequence of
+      digits.
+      The matched pattern is memorized and can be referred to later by using
+      <tt>\1</tt>. Following matched bracketed patterns are referred to by <tt>\2</tt>, <tt>\3</tt>, etc.
+      Note that you will need to encode powerful features such as this one by 
+      adding appropriate actions (side-effects) to your automaton encoding the regular
+      expression. This can easily be done by storing a matched pattern in a variable
+      and later referring to it again.
+ </li></ul>
+ You are welcome to use different variant notations (such as the one used in the <a href="https://docs.python.org/2/library/re.html">Python Regular Expression module</a>) as long as you explain your notation.
+ <!--You are encouraged to use the Python <tt>re</tt> module (<a href="https://docs.python.org/2/library/re.html">Python Regular Expression module</a>), as in the example, but you are welcome to use different variant notations as long as you explain your notation.-->
+<p></p>
+<!-- VERWIJDERD OMDAT (a) DE REGEXEN NIET GEIMPLEMENTEERD MOETEN WORDEN EN (b) HET VOORBEELD EENVOUDIGER KAN
+<p>
+Assume we have the following trace:
+<pre>
+# Sending all traffic light signals
+# Segment 1: RED
+R 1
+# Segment 2: RED
+R 2
+# occupied? in1: False, in2: False, out: False
+# Train entered segment 1
+E 1
+# Sending all traffic light signals
+# Segment 1: RED
+R 1
+# Segment 2: RED
+R 2
+# occupied? in1: True, in2: False, out: False
+# Train entered segment 2
+E 2
+# Sending all traffic light signals
+# Segment 1: GREEN
+G 1
+# Segment 2: RED
+R 2
+# occupied? in1: True, in2: True, out: False
+</pre>
+</p>
+
+</p>
+A small example is shown for why this match works for segment 1.
+The regexp passes over everything except an <tt>E 1</tt>, which it eventually matches.
+After that, it passes over everything again, until a <tt>G 1</tt> is found.
+Afterwards, it can again match everything else, except for a <tt>E 1</tt>, as then we want to find a <tt>G 1</tt> again.
+Since the match is completed, this is a success and the requirements are satisfied for segment 1.
+</p>
+
+<img src="example_match.svg"/>
+
+<p>
+For segment 2, however, the regexp seems to fail.
+We again start of by searching for <tt>E 2</tt>, but after that, we never encounter a <tt>G 2</tt>, and therefore the match cannot be completed (the black part of the figure).
+In this case, the requirements are not satisfied.
+</p>
+
+<img src="example_fail.svg"/>
+-->
+
+</li>
+<li> Design a FSA which encodes the regular expressions for verification (<a href="http://msdl.cs.mcgill.ca/people/hv/teaching/SoftwareDesign/COMP304B2003/assignments/assignment3/solution/">example</a>). You can use this <a href="http://madebyevan.com/fsm/">tool</a> (note that it is not possible to mark an initial state, so just name it "init").</li>
+<li> Implement this FSA for verification in the provided code framework (see <a href="scanner.py">scanner.py</a>, examples are included at the bottom of the file).</li>
+<li> Run this FSA implementation (which in turn implements the Regular Expressions
+    which in turn encode the checking of interaction behaviour use cases which were modelled as Sequence Diagrams)
+    on the given <a href="trace.txt">output trace</a> to verify the specification.</li>
+<li> There is an intentional bug in the implementation (which is visible in the trace) 
+which makes it fail to satisfy the system specification. 
+You need to figure out which requirement is violated, and show your FSA which checks this.</li>
+<li> Write a report that explains your solution of this assigment. Include your models <!--(scan them if they are drawings)--> and discuss them. </li>
+</ol>
+<p></p>
+
+<p>
+For all parts, you are allowed to use either a 'positive match' or 'negative match'.
+With a positive match, the code is deemed correct if the trace matches your description (in regular expressions, FSA, ...).
+With a negative match, the code is deemed wrong if the trace matches your description.
+Do explain why you used either kind of match, and make sure to reply "correct" or "violation" in the end, instead of saying "matched" or "not matched".
+Choosing the right kind of match might significantly shorten your solution!
+</p>
+
+<p>
+For example, you could check requirement 1 by checking that every E 1 and E 2 is met with an E 3, thus a positive match: if your regular expression matches, the requirement is satisfied.
+You could also check the requirement by matching a situation in which there is an E 1 without any E 3 after it, thus a negative match: if this regular expression matches, the requirement is unsatisfied.
+</p>
+</div>
+</div>
+
+<h2>Practical issues</h2>
+  <div class="portletBody">
+   <div class="portletContent odd">
+<p>
+</p><ul>
+<li>All parts of this (and future) assignments use <a href="https://www.python.org/downloads/release/python-2710/">Python 2.7</a>. Any version of Python 2.7.x will work, but make sure not to use the newer Python 3!</li>
+<li>The output trace can be found here: <a href="trace.txt">output</a><br>
+</li>
+<li>Programs used to implement FSA:  the scanner is in <a href="scanner.py">scanner.py</a> 
+which requires an input stream class CharacterStream found in <a href="charstream.py">charstream.py</a>.</li>
+<li>Useful links:
+<ul>
+<li>Use cases: <a href="http://www.cs.mcgill.ca/~joerg/SEL/COMP-533_Handouts_files/COMP-533%204%20Use%20Cases.pdf" target="_blank">http://www.cs.mcgill.ca/~joerg/SEL/COMP-533_Handouts_files/COMP-533%204%20Use%20Cases.pdf</a></li>
+<li>Class diagrams: <a href="http://www.uml-diagrams.org/class-diagrams-overview.html" target="_blank">http://www.uml-diagrams.org/class-diagrams-overview.html</a></li>
+<li>Sequence diagrams:&nbsp;<a href="http://www.tracemodeler.com/articles/a_quick_introduction_to_uml_sequence_diagrams/" target="_blank">http://www.uml-diagrams.org/sequence-diagrams.html</a></li>
+<li>Regular expressions:&nbsp;<a href="http://www.zytrax.com/tech/web/regex.htm" target="_blank">http://www.zytrax.com/tech/web/regex.htm</a></li>
+<li>Finite state automata:&nbsp;<a href="http://cs.stanford.edu/people/eroberts/courses/soco/projects/2004-05/automata-theory/basics.html" target="_blank">http://cs.stanford.edu/people/eroberts/courses/soco/projects/2004-05/automata-theory/basics.html</a></li>
+<li>Test out regular expressions online: <a href="https://regex101.com/" target="_blank">https://regex101.com/</a></li>
+</ul>
+</li></ul>
+<p></p>
+</div>
+</div>
+
+</div>
+  </td> 
+ </tr>
+</tbody></table>
+
+<img src="/images/red.jpg" border="0" width="100%" height="1"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+ <tbody><tr width="100%">
+  
+ </tr>
+ <tr>
+  <td align="left">Maintained by <a href="http://msdl.cs.mcgill.ca/people/hv">Hans Vangheluwe</a><a>.</a></td>
+  <td align="right">Last Modified: 2018/10/03 04:20:12.</td>
+ </tr>
+</tbody></table>
+
+
+</body>
