@@ -332,12 +332,19 @@ class UseCase3Scanner(Scanner):
 			self.string = ""
 			self.seenR1 = False
 			self.seenR2 = False
+			self.inComment = False
 			return "S0"
 
 		elif state == "S0":
-			if input == 'E':
+			if input == 'E' and not self.inComment:
 				return "S1"
-			elif input != 'E':
+			elif input == '#':
+				self.inComment = True
+				return "S0"
+			elif input == '\n':
+				self.inComment = False
+				return "S0"
+			elif input != 'E' and self.inComment:
 				return "S0"
 			else:
 				return None
@@ -355,14 +362,20 @@ class UseCase3Scanner(Scanner):
 				return None
 
 		elif state == "S3":
-			if input == 'R':
+			if input == 'R' and not self.inComment:
 				return "S4"
-			elif input == 'X':
+			elif input == 'X' and not self.inComment:
 				if self.seenR1 or self.seenR2:
 					return "S3"
 				else:
 					return None
-			elif input != 'R':
+			elif input == '#':
+				self.inComment = True
+				return "S3"
+			elif input == '\n':
+				self.inComment = False
+				return "S3"
+			elif input != 'R' and self.inComment:
 				return "S3"
 			else:
 				return None
@@ -384,19 +397,31 @@ class UseCase3Scanner(Scanner):
 				return None
 
 		elif state == "S6":
-			if input == 'R':
+			if input == 'R' and not self.inComment:
 				self.seenR1 = False
 				return "S8"
-			elif input != 'R' and input != 'X':
+			elif input == '#':
+				self.inComment = True
+				return "S6"
+			elif input == '\n':
+				self.inComment = False
+				return "S6"
+			elif self.inComment:
 				return "S6"
 			else:
 				return None
 
 		elif state == "S7":
-			if input == 'R':
+			if input == 'R' and not self.inComment:
 				self.seenR2 = False
 				return "S8"
-			elif input != 'R' and input != 'X':
+			elif input == '#':
+				self.inComment = True
+				return "S7"
+			elif input == '\n':
+				self.inComment = False
+				return "S7"
+			elif self.inComment:
 				return "S7"
 			else:
 				return None
@@ -418,19 +443,31 @@ class UseCase3Scanner(Scanner):
 				return None
 
 		elif state == "S10":
-			if input == 'X':
+			if input == 'X' and not self.inComment:
 				self.seenR1 = False
 				return "S12"
-			elif input != 'R' and input != 'X':
+			elif input == '#':
+				self.inComment = True
+				return "S10"
+			elif input == '\n':
+				self.inComment = False
+				return "S10"
+			elif self.inComment:
 				return "S10"
 			else:
 				return None
 
 		elif state == "S11":
-			if input == 'X':
+			if input == 'X' and not self.inComment:
 				self.seenR2 = False
 				return "S12"
-			elif input != 'R' and input != 'X':
+			elif input == '#':
+				self.inComment = True
+				return "S11"
+			elif input == '\n':
+				self.inComment = False
+				return "S11"
+			elif self.inComment:
 				return "S11"
 			else:
 				return None
@@ -451,5 +488,5 @@ class UseCase3Scanner(Scanner):
 			return None
 
 	def entry(self, state, input):
-		if input in self.alphabet:
+		if input in self.alphabet and not self.inComment:
 			self.string += input

@@ -37,20 +37,28 @@ import scanner
 # Test UseCase3 FSA
 
 # Test strings die moeten matchen: 
-# 	"E 3R 1R 2X 3" = OK 
-# 	"E 3##R 1##R 2##X 3" OK
-#	"E 3#Een commentR 1#Nog een commentR 2#Nog een commentX 3" wordt gematched = OK
-# 	"E 3\n#Een commentR 1\n#Nog een commentR 2\n#Nog een commentX 3" wordt gematched = OK
-# 	"E 3\n#Een commentR 2\n#Nog een commentR 1\n#Nog een commentX 3" wordt gematched = OK
+# 	"E 3R 1R 2X 3" wordt gematched = OK 
+#	"E 3\n#Nog een comment\nR 2\n#Nog een comment\nR 1\n#Nog een comment\nX 3\n#Nog een comment\n" wordt gematched = OK
+#	"E 3\n#Nog een comment\nR 2\n#Nog een comment\nR 1\n#Nog een comment\nE 1\n#Nog een comment\nX 3\n#Nog een comment\n" wordt NIET gematched = NOK -> extra trein op 1 tijdens deze use case
+#	"E 3\n#Nog een comment\nR 2\n#Nog een comment\nR 1\n#Nog een comment\nE 2\n#Nog een comment\nX 3\n#Nog een comment\n" wordt NIET gematched = NOK -> extra trein op 2 tijdens deze use case
+#	"E 3\n#Nog een comment\nR 2\n#Nog een comment\nR 1\n#Nog een comment\nE 2\n#Nog een comment\nE 1\n#Nog een comment\nX 3\n#Nog een comment\n" wordt NIET gematched = NOK
+#	"E 3\n#Nog een comment\nR 2\n#Nog een comment\nR 1\n#Nog een comment\nE 1\n#Nog een comment\nE 2\n#Nog een comment\nX 3\n#Nog een comment\n" wordt NIET gematched = NOK
+
+# TODO: alles in een comment negeren
 
 # Test strings die niet mogen matchen:
-# 	"E 3\n#Een commentR 2\n#Nog een commentX 3" wordt NIET gematched = OK
-# 	"E 3\n#Een commentR 1\n#Nog een commentX 3" wordt NIET gematched = OK
-#	"E 3\n#Een commentX 3\n#Nog een commentR 1\n#Nog een commentX 3" wordt NIET gematched = OK
-#	"E 3\n#Een commentX 3\n#Nog een commentR 2\n#Nog een commentX 3" wordt NIET gematched = OK
-#	"E 3\n#Een commentX 3\n#Nog een commentR 2\n#Nog een commentR 1\n#Nog een commentX 3" wordt NIET gematched = OK
+# 	"E 3##R 1##R 2##X 3" wordt NIET gematched = OK (geen newlines)
+#	"E 3#Nog een commentR 1#Nog een commentR 2#Nog een commentX 3" wordt NIET gematched = OK (geen newlines)
+# 	"E 3\n#Nog een commentR 1\n#Nog een commentR 2\n#Nog een commentX 3" wordt NIET gematched = OK (geen newlines)
+# 	"E 3\n#Nog een commentR 2\n#Nog een commentR 1\n#Nog een commentX 3" wordt NIET gematched = OK (geen newlines)
+#	"E 3\n#Nog een commentR 2\n#Nog een commentR 1\n#Nog een commentX 3\n#Nog een comment" wordt NIET gematched = OK (niet overal newlines)
+# 	"E 3\n#Nog een commentR 2\n#Nog een commentX 3" wordt NIET gematched = OK
+# 	"E 3\n#Nog een commentR 1\n#Nog een commentX 3" wordt NIET gematched = OK
+#	"E 3\n#Nog een commentX 3\n#Nog een commentR 1\n#Nog een commentX 3" wordt NIET gematched = OK
+#	"E 3\n#Nog een commentX 3\n#Nog een commentR 2\n#Nog een commentX 3" wordt NIET gematched = OK
+#	"E 3\n#Nog een commentX 3\n#Nog een commentR 2\n#Nog een commentR 1\n#Nog een commentX 3" wordt NIET gematched = OK
 
-for inp in ["E 3\n#Een commentR 2\n#Nog een commentR 1\n#Nog een commentX 3"]:
+for inp in ["E 3\n#E 3\nR 2\n#R 2\nR 1\n#R 1\nX 3\n#X 3\n"]:
 	str=charstream.CharacterStream(inp)
 	sc=scanner.UseCase3Scanner(str)
 	success=sc.scan()

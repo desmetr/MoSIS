@@ -1,3 +1,4 @@
+@startuml
 control Controller
 entity Track3
 entity Track1
@@ -7,11 +8,12 @@ activate Track3
 activate Track1
 activate Track2
 
+loop while 1
+
 Controller->Track3: Train Sensor Request
 
 alt train on junction
 Controller<--Track3: Train Detected
-Controller->Track3: Red Light
 Controller->Track1: Red Light
 Controller->Track2: Red Light
 
@@ -22,12 +24,20 @@ Controller->Track1: Train Sensor Request
 alt train on track1
 Controller<--Track1: Train Detected
 Controller->Track1: Green Light
+else no train on track1
+Controller<--Track1: No Train Detected
+Controller->Track1: Red Light
 end
 
 Controller->Track2: Train Sensor Request
 alt train on track2
 Controller<--Track2: Train Detected
 Controller->Track2: Green Light
+else no train on track2
+Controller<--Track2: No Train Detected
+Controller->Track2: Red Light
+end
+
 end
 
 end
@@ -35,3 +45,4 @@ deactivate Controller
 deactivate Track1
 deactivate Track2
 deactivate Track3
+@enduml
