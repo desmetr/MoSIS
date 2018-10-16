@@ -40,6 +40,7 @@ class Scanner:
 
 			# stop if this is the end of the input stream
 			if next_char == None:
+				print ">> reached EOF"
 				self.current_state = "S15"
 				break
 
@@ -72,7 +73,7 @@ class Scanner:
 			print str(self.stream)+"\n"
 
 		# now check whether to accept consumed characters
-		success = self.current_state in self.accepting_states
+		success = self.current_state in self.accepting_states and self.recognized
 		if success:
 			self.stream.commit()
 		else:
@@ -114,7 +115,9 @@ class UseCase3Scanner(Scanner):
 			elif input == '\n':
 				self.inComment = False
 				return "S0"
-			elif input != 'E' and self.inComment:
+			elif self.inComment:
+				return "S0"
+			elif input in self.alphabet:
 				return "S0"
 			else:
 				return None

@@ -1,3 +1,55 @@
+# Sending all traffic light signals
+# Segment 1: RED
+R 1
+# Segment 2: RED
+R 2
+# occupied? in1: False, in2: False, out: False
+# Sending all traffic light signals
+# Segment 1: RED
+R 1
+# Segment 2: RED
+R 2
+# occupied? in1: False, in2: False, out: False
+# occupied? in1: False, in2: False, out: False
+# Sending all traffic light signals
+# Segment 1: RED
+R 1
+# Segment 2: RED
+R 2
+# occupied? in1: False, in2: False, out: False
+# Sending all traffic light signals
+# Segment 1: RED
+R 1
+# Segment 2: RED
+R 2
+# occupied? in1: False, in2: False, out: False
+# occupied? in1: False, in2: False, out: False
+# Sending all traffic light signals
+# Segment 1: RED
+R 1
+# Segment 2: RED
+R 2
+# occupied? in1: False, in2: False, out: False
+# Sending all traffic light signals
+# Segment 1: RED
+R 1
+# Segment 2: RED
+R 2
+# occupied? in1: False, in2: False, out: False
+# occupied? in1: False, in2: False, out: False
+# Sending all traffic light signals
+# Segment 1: RED
+R 1
+# Segment 2: RED
+R 2
+# occupied? in1: False, in2: False, out: False
+# Sending all traffic light signals
+# Segment 1: RED
+R 1
+# Segment 2: RED
+R 2
+# occupied? in1: False, in2: False, out: False
+# occupied? in1: False, in2: False, out: False
 # Train entered segment 3
 E 3
 # Sending all traffic light signals
@@ -12,71 +64,31 @@ R 1
 # Segment 2: RED
 R 2
 # occupied? in1: False, in2: False, out: True
-# Sending all traffic light signals
-# Segment 1: RED
-R 1
-# Segment 2: RED
-R 2
-# occupied? in1: False, in2: False, out: True
-# Sending all traffic light signals
-# Segment 1: RED
-R 1
-# Segment 2: RED
-R 2
-# occupied? in1: False, in2: False, out: True
-# Sending all traffic light signals
-# Segment 1: RED
-R 1
-# Segment 2: RED
-R 2
-# occupied? in1: False, in2: False, out: True
-# Sending all traffic light signals
-# Segment 1: RED
-R 1
-# Segment 2: RED
-R 2
-# occupied? in1: False, in2: False, out: True
-# Sending all traffic light signals
-# Segment 1: RED
-R 1
-# Segment 2: RED
-R 2
-# occupied? in1: False, in2: False, out: True
-# Sending all traffic light signals
-# Segment 1: RED
-R 1
-# Segment 2: RED
-R 2
-# occupied? in1: False, in2: False, out: True
-# Sending all traffic light signals
-# Segment 1: RED
-R 1
-# Segment 2: RED
-R 2
-# occupied? in1: False, in2: False, out: True
-# Sending all traffic light signals
-# Segment 1: RED
-R 1
-# Segment 2: RED
-R 2
-# occupied? in1: False, in2: False, out: True
-# Sending all traffic light signals
-# Segment 1: RED
-R 1
-# Segment 2: RED
-R 2
-# occupied? in1: False, in2: False, out: True
-# Sending all traffic light signals
-# Segment 1: RED
-R 1
-# Segment 2: RED
-R 2
-# occupied? in1: False, in2: False, out: True
-# Sending all traffic light signals
-# Segment 1: RED
-R 1
-# Segment 2: RED
-R 2
-# occupied? in1: False, in2: False, out: True
 # Train left segment 3
 X 3
+# Sending all traffic light signals
+# Segment 1: RED
+R 1
+# Segment 2: RED
+R 2
+# occupied? in1: False, in2: False, out: False
+# Sending all traffic light signals
+# Segment 1: RED
+R 1
+# Segment 2: RED
+R 2
+# occupied? in1: False, in2: False, out: False
+# occupied? in1: False, in2: False, out: False
+# Sending all traffic light signals
+# Segment 1: RED
+R 1
+# Segment 2: RED
+R 2
+# occupied? in1: False, in2: False, out: False
+# Sending all traffic light signals
+# Segment 1: RED
+R 1
+# Segment 2: RED
+R 2
+# occupied? in1: False, in2: False, out: False
+# occupied? in1: False, in2: False, out: False

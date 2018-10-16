@@ -40,8 +40,8 @@ for inp in [traceInput]:
 		print ">> committing"
 		str.commit()
 	else: 
-	  print ">> rejected in state " + sc.current_state + " with input " + sc.current_char
+	  print ">> rejected in state " + sc.current_state
 	  print ">> rolling back"
 	  str.rollback()
-	print str
+	# print str
 	print ""
