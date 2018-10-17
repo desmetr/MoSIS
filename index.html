@@ -12,14 +12,14 @@
 <h1>Assignment 1: Checking Requirements</h1>
 <ul>
 	<li>Rafael De Smet - 20131145</li>
-	<li>Beno&#238;t-Philippe Fornoville - </li>
+	<li>Beno&#238;t-Philippe Fornoville - 20133299</li>
 </ul>
 
 <h2>Use Case 3</h2>
 
-This part will discuss the validation of Use Case 3. Below you can find the full Use Case, the UML sequence diagram, the regular expression and the FSA. The implementation and its results on the given trace file are discussed as well. 
+This part will discuss the validation of Use Case 3. Below you can find the full Use Case, the UML sequence diagram, the regular expression and the FSA. The implementation and its results on the given trace file are discussed as well.
 <br>
-The behaviour of use case 3 is as follows: If a train is on the junction, all traffic lights will remain red until that train has left the junction. 
+The behaviour of use case 3 is as follows: If a train is on the junction, all traffic lights will remain red until that train has left the junction.
 
 <h3>Full Use Case</h3>
 
@@ -108,14 +108,190 @@ State S15 is only reached when the EOF (of the trace file) is seen. This is not 
 <h3>Results</h3>
 
 <h2>Use Case 4</h2>
+This part will discuss the validation of Use Case 4. Below you can find the full Use Case, the UML sequence diagram, the regular expression and the FSA. The implementation and its results on the given trace file are discussed as well.
+<br>
+The behaviour of use case 3 is as follows:  if two trains are waiting to enter the junction at the same time, permission will be granted in order of arrival (i.e., the first train to
+arrive will get a green light, and the second one has to wait).
 
 <h3>Full Use Case</h3>
 
+<b>Use Case</b>: TwoTrainsAtTheSameTime <br>
+<b>Actors</b>: Train on segment 1, Train on segment 2<br>
+<b>Scope</b>: Railway Junction Control System <br>
+<b>Intention</b>: The train that arrives first should get a green light first. <br>
+<b>Level</b>: User Goal <br>
+<b>Multiplicity</b>: There are two incoming tracks, with each one traffic light. <br>
+<b>Main Success Scenario</b>: <br>
+
+<ol>
+	<li>A train arrives at one of the incoming sections.</li>
+	<li>A second train arrives at the other incoming section.</li>
+	<li>The first train gets a green light</li>
+	<li>The second train gets a green light</li>
+</ol>
+
+<b>Extensions</b>: <br>
+<ol>
+	<li>If there are no trains, the FSA should end in an accepting state.</li>
+	<li>If there is only one train, it should eventually get a green light.</li>
+</ol>
+
+
 <h3>UML Sequence Diagram</h3>
 
+The image below shows the UML Sequence Diagram for use case 4. There are three entities, the three tracks and one controller. <br>
+The lifetimes of all the entities goes on until the main program is terminated. This is a small part of the life cycle of the entities. <br><br>
+
+<img src="use case4/sequenceDiagramUseCase4.png" alt="sequenceDiagramUseCase4">
+
 <h3>Regular Expression</h3>
+The following regular expression is written in the Python Regular Expression language. <br> <br>
+
+^(((^E)|(E 3)|(#.*))*((E (?P<trackName>[12])\n(^E)|(E 3)|(#.*))*E [^((?P=trackName)|3)]\n((^G)|(G 3)|(#.*))*G (?P=trackName)\n((^G)|(G 3)|(#.*))*G [^((?P=trackName)|3)]\n)|(E 1\n((^G)|(G 3\n)|(#.*))*G 1\n)|(E 2\n((^G)|(G 3\n)|(#.*))*G 2\n)))*$ <br><br>
+
+To make it more clear, the regex is divided in small parts and explained separately. <br><br>
+<table>
+	<tr>
+		<th width="10%"></th>
+		<th>Regex</th>
+		<th>Explanation</th>
+	</tr>
+	<tr><th></th><th></th><th></th></tr>
+	<tr>
+		<th>Total</th>
+		<th>(Part1* (Part2 | Part3 | Part4))*</th>
+		<th></th>
+	</tr>
+	<tr><th></th><th></th><th></th></tr>
+	<tr>
+		<th>Part 1</th>
+		<th>((^E)|(E 3)|(#.*))*</th>
+		<th>Wait until there is a train on track 1 or 2.</th>
+	</tr>
+	<tr>
+		<th>1</th>
+		<th>( (1.1) | (1.2) | (1.3) )*</th>
+		<th></th>
+	</tr>
+	<tr>
+		<th>1.1</th>
+		<th>^E</th>
+		<th>Ignore every action that isn't the detection of a train.</th>
+	</tr>
+	<tr>
+		<th>1.2</th>
+		<th>E 3</th>
+		<th>Ignore trains arriving on track 3.</th>
+	</tr>
+	<tr>
+		<th>1.3</th>
+		<th>#.*</th>
+		<th>Ignore comments.</th>
+	</tr>
+	<tr><th></th><th></th><th></th></tr>
+	<tr>
+		<th>Part 2</th>
+		<th>(E (?P<trackName>[12])\n(^E|(E 3)|(#.*))*E [^((?P=trackName)|3)]\n((^G)|(G 3)|(#.*))*G (?P=trackName)\n((^G)|(G 3)|(#.*))*G [^((?P=trackName)|3)]\n)</th>
+		<th>2 trains arrive (on track 1 and 2), and get a green light in order of arrival.</th>
+	</tr>
+	<tr>
+		<th>2</th>
+		<th>( 2.1 2.2 2.3 2.4 2.5 2.6 2.7)</th>
+		<th></th>
+	</tr>
+	<tr>
+		<th>2.1</th>
+		<th>E (?P<trackName>[12])\n</th>
+		<th>A train arrives on track 1 or 2, we call this track "trackName".</th>
+	</tr>
+	<tr>
+		<th>2.2</th>
+		<th>(^E|(E 3)|(#.*))*</th>
+		<th>Equal to part 1.</th>
+	</tr>
+	<tr>
+		<th>2.3</th>
+		<th>E [^((?P=trackName)|3)]\n</th>
+		<th>A train arriving on the second track, thus not trackName or 3</th>
+	</tr>
+	<tr>
+		<th>2.4</th>
+		<th>(^E|(E 3)|(#.*))*</th>
+		<th>Ignore actions that aren't green lights, green lights on track3 and cmments.</th>
+	</tr>
+	<tr>
+		<th>2.5</th>
+		<th>G (?P=trackName)\n</th>
+		<th>Green light for the first train.</th>
+	</tr>
+	<tr>
+		<th>2.6</th>
+		<th>(^E|(E 3)|(#.*))*</th>
+		<th>Equal to 2.4</th>
+	</tr>
+	<tr>
+		<th>2.7</th>
+		<th>G [^((?P=trackName)|3)]\n</th>
+		<th>Green light for the second train.</th>
+	</tr>
+	<tr><th></th><th></th><th></th></tr>
+	<tr>
+		<th>Part 3</th>
+		<th>(E 1\n((^G)|(G 3\n)|(#.*))*G 1\n)</th>
+		<th>A train arrives on track 1 and gets a green light.</th>
+	</tr>
+	<tr>
+		<th>3</th>
+		<th>(3.1 3.2 3.3)</th>
+		<th></th>
+	</tr>
+	<tr>
+		<th>3.1</th>
+		<th>E 1\n</th>
+		<th>A train arrives on track 1.</th>
+	</tr>
+	<tr>
+		<th>3.2</th>
+		<th>((^G)|(G 3\n)|(#.*))*</th>
+		<th>Equal to part 2.4.</th>
+	</tr>
+	<tr>
+		<th>3.3</th>
+		<th>G 1\n</th>
+		<th>Green light for track 1.</th>
+	</tr>
+	<tr><th></th><th></th><th></th></tr>
+	<tr>
+		<th>Part 4</th>
+		<th>(E 2\n((^G)|(G 3\n)|(#.*))*G 2\n)</th>
+		<th>A train arrives on track 2 and gets a green light.</th>
+	</tr>
+	<tr>
+		<th>4</th>
+		<th>(4.1 4.2 4.3)</th>
+		<th></th>
+	</tr>
+	<tr>
+		<th>4.1</th>
+		<th>E 2\n</th>
+		<th>A train arrives on track 2.</th>
+	</tr>
+	<tr>
+		<th>4.2</th>
+		<th>((^G)|(G 3\n)|(#.*))*</th>
+		<th>Equal to part 2.4.</th>
+	</tr>
+	<tr>
+		<th>4.3</th>
+		<th>G 2\n</th>
+		<th>Green light for track 2.</th>
+	</tr>
+</table>
+<br>
 
 <h3>FSA</h3>
+The Finite State Automata, implementing the regex above.<br>
+<img src="use case4/FSAUseCase4.png" alt="fsmUseCase4">
 
 <h3>Implementation</h3>
 

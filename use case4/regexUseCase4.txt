@@ -6,11 +6,12 @@ Use case 4:
 If two trains are waiting to enter the junction at the same time, permission will be granted in order of arrival (i.e., the first train to arrive will get a green light, and the second one has to wait).
 
 ^
-((^E)|(E 3)|(#.*))* 			#skip everything that isn't enter track and comments
 (
+	((^E)|(E 3)|(#.*))* 			#skip everything that isn't enter track and comments
+
 	(
 		E (?P<trackName>[12])\n			#first train entering track (store the number in trackName)
-		(^E|(E 3)|(#.*))*
+		(^E)|(E 3)|(#.*))*
 		E [^((?P=trackName)|3)]\n		#second train entering track
 		((^G)|(G 3)|(#.*))*
 		G (?P=trackName)\n				#green light for first train
