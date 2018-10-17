@@ -49,6 +49,9 @@ This use case description is based on the use case template provided in the assi
 The image below shows the UML Sequence Diagram for use case 3. There are three entities, the three tracks and one controller. <br>
 The lifetimes of all the entities goes on until the main program is terminated. This is a small part of the life cycle of the entities. <br><br>
 
+The sequence diagram shows the following flow. The controller sends a signal to the junction segment (track 3) and acts according to the returning message. If track 3 says there is a train on the junction, the controller tells tracks 1 and 2 to turn their lights red. The light of track 3 is not set by the controller at this point.<br>
+If there is no train on the junction, the controller will look for a train on the incoming tracks 1 and 2. If there is a train detected on track 1, the controller issues a green light for track 1 and a red light for track 2. Analogously when a train is detected on track 2.<br><br>
+
 <img src="use case3/sequenceDiagramUseCase3.png" alt="sequenceDiagramUseCase3">
 
 <h3>Regular Expression</h3>
@@ -57,55 +60,69 @@ The regular expression that recognizes this use case is as follows. <br> <br>
 
 ^((([^E].*)|(E [12]))\n)*(E 3\n(.*\n)*[^X 3](.*\n)*R [1|2]\n(.*\n)*R [2|1]\n(.*\n)*X 3\n(.*\n)*((([^E].*)|(E [12]))\n)*)$ <br><br>
 
-To make it more clear, the regex is divided in small parts and explained separately. <br><br>
+To make it more clear, the regex is divided in small parts and explained separately. The table refers to the diagram below. <br><br>
 <table>
 	<tr>
 		<th>Regex</th>
 		<th>Explanation</th>
+		<th>Diagram</th>
 	</tr>
 	<tr>
 		<td>^((([^E].*)|(E [12]))\n)*</td>
 		<td>anything except E 3</td>
+		<td>Group 1</td>
 	</tr>
 	<tr>
 		<td>(E 3\n(.*\n)*</td>
 		<td>trains enters segment 3 (junction)</td>
+		<td>Before group 6</td>
 	</tr>
 	<tr>
 		<td>[^X 3](.*\n)*</td>
 		<td>not X 3 before R 1 or R 2 found</td>
+		<td>Before group 7 </td>
 	</tr>
 	<tr>
-		<td>[R 1\n(.*\n)*R 2\n(.*\n)*|R 2\n(.*\n)*R 1\n(.*\n)*]</td>
+		<td>R [1|2]\n(.*\n)*R [2|1]\n(.*\n)*</td>
 		<td>find red lights for both incoming tracks</td>
+		<td>Before group 8 till group 9 
 	</tr>
 	<tr>
 		<td>X 3\n(.*\n)*</td>
 		<td>train has left junction</td>
+		<td>Before group 10</td>
 	</tr>
 	<tr>
 		<td>((([^E].*)|(E [12]))\n)*)$</td>
 		<td>anything except E 3</td>
+		<td>Group 11</td>
 	</tr>
 </table>
 <br>
 
-Below is a railroad style diagram that shows the full regex. <br>
+Below is a diagram that shows the full regex.<br>
 
 <img src="use case3/regexUseCase3.png" alt="regexUseCase3">
 
 <h3>FSA</h3>
 
 The picture below shows the FSA based on the regex above. <br>
-The actions executed per state can be found in the Python code. <br>
-State S14 is true accepting state. If we reach this state we know there was a good execution of use case 3 in the trace. <br>
-State S15 is only reached when the EOF (of the trace file) is seen. This is not an essential part of the regex but makes the validation terminate smoothly. <br> <br>
+Besides the characters needed to go from one state to another, the Python actions are included as well. <br>
+State S14 is the true accepting state. If we reach this state we know we have found a good occurence of use case 3 in the trace. <br>
+State S15 is only reached when the EOF (of the trace file in this case) is seen. This is not an essential part of the regex but makes the validation terminate smoothly. In the next section, this will be explained more. <br> <br>
 
 <img src="use case3/fsmUseCase3.png" alt="fsmUseCase3">
 
 <h3>Implementation</h3>
 
+The implementation of this FSA can be found in <a href="use case3/scannerUseCase3.py">scannerUseCase3.py</a>. You can find the states and the actions made per transition, as described in the FSA. Some of the actions found in the implementation are not included in the FSA for readability. <br>
+For example in state S3, we check if the string "X 3" is found before "R 1" or "R 2". If so, we reject because this would mean that the train left the junction before the lights of the incoming segments are turned red. In state S14 we set the boolean variable <i>self.recognized </i> to True to indicate that an occurence has been found. State S15 is a special state. This is an accepting state because it accepts the EOF. At the end of the trace we stop by going to this state. This a clean way to end the program and to indicate we're done. <br><br>
+
+To run the test program yourself, execute the following command: <b>python testUseCase3.py</b>. Make sure that you use version 2.7 of Python. You can choose if you want to see the whole trace output or just the results by setting the variable <i>__trace__</i> in <i>scannerUseCase3.py</i> accordingly.
+
 <h3>Results</h3>
+
+We've found 109 good occurences of the execution of use case 3 and no bad ones. The program terminates by seeing EOF.
 
 <h2>Use Case 4</h2>
 
@@ -120,6 +137,8 @@ State S15 is only reached when the EOF (of the trace file) is seen. This is not 
 <h3>Implementation</h3>
 
 <h3>Results</h3>
+
+<h2>Conclusion</h2>
 
 </body>
 </html>
