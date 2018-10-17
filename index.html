@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<style>
+	td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+</style>
+<body>
+
+<h1>Assignment 1: Checking Requirements</h1>
+<ul>
+	<li>Rafael De Smet - 20131145</li>
+	<li>Beno&#238;t-Philippe Fornoville - </li>
+</ul>
+
+<h2>Use Case 3</h2>
+
+This part will discuss the validation of Use Case 3. Below you can find the full Use Case, the UML sequence diagram, the regular expression and the FSA. The implementation and its results on the given trace file are discussed as well. 
+<br>
+The behaviour of use case 3 is as follows: If a train is on the junction, all traffic lights will remain red until that train has left the junction. 
+
+<h3>Full Use Case</h3>
+
+This use case description is based on the use case template provided in the assignment.
+<br>
+<br>
+
+<b>Use Case</b>: TrainOnJunction <br>
+<b>Actors</b>: Train on segment 3 <br>
+<b>Scope</b>: Railway Junction Control System <br>
+<b>Intention</b>: Lights of incoming tracks have to remain red while the train is on the junction. <br>
+<b>Level</b>: User Goal <br>
+<b>Multiplicity</b>: There can be only one train on the junction at a time. All three lights are active. <br>
+<b>Main Success Scenario</b>: <br>
+<ol>
+	<li>System checks every second if there is a train on the junction.</li>
+	<li>If there is a train (system detects it), put lights of segment 1 and 2 on red. Light 3 can be green, train has to leave junction one time.</li>
+</ol>
+<b>Extensions</b>: <br>
+<ol>
+	<li>If there is a train on the junction and one of the incoming segments detects a train, add the new train to the cue of trains on that segment.</li>
+	<li>If there is no train on the junction and none of the incoming segments detects a train, all the lights stay red.</li>
+</ol>
+
+<h3>UML Sequence Diagram</h3>
+
+The image below shows the UML Sequence Diagram for use case 3. There are three entities, the three tracks and one controller. <br>
+The lifetimes of all the entities goes on until the main program is terminated. This is a small part of the life cycle of the entities. <br><br>
+
+<img src="use case3/sequenceDiagramUseCase3.png" alt="sequenceDiagramUseCase3">
+
+<h3>Regular Expression</h3>
+
+The regular expression that recognizes this use case is as follows. <br> <br>
+
+^((([^E].*)|(E [12]))\n)*(E 3\n(.*\n)*[^X 3](.*\n)*R [1|2]\n(.*\n)*R [2|1]\n(.*\n)*X 3\n(.*\n)*((([^E].*)|(E [12]))\n)*)$ <br><br>
+
+To make it more clear, the regex is divided in small parts and explained separately. <br><br>
+<table>
+	<tr>
+		<th>Regex</th>
+		<th>Explanation</th>
+	</tr>
+	<tr>
+		<td>^((([^E].*)|(E [12]))\n)*</td>
+		<td>anything except E 3</td>
+	</tr>
+	<tr>
+		<td>(E 3\n(.*\n)*</td>
+		<td>trains enters segment 3 (junction)</td>
+	</tr>
+	<tr>
+		<td>[^X 3](.*\n)*</td>
+		<td>not X 3 before R 1 or R 2 found</td>
+	</tr>
+	<tr>
+		<td>[R 1\n(.*\n)*R 2\n(.*\n)*|R 2\n(.*\n)*R 1\n(.*\n)*]</td>
+		<td>find red lights for both incoming tracks</td>
+	</tr>
+	<tr>
+		<td>X 3\n(.*\n)*</td>
+		<td>train has left junction</td>
+	</tr>
+	<tr>
+		<td>((([^E].*)|(E [12]))\n)*)$</td>
+		<td>anything except E 3</td>
+	</tr>
+</table>
+<br>
+
+Below is a railroad style diagram that shows the full regex. <br>
+
+<img src="use case3/regexUseCase3.png" alt="regexUseCase3">
+
+<h3>FSA</h3>
+
+The picture below shows the FSA based on the regex above. <br>
+The actions executed per state can be found in the Python code. <br>
+State S14 is true accepting state. If we reach this state we know there was a good execution of use case 3 in the trace. <br>
+State S15 is only reached when the EOF (of the trace file) is seen. This is not an essential part of the regex but makes the validation terminate smoothly. <br> <br>
+
+<img src="use case3/fsmUseCase3.png" alt="fsmUseCase3">
+
+<h3>Implementation</h3>
+
+<h3>Results</h3>
+
+<h2>Use Case 4</h2>
+
+<h3>Full Use Case</h3>
+
+<h3>UML Sequence Diagram</h3>
+
+<h3>Regular Expression</h3>
+
+<h3>FSA</h3>
+
+<h3>Implementation</h3>
+
+<h3>Results</h3>
+
+</body>
+</html>

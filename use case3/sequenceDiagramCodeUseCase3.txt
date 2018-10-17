@@ -8,8 +8,6 @@ activate Track3
 activate Track1
 activate Track2
 
-loop while 1
-
 Controller->Track3: Train Sensor Request
 
 alt train on junction
@@ -36,8 +34,6 @@ Controller->Track2: Green Light
 else no train on track2
 Controller<--Track2: No Train Detected
 Controller->Track2: Red Light
-end
-
 end
 
 end
