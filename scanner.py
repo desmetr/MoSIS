@@ -454,7 +454,7 @@ class UseCase3Scanner(Scanner):
 		if input in self.alphabet:
 			self.string += input
 
-class UseCase3Scanner(Scanner):
+class UseCase4Scanner(Scanner):
 	def __init__(self, stream):
    		# superclass constructor
 		Scanner.__init__(self, stream)

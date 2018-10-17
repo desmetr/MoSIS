@@ -1,0 +1,17 @@
+alphabet = {E,R,G,X,1,2,3, }
+
+Use case 3:
+
+if a train is on the junction, all traffic lights will remain red until that train has left the junction
+	junction = segment 3
+
+	= POSITIVE MATCH
+
+		^((([^E].*)|(E [12]))\n)*(E 3\n(.*\n)*	# trains enters segment 3 (junction)
+		[^X 3](.*\n)*							# not X 3 before R 1 or R 2 found
+		[R 1\n(.*\n)*R 2\n(.*\n)*|				# find red lights for both incoming tracks
+		R 2\n(.*\n)*R 1\n(.*\n)*]
+		X 3\n(.*\n)*							# train has left junction
+		((([^E].*)|(E [12]))\n)*)$				# anything except E 3
+
+		^((([^E].*)|(E [12]))\n)*(E 3\n(.*\n)*[^X 3](.*\n)*R [1|2]\n(.*\n)*R [2|1]\n(.*\n)*X 3\n(.*\n)*((([^E].*)|(E [12]))\n)*)$
