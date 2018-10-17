@@ -9,8 +9,8 @@ False = 0
 True  = 1
 
 # trace FSA dynamics (True | False)
-# __trace__ = False 
-__trace__ = True 
+# __trace__ = False
+__trace__ = True
 
 class Scanner:
 	"""
@@ -36,23 +36,23 @@ class Scanner:
 			next_char = self.stream.getNextChar()
 
 			# stop if this is the end of the input stream
-			if next_char == None: 
+			if next_char == None:
 				break
 
 			if __trace__:
 				print str(self.stream)
 				if self.current_state != None:
 					print "transition "+self.current_state+" -| "+next_char,
-   
-		    # perform transition and its action to the appropriate new state 
+
+		    # perform transition and its action to the appropriate new state
 			next_state = self.transition(self.current_state, next_char)
 
 			if __trace__:
-				if next_state == None: 
+				if next_state == None:
 					print
 				else:
 					print "|-> "+next_state
-    
+
 			# stop if a transition was not possible
 			if next_state == None:
 				break
@@ -61,7 +61,7 @@ class Scanner:
 				# perform the new state's entry action (if any)
 				self.entry(self.current_state, next_char)
 
-		# now, actually consume the next character in the input stream 
+		# now, actually consume the next character in the input stream
 		next_char = self.stream.getNextChar()
 
 		if __trace__:
@@ -93,8 +93,8 @@ class NumberScanner(Scanner):
 		"""
 		if state == None:
 			# action
-			# initialize variables 
-			self.value = 0 
+			# initialize variables
+			self.value = 0
 			self.exp = 0
 			# new state
 			return "S1"
@@ -138,7 +138,7 @@ class NumberScanner(Scanner):
 				self.value += self.scale*(ord(string.lower(input))-ord('0'))
 				self.scale /= 10
 				# new state
-				return "S4"	
+				return "S4"
 			else:
 				return None
 
@@ -226,8 +226,8 @@ class CellRefScanner(Scanner):
 		"""
 		if state == None:
 			# action
-			# initialize variables 
-			self.row = 0 
+			# initialize variables
+			self.row = 0
 			self.rowIsAbsolute = False
 			self.column = 0
 			self.columnIsAbsolute = False
@@ -266,7 +266,7 @@ class CellRefScanner(Scanner):
 			if input == "$":
 				return "S5"
 			elif '1' <= input <= '9':
-				return "S6" 
+				return "S6"
 			else:
 				return None
 
@@ -288,7 +288,7 @@ class CellRefScanner(Scanner):
 				self.row = self.row*10 + ord(string.lower(input)) - ord('0')
 				return "S8"
 			else:
-				return None 
+				return None
 
 		elif state == "S8":
 			if '0' <= input <= '9':
@@ -449,6 +449,179 @@ class UseCase3Scanner(Scanner):
 
 		else:
 			return None
+
+	def entry(self, state, input):
+		if input in self.alphabet:
+			self.string += input
+
+class UseCase3Scanner(Scanner):
+	def __init__(self, stream):
+   		# superclass constructor
+		Scanner.__init__(self, stream)
+
+		# define alphabet
+		self.alphabet = ['E', 'R', 'G', 'X', '1', '2', '3', ' ']
+
+		# define accepting states
+		self.accepting_states=["S0"]
+
+	def __str__(self):
+  		return self.string
+
+  	def transition(self, state, input):
+		"""
+		Encodes transitions and actions
+		"""
+
+		if state == None:
+			self.string = ""
+			self.T = None
+			self.T2 = None
+			return "S0"
+
+		elif state == "S0":
+			if input == 'E':
+				return "S1"
+			else:
+				return "S0"
+
+		elif state == "S1":
+			if input == ' ':
+				return "S2"
+			else:
+				return None
+
+		elif state == "S2":
+			if input == '3':
+				return "S0"
+			elif (input == '1') or (input == '2'):
+				self.T = input
+				return "S3"
+			else:
+				return None
+
+		elif state == "S3":
+			if input == '\n':
+				return "S4"
+			else:
+				return None
+
+		elif state == "S4":
+			if input == 'G':
+				return "S5"
+			elif input == 'E':
+				return "S8"
+			else:
+				return "S4"
+
+		elif state == "S5":
+			if input == ' ':
+				return "S6"
+			else:
+				return None
+
+		elif state == "S6":
+			if input == self.T:
+				return "S7"
+			elif input == 'E':
+				return "S19"
+			else:
+				return None
+
+		elif state == "S7":
+			if input == '\n':
+				return "S0"
+			else:
+				return None
+
+		elif state == "S8":
+			if input == ' ''':
+				return "S9"
+			else:
+				return None
+
+		elif state == "S9":
+			if (input in ['1','2']) and (input != self.T):
+				self.T2 = input
+				return "S10"
+			else:
+				return None
+
+		elif state == "S10":
+			if input == '\n':
+				return "S11"
+			else:
+				return None
+
+		elif state == "S11":
+			if input == 'G':
+				return "S12"
+			else:
+				return "S11"
+
+		elif state == "S12":
+			if input == ' ':
+				return "S13"
+			else:
+				return None
+
+		elif state == "S13":
+			if input == self.T:
+				return "S14"
+			elif input == '3':
+				return "S20"
+			else:
+				return None
+
+		elif state == "S14":
+			if input == '\n':
+				return "15"
+			else:
+				return None
+
+		elif state == "S15":
+			if input == 'G':
+				return "S16"
+			else:
+				return "S15"
+
+		elif state == "S16":
+			if input == ' ':
+				return "S17"
+			else:
+				return None
+
+		elif state == "S17":
+			if input == self.T2:
+				return "S18"
+			elif input == '3':
+				return "S21"
+			else:
+				return None
+
+		elif state == "S18":
+			if input == '\n':
+				return "S0"
+			else:
+				return None
+
+		elif state == "S19":
+			if input == '\n':
+				return "S4"
+			else:
+				return None
+
+		elif state == "S20":
+			if input == '\n':
+				return "S11"
+			else:
+				return None
+
+		elif state == "S21":
+			if input == '\n':
+				return "S15"
+			else:
+				return None
 
 	def entry(self, state, input):
 		if input in self.alphabet:

@@ -1,100 +1,149 @@
-<?xml version="1.0" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+\documentclass[12pt]{article}
+\usepackage{tikz}
 
-<svg width="800" height="600" version="1.1" xmlns="http://www.w3.org/2000/svg">
-	<ellipse stroke="black" stroke-width="1" fill="none" cx="131.5" cy="191.5" rx="30" ry="30"/>
-	<text x="117.5" y="197.5" font-family="Times New Roman" font-size="20">Init</text>
-	<ellipse stroke="black" stroke-width="1" fill="none" cx="131.5" cy="191.5" rx="24" ry="24"/>
-	<ellipse stroke="black" stroke-width="1" fill="none" cx="231.5" cy="96.5" rx="30" ry="30"/>
-	<text x="220.5" y="102.5" font-family="Times New Roman" font-size="20">S1</text>
-	<ellipse stroke="black" stroke-width="1" fill="none" cx="255.5" cy="361.5" rx="30" ry="30"/>
-	<text x="240.5" y="367.5" font-family="Times New Roman" font-size="20">S1&#8322;</text>
-	<ellipse stroke="black" stroke-width="1" fill="none" cx="381.5" cy="96.5" rx="30" ry="30"/>
-	<text x="370.5" y="102.5" font-family="Times New Roman" font-size="20">S2</text>
-	<ellipse stroke="black" stroke-width="1" fill="none" cx="387.5" cy="361.5" rx="30" ry="30"/>
-	<text x="372.5" y="367.5" font-family="Times New Roman" font-size="20">S2&#8322;</text>
-	<ellipse stroke="black" stroke-width="1" fill="none" cx="59.5" cy="561.5" rx="30" ry="30"/>
-	<ellipse stroke="black" stroke-width="1" fill="none" cx="244.5" cy="561.5" rx="30" ry="30"/>
-	<ellipse stroke="black" stroke-width="1" fill="none" cx="512.5" cy="96.5" rx="30" ry="30"/>
-	<text x="501.5" y="102.5" font-family="Times New Roman" font-size="20">S3</text>
-	<ellipse stroke="black" stroke-width="1" fill="none" cx="537.5" cy="361.5" rx="30" ry="30"/>
-	<text x="522.5" y="367.5" font-family="Times New Roman" font-size="20">S3&#8322;</text>
-	<path stroke="black" stroke-width="1" fill="none" d="M 136.956,220.881 A 22.5,22.5 0 1 1 111.499,213.702"/>
-	<text x="10.5" y="280.5" font-family="Times New Roman" font-size="20">[GRX] [12]\n</text>
-	<polygon fill="black" stroke-width="1" points="111.499,213.702 102.121,214.729 108.312,222.582"/>
-	<path stroke="black" stroke-width="1" fill="none" d="M 101.973,186.902 A 22.5,22.5 0 1 1 117.189,165.267"/>
-	<text x="27.5" y="145.5" font-family="Times New Roman" font-size="20">E 3\n</text>
-	<polygon fill="black" stroke-width="1" points="117.189,165.267 119.331,156.079 109.869,159.315"/>
-	<polygon stroke="black" stroke-width="1" points="153.25,170.838 209.75,117.162"/>
-	<polygon fill="black" stroke-width="1" points="209.75,117.162 200.506,119.047 207.394,126.297"/>
-	<text x="186.5" y="164.5" font-family="Times New Roman" font-size="20">E 1\n</text>
-	<polygon stroke="black" stroke-width="1" points="149.179,215.737 237.821,337.263"/>
-	<polygon fill="black" stroke-width="1" points="237.821,337.263 237.146,327.853 229.067,333.746"/>
-	<text x="144.5" y="296.5" font-family="Times New Roman" font-size="20">E 2\n</text>
-	<path stroke="black" stroke-width="1" fill="none" d="M 212.17,73.711 A 22.5,22.5 0 1 1 237.831,67.295"/>
-	<text x="202.5" y="21.5" font-family="Times New Roman" font-size="20">*</text>
-	<polygon fill="black" stroke-width="1" points="237.831,67.295 245.46,61.746 236.186,58.006"/>
-	<path stroke="black" stroke-width="1" fill="none" d="M 222.275,68.077 A 22.5,22.5 0 1 1 248.449,71.888"/>
-	<text x="236.5" y="19.5" font-family="Times New Roman" font-size="20">**</text>
-	<polygon fill="black" stroke-width="1" points="248.449,71.888 257.614,69.653 250.455,62.67"/>
-	<path stroke="black" stroke-width="1" fill="none" d="M 265.762,389.566 A 22.5,22.5 0 1 1 239.466,386.717"/>
-	<text x="241.5" y="450.5" font-family="Times New Roman" font-size="20">*</text>
-	<polygon fill="black" stroke-width="1" points="239.466,386.717 230.389,389.288 237.799,396.002"/>
-	<path stroke="black" stroke-width="1" fill="none" d="M 273.796,385.127 A 22.5,22.5 0 1 1 247.875,390.394"/>
-	<text x="267.5" y="449.5" font-family="Times New Roman" font-size="20">**</text>
-	<polygon fill="black" stroke-width="1" points="247.875,390.394 240.006,395.598 249.105,399.747"/>
-	<polygon stroke="black" stroke-width="1" points="261.5,96.5 351.5,96.5"/>
-	<polygon fill="black" stroke-width="1" points="351.5,96.5 343.5,91.5 343.5,101.5"/>
-	<text x="285.5" y="117.5" font-family="Times New Roman" font-size="20">E 2\n</text>
-	<polygon stroke="black" stroke-width="1" points="285.5,361.5 357.5,361.5"/>
-	<polygon fill="black" stroke-width="1" points="357.5,361.5 349.5,356.5 349.5,366.5"/>
-	<text x="300.5" y="382.5" font-family="Times New Roman" font-size="20">E 1\n</text>
-	<path stroke="black" stroke-width="1" fill="none" d="M 368.275,69.703 A 22.5,22.5 0 1 1 394.725,69.703"/>
-	<text x="376.5" y="20.5" font-family="Times New Roman" font-size="20">*</text>
-	<polygon fill="black" stroke-width="1" points="394.725,69.703 403.473,66.17 395.382,60.292"/>
-	<path stroke="black" stroke-width="1" fill="none" d="M 368.275,69.703 A 22.5,22.5 0 1 1 394.725,69.703"/>
-	<polygon fill="black" stroke-width="1" points="394.725,69.703 403.473,66.17 395.382,60.292"/>
-	<path stroke="black" stroke-width="1" fill="none" d="M 50.197,533.102 A 22.5,22.5 0 1 1 76.382,536.843"/>
-	<text x="28.5" y="479.5" font-family="Times New Roman" font-size="20">* = [EGRX] 3\n</text>
-	<polygon fill="black" stroke-width="1" points="76.382,536.843 85.541,534.582 78.363,527.619"/>
-	<path stroke="black" stroke-width="1" fill="none" d="M 50.197,533.102 A 22.5,22.5 0 1 1 76.382,536.843"/>
-	<polygon fill="black" stroke-width="1" points="76.382,536.843 85.541,534.582 78.363,527.619"/>
-	<path stroke="black" stroke-width="1" fill="none" d="M 231.275,534.703 A 22.5,22.5 0 1 1 257.725,534.703"/>
-	<text x="190.5" y="485.5" font-family="Times New Roman" font-size="20">** = R [12]\n</text>
-	<polygon fill="black" stroke-width="1" points="257.725,534.703 266.473,531.17 258.382,525.292"/>
-	<path stroke="black" stroke-width="1" fill="none" d="M 377.427,66.896 A 22.5,22.5 0 1 1 402.52,75.26"/>
-	<text x="406.5" y="22.5" font-family="Times New Roman" font-size="20">**</text>
-	<polygon fill="black" stroke-width="1" points="402.52,75.26 411.936,74.674 406.12,66.54"/>
-	<path stroke="black" stroke-width="1" fill="none" d="M 377.427,66.896 A 22.5,22.5 0 1 1 402.52,75.26"/>
-	<polygon fill="black" stroke-width="1" points="402.52,75.26 411.936,74.674 406.12,66.54"/>
-	<path stroke="black" stroke-width="1" fill="none" d="M 395.948,390.164 A 22.5,22.5 0 1 1 369.887,385.641"/>
-	<text x="366.5" y="449.5" font-family="Times New Roman" font-size="20">*</text>
-	<polygon fill="black" stroke-width="1" points="369.887,385.641 360.664,387.626 367.63,394.801"/>
-	<path stroke="black" stroke-width="1" fill="none" d="M 405.577,385.295 A 22.5,22.5 0 1 1 379.609,390.322"/>
-	<text x="398.5" y="450.5" font-family="Times New Roman" font-size="20">**</text>
-	<polygon fill="black" stroke-width="1" points="379.609,390.322 371.692,395.454 380.752,399.687"/>
-	<polygon stroke="black" stroke-width="1" points="411.5,96.5 482.5,96.5"/>
-	<polygon fill="black" stroke-width="1" points="482.5,96.5 474.5,91.5 474.5,101.5"/>
-	<text x="424.5" y="117.5" font-family="Times New Roman" font-size="20">G 1\n</text>
-	<polygon stroke="black" stroke-width="1" points="417.5,361.5 507.5,361.5"/>
-	<polygon fill="black" stroke-width="1" points="507.5,361.5 499.5,356.5 499.5,366.5"/>
-	<text x="440.5" y="382.5" font-family="Times New Roman" font-size="20">G 2\n</text>
-	<path stroke="black" stroke-width="1" fill="none" d="M 494.492,72.652 A 22.5,22.5 0 1 1 520.475,67.701"/>
-	<text x="489.5" y="20.5" font-family="Times New Roman" font-size="20">*</text>
-	<polygon fill="black" stroke-width="1" points="520.475,67.701 528.407,62.593 519.359,58.333"/>
-	<path stroke="black" stroke-width="1" fill="none" d="M 506.744,67.177 A 22.5,22.5 0 1 1 532.274,74.095"/>
-	<text x="531.5" y="21.5" font-family="Times New Roman" font-size="20">**</text>
-	<polygon fill="black" stroke-width="1" points="532.274,74.095 541.64,72.972 535.369,65.183"/>
-	<path stroke="black" stroke-width="1" fill="none" d="M 545.001,390.426 A 22.5,22.5 0 1 1 519.103,385.049"/>
-	<text x="512.5" y="449.5" font-family="Times New Roman" font-size="20">*</text>
-	<polygon fill="black" stroke-width="1" points="519.103,385.049 509.82,386.73 516.546,394.13"/>
-	<path stroke="black" stroke-width="1" fill="none" d="M 556.391,384.655 A 22.5,22.5 0 1 1 530.612,390.578"/>
-	<text x="552.5" y="449.5" font-family="Times New Roman" font-size="20">**</text>
-	<polygon fill="black" stroke-width="1" points="530.612,390.578 522.878,395.981 532.079,399.898"/>
-	<path stroke="black" stroke-width="1" fill="none" d="M 160.915,197.389 A 1039.249,1039.249 0 0 1 512.665,344.673"/>
-	<polygon fill="black" stroke-width="1" points="160.915,197.389 167.684,203.961 169.788,194.185"/>
-	<text x="347.5" y="245.5" font-family="Times New Roman" font-size="20">G 1\n</text>
-	<path stroke="black" stroke-width="1" fill="none" d="M 486.656,111.729 A 640.464,640.464 0 0 1 161.469,192.813"/>
-	<polygon fill="black" stroke-width="1" points="161.469,192.813 169.365,197.975 169.569,187.977"/>
-	<text x="326.5" y="196.5" font-family="Times New Roman" font-size="20">G 2\n</text>
-</svg>
+\begin{document}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.2]
+\tikzstyle{every node}+=[inner sep=0pt]
+\draw [black] (13.6,-18.1) circle (3);
+\draw (13.6,-18.1) node {$Init$};
+\draw [black] (13.6,-18.1) circle (2.4);
+\draw [black] (24.3,-18.1) circle (3);
+\draw (24.3,-18.1) node {$S1$};
+\draw [black] (34.6,-18.1) circle (3);
+\draw (34.6,-18.1) node {$S2$};
+\draw [black] (47.8,-18.1) circle (3);
+\draw (47.8,-18.1) node {$S3$};
+\draw [black] (58.1,-18.1) circle (3);
+\draw (58.1,-18.1) node {$S4$};
+\draw [black] (58.1,-3.2) circle (3);
+\draw (58.1,-3.2) node {$S5$};
+\draw [black] (34.6,-3.2) circle (3);
+\draw (34.6,-3.2) node {$S6$};
+\draw [black] (24.3,-3.2) circle (3);
+\draw (24.3,-3.2) node {$S7$};
+\draw [black] (58.1,-28) circle (3);
+\draw (58.1,-28) node {$S8$};
+\draw [black] (58.1,-36.9) circle (3);
+\draw (58.1,-36.9) node {$S9$};
+\draw [black] (58.1,-46.2) circle (3);
+\draw (58.1,-46.2) node {$S10$};
+\draw [black] (58.1,-55.3) circle (3);
+\draw (58.1,-55.3) node {$S11$};
+\draw [black] (45.8,-55.3) circle (3);
+\draw (45.8,-55.3) node {$S12$};
+\draw [black] (34.6,-55.3) circle (3);
+\draw (34.6,-55.3) node {$S13$};
+\draw [black] (24.3,-55.3) circle (3);
+\draw (24.3,-55.3) node {$S14$};
+\draw [black] (13.6,-55.3) circle (3);
+\draw (13.6,-55.3) node {$S15$};
+\draw [black] (13.6,-46.2) circle (3);
+\draw (13.6,-46.2) node {$S16$};
+\draw [black] (13.6,-37.5) circle (3);
+\draw (13.6,-37.5) node {$S17$};
+\draw [black] (13.6,-28) circle (3);
+\draw (13.6,-28) node {$S18$};
+\draw [black] (34.6,-46.2) circle (3);
+\draw (34.6,-46.2) node {$S20$};
+\draw [black] (24.3,-37.5) circle (3);
+\draw (24.3,-37.5) node {$S21$};
+\draw [black] (47.8,-10.6) circle (3);
+\draw (47.8,-10.6) node {$S19$};
+\draw [black] (16.6,-18.1) -- (21.3,-18.1);
+\fill [black] (21.3,-18.1) -- (20.5,-17.6) -- (20.5,-18.6);
+\draw (18.95,-18.6) node [below] {$E$};
+\draw [black] (27.3,-18.1) -- (31.6,-18.1);
+\fill [black] (31.6,-18.1) -- (30.8,-17.6) -- (30.8,-18.6);
+\draw (29.45,-18.6) node [below] {$"\mbox{ }"$};
+\draw [black] (37.6,-18.1) -- (44.8,-18.1);
+\fill [black] (44.8,-18.1) -- (44,-17.6) -- (44,-18.6);
+\draw (41.2,-18.6) node [below] {$1|2\mbox{ }(=T)$};
+\draw [black] (50.8,-18.1) -- (55.1,-18.1);
+\fill [black] (55.1,-18.1) -- (54.3,-17.6) -- (54.3,-18.6);
+\draw (52.95,-18.6) node [below] {$\n$};
+\draw [black] (58.1,-15.1) -- (58.1,-6.2);
+\fill [black] (58.1,-6.2) -- (57.6,-7) -- (58.6,-7);
+\draw (58.6,-10.65) node [right] {$G$};
+\draw [black] (55.1,-3.2) -- (37.6,-3.2);
+\fill [black] (37.6,-3.2) -- (38.4,-3.7) -- (38.4,-2.7);
+\draw (46.35,-2.7) node [above] {$"\mbox{ }"$};
+\draw [black] (31.6,-3.2) -- (27.3,-3.2);
+\fill [black] (27.3,-3.2) -- (28.1,-3.7) -- (28.1,-2.7);
+\draw (29.45,-2.7) node [above] {$T$};
+\draw [black] (13.146,-15.143) arc (-178.63374:-252.73209:11.676);
+\fill [black] (13.15,-15.14) -- (13.63,-14.33) -- (12.63,-14.36);
+\draw (14.75,-6.68) node [left] {$\n$};
+\draw [black] (10.92,-19.423) arc (324:36:2.25);
+\draw (6.35,-18.1) node [left] {$^E$};
+\fill [black] (10.92,-16.78) -- (10.57,-15.9) -- (9.98,-16.71);
+\draw [black] (58.1,-21.1) -- (58.1,-25);
+\fill [black] (58.1,-25) -- (58.6,-24.2) -- (57.6,-24.2);
+\draw (57.6,-23.05) node [left] {$E$};
+\draw [black] (58.1,-31) -- (58.1,-33.9);
+\fill [black] (58.1,-33.9) -- (58.6,-33.1) -- (57.6,-33.1);
+\draw (57.6,-32.45) node [left] {$"\mbox{ }"$};
+\draw [black] (58.1,-39.9) -- (58.1,-43.2);
+\fill [black] (58.1,-43.2) -- (58.6,-42.4) -- (57.6,-42.4);
+\draw (57.6,-41.55) node [left] {$1|2\mbox{ }!=\mbox{ }T\mbox{ }(=T2)$};
+\draw [black] (58.1,-49.2) -- (58.1,-52.3);
+\fill [black] (58.1,-52.3) -- (58.6,-51.5) -- (57.6,-51.5);
+\draw (57.6,-50.75) node [left] {$\n$};
+\draw [black] (55.1,-55.3) -- (48.8,-55.3);
+\fill [black] (48.8,-55.3) -- (49.6,-55.8) -- (49.6,-54.8);
+\draw (51.95,-54.8) node [above] {$G$};
+\draw [black] (42.8,-55.3) -- (37.6,-55.3);
+\fill [black] (37.6,-55.3) -- (38.4,-55.8) -- (38.4,-54.8);
+\draw (40.2,-54.8) node [above] {$"\mbox{ }"$};
+\draw [black] (31.6,-55.3) -- (27.3,-55.3);
+\fill [black] (27.3,-55.3) -- (28.1,-55.8) -- (28.1,-54.8);
+\draw (29.45,-54.8) node [above] {$T$};
+\draw [black] (21.3,-55.3) -- (16.6,-55.3);
+\fill [black] (16.6,-55.3) -- (17.4,-55.8) -- (17.4,-54.8);
+\draw (18.95,-54.8) node [above] {$\n$};
+\draw [black] (13.6,-52.3) -- (13.6,-49.2);
+\fill [black] (13.6,-49.2) -- (13.1,-50) -- (14.1,-50);
+\draw (14.1,-50.75) node [right] {$G$};
+\draw [black] (13.6,-43.2) -- (13.6,-40.5);
+\fill [black] (13.6,-40.5) -- (13.1,-41.3) -- (14.1,-41.3);
+\draw (14.1,-41.85) node [right] {$"\mbox{ }"$};
+\draw [black] (13.6,-34.5) -- (13.6,-31);
+\fill [black] (13.6,-31) -- (13.1,-31.8) -- (14.1,-31.8);
+\draw (14.1,-32.75) node [right] {$T2$};
+\draw [black] (13.6,-25) -- (13.6,-21.1);
+\fill [black] (13.6,-21.1) -- (13.1,-21.9) -- (14.1,-21.9);
+\draw (14.1,-23.05) node [right] {$\n$};
+\draw [black] (60.978,-17.294) arc (133.38034:-154.61966:2.25);
+\draw (65.46,-19.62) node [right] {$^[EG]$};
+\fill [black] (60.49,-19.89) -- (60.68,-20.82) -- (61.4,-20.13);
+\draw [black] (60.978,-17.294) arc (133.38034:-154.61966:2.25);
+\fill [black] (60.49,-19.89) -- (60.68,-20.82) -- (61.4,-20.13);
+\draw [black] (60.78,-53.977) arc (144:-144:2.25);
+\draw (65.35,-55.3) node [right] {$^G$};
+\fill [black] (60.78,-56.62) -- (61.13,-57.5) -- (61.72,-56.69);
+\draw [black] (10.794,-56.327) arc (317.83079:29.83079:2.25);
+\draw (6.24,-54.47) node [left] {$^G$};
+\fill [black] (11.08,-53.7) -- (10.82,-52.79) -- (10.15,-53.53);
+\draw [black] (34.6,-52.3) -- (34.6,-49.2);
+\fill [black] (34.6,-49.2) -- (34.1,-50) -- (35.1,-50);
+\draw (35.1,-50.75) node [right] {$3$};
+\draw [black] (37.597,-46.323) arc (85.17039:52.49341:34.7);
+\fill [black] (55.8,-53.37) -- (55.47,-52.49) -- (54.86,-53.28);
+\draw (48.42,-48.01) node [above] {$\n$};
+\draw [black] (16.6,-37.5) -- (21.3,-37.5);
+\fill [black] (21.3,-37.5) -- (20.5,-37) -- (20.5,-38);
+\draw (18.95,-37) node [above] {$3$};
+\draw [black] (23.25,-40.31) arc (-22.2558:-39.76634:48.846);
+\fill [black] (15.59,-53.05) -- (16.48,-52.76) -- (15.72,-52.12);
+\draw (20.55,-48.24) node [right] {$\n$};
+\draw [black] (37.22,-4.67) -- (45.18,-9.13);
+\fill [black] (45.18,-9.13) -- (44.73,-8.31) -- (44.24,-9.18);
+\draw (42.2,-6.4) node [above] {$3$};
+\draw [black] (50.23,-12.37) -- (55.67,-16.33);
+\fill [black] (55.67,-16.33) -- (55.32,-15.46) -- (54.73,-16.27);
+\draw (54.23,-13.85) node [above] {$\n$};
+\end{tikzpicture}
+\end{center}
+
+\end{document}
