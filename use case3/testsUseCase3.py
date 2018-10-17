@@ -4,14 +4,14 @@ import scannerUseCase3 as scanner
 
 # Test UseCase3 FSA
 
-# Test strings die moeten matchen: 
-# 	"E 3R 1R 2X 3" wordt gematched = OK 
+# Test strings die moeten matchen:
+# 	"E 3R 1R 2X 3" wordt gematched = OK
 #	"E 3\n#Nog een comment\nR 2\n#Nog een comment\nR 1\n#Nog een comment\nX 3\n#Nog een comment\n" wordt gematched = OK
 #	"E 3\n#Nog een comment\nR 2\n#Nog een comment\nR 1\n#Nog een comment\nE 1\n#Nog een comment\nX 3\n#Nog een comment\n" wordt gematched = OK -> extra trein op 1 tijdens deze use case
 #	"E 3\n#Nog een comment\nR 2\n#Nog een comment\nR 1\n#Nog een comment\nE 2\n#Nog een comment\nX 3\n#Nog een comment\n" wordt gematched = OK -> extra trein op 2 tijdens deze use case
 #	"E 3\n#Nog een comment\nR 2\n#Nog een comment\nR 1\n#Nog een comment\nE 2\n#Nog een comment\nE 1\n#Nog een comment\nX 3\n#Nog een comment\n" wordt gematched = OK
 #	"E 3\n#Nog een comment\nR 2\n#Nog een comment\nR 1\n#Nog een comment\nE 1\n#Nog een comment\nE 2\n#Nog een comment\nX 3\n#Nog een comment\n" wordt gematched = OK
-#	"E 3\n#Nog een comment\nR 2\n#Nog een comment\nR 1\n#Nog een comment\nX 3\n#Nog een comment\nE 3\n#Nog een comment\nR 2\n#Nog een comment\nR 1\n#Nog een comment\nX 3\n#Nog een comment\n" 
+#	"E 3\n#Nog een comment\nR 2\n#Nog een comment\nR 1\n#Nog een comment\nX 3\n#Nog een comment\nE 3\n#Nog een comment\nR 2\n#Nog een comment\nR 1\n#Nog een comment\nX 3\n#Nog een comment\n"
 # 			wordt gematched = OK
 
 # Test strings die niet mogen matchen:
@@ -39,7 +39,7 @@ for inp in [traceInput]:
 		print ">> recognized "+sc.__str__()
 		print ">> committing"
 		str.commit()
-	else: 
+	else:
 	  print ">> rejected in state " + sc.current_state
 	  print ">> rolling back"
 	  str.rollback()
