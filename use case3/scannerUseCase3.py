@@ -1,8 +1,3 @@
-#
-# scanner.py
-#
-# COMP 304B Assignment 3
-#
 import string
 
 False = 0
@@ -11,6 +6,7 @@ True  = 1
 # trace FSA dynamics (True | False)
 __trace__ = False 
 # __trace__ = True 
+
 
 class Scanner:
 	"""
@@ -75,7 +71,7 @@ class Scanner:
 		# now check whether to accept consumed characters
 		success = self.current_state in self.accepting_states and self.recognized
 		if success:
-			self.stream.commit()
+			self.stream.commit()			
 		else:
 			self.stream.rollback()
 		return success
@@ -89,7 +85,10 @@ class UseCase3Scanner(Scanner):
 		self.alphabet = ['E', 'R', 'G', 'X', '1', '2', '3', ' ']
 
 		# define accepting states
-		self.accepting_states=["S14", "S15"]
+		self.accepting_states = ["S14", "S15"]
+
+		# keep track of how many occurences found 		
+		self.counter = 0
 
 	def __str__(self):
   		return self.result
@@ -131,6 +130,8 @@ class UseCase3Scanner(Scanner):
 		elif state == "S2":
 			if input == '3':
 				return "S3"
+			elif input != '3':
+				return "S0"
 			else:
 				return None
 
@@ -148,7 +149,7 @@ class UseCase3Scanner(Scanner):
 			elif input == '\n':
 				self.inComment = False
 				return "S3"
-			elif self.inComment:
+			elif self.inComment or input != 'R':
 				return "S3"
 			else:
 				return None
@@ -269,6 +270,7 @@ class UseCase3Scanner(Scanner):
 		elif state == "S14":
 			if input != None:
 				self.recognized = True
+				self.counter += 1
 				return "S0"
 			else:
 				return None
