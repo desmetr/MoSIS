@@ -15,7 +15,7 @@
 	<li>Beno&#238;t-Philippe Fornoville - 20133299</li>
 </ul>
 
-<h2>Use Case 3</h2>
+<h2>Use Case 3 - Rafael De Smet</h2>
 
 This part will discuss the validation of Use Case 3. Below you can find the full Use Case, the UML sequence diagram, the regular expression and the FSA. The implementation and its results on the given trace file are discussed as well.
 <br>
@@ -124,7 +124,11 @@ To run the test program yourself, execute the following command: <b>python testU
 
 We've found 109 good occurences of the execution of use case 3 and no bad ones. The program terminates by seeing EOF.
 
-<h2>Use Case 4</h2>
+<h3>Workload</h3>
+
+In total 7 hours were spent on this assignment, most on FSA and the implementation in Python.
+
+<h2>Use Case 4 - Beno&#238;t-Philippe Fornoville</h2>
 This part will discuss the validation of Use Case 4. Below you can find the full Use Case, the UML sequence diagram, the regular expression and the FSA. The implementation and its results on the given trace file are discussed as well.
 <br>
 The behaviour of use case 3 is as follows:  if two trains are waiting to enter the junction at the same time, permission will be granted in order of arrival (i.e., the first train to
@@ -153,7 +157,6 @@ arrive will get a green light, and the second one has to wait).
 	<li>If there is only one train, it should eventually get a green light.</li>
 </ol>
 
-
 <h3>UML Sequence Diagram</h3>
 
 The image below shows the UML Sequence Diagram for use case 4. There are three entities, the three tracks and one controller. <br>
@@ -164,7 +167,7 @@ The lifetimes of all the entities goes on until the main program is terminated. 
 <h3>Regular Expression</h3>
 The following regular expression is written in the Python Regular Expression language. <br> <br>
 
-^(((^E)|(E 3)|(#.*))*((E (?P<trackName>[12])\n(^E)|(E 3)|(#.*))*E [^((?P=trackName)|3)]\n((^G)|(G 3)|(#.*))*G (?P=trackName)\n((^G)|(G 3)|(#.*))*G [^((?P=trackName)|3)]\n)|(E 1\n((^G)|(G 3\n)|(#.*))*G 1\n)|(E 2\n((^G)|(G 3\n)|(#.*))*G 2\n)))*$ <br><br>
+^(((^E)|(E 3)|(#.*))*((E (?P&lt;trackName&gt;[12])\n(^E)|(E 3)|(#.*))*E [^((?P=trackName)|3)]\n((^G)|(G 3)|(#.*))*G (?P=trackName)\n((^G)|(G 3)|(#.*))*G [^((?P=trackName)|3)]\n)|(E 1\n((^G)|(G 3\n)|(#.*))*G 1\n)|(E 2\n((^G)|(G 3\n)|(#.*))*G 2\n)))*$ <br><br>
 
 To make it more clear, the regex is divided in small parts and explained separately. <br><br>
 <table>
@@ -175,133 +178,133 @@ To make it more clear, the regex is divided in small parts and explained separat
 	</tr>
 	<tr><th></th><th></th><th></th></tr>
 	<tr>
-		<th>Total</th>
-		<th>(Part1* (Part2 | Part3 | Part4))*</th>
-		<th></th>
+		<td>Total</td>
+		<td>(Part1* (Part2 | Part3 | Part4))*</td>
+		<td></td>
 	</tr>
-	<tr><th></th><th></th><th></th></tr>
+	<tr><td></td><td></td><td></td></tr>
 	<tr>
-		<th>Part 1</th>
-		<th>((^E)|(E 3)|(#.*))*</th>
-		<th>Wait until there is a train on track 1 or 2.</th>
-	</tr>
-	<tr>
-		<th>1</th>
-		<th>( (1.1) | (1.2) | (1.3) )*</th>
-		<th></th>
+		<td>Part 1</td>
+		<td>((^E)|(E 3)|(#.*))*</td>
+		<td>Wait until there is a train on track 1 or 2.</td>
 	</tr>
 	<tr>
-		<th>1.1</th>
-		<th>^E</th>
-		<th>Ignore every action that isn't the detection of a train.</th>
+		<td>1</td>
+		<td>( (1.1) | (1.2) | (1.3) )*</td>
+		<td></td>
 	</tr>
 	<tr>
-		<th>1.2</th>
-		<th>E 3</th>
-		<th>Ignore trains arriving on track 3.</th>
+		<td>1.1</td>
+		<td>^E</td>
+		<td>Ignore every action that isn't the detection of a train.</td>
 	</tr>
 	<tr>
-		<th>1.3</th>
-		<th>#.*</th>
-		<th>Ignore comments.</th>
-	</tr>
-	<tr><th></th><th></th><th></th></tr>
-	<tr>
-		<th>Part 2</th>
-		<th>(E (?P<trackName>[12])\n(^E|(E 3)|(#.*))*E [^((?P=trackName)|3)]\n((^G)|(G 3)|(#.*))*G (?P=trackName)\n((^G)|(G 3)|(#.*))*G [^((?P=trackName)|3)]\n)</th>
-		<th>2 trains arrive (on track 1 and 2), and get a green light in order of arrival.</th>
+		<td>1.2</td>
+		<td>E 3</td>
+		<td>Ignore trains arriving on track 3.</td>
 	</tr>
 	<tr>
-		<th>2</th>
-		<th>( 2.1 2.2 2.3 2.4 2.5 2.6 2.7)</th>
-		<th></th>
+		<td>1.3</td>
+		<td>#.*</td>
+		<td>Ignore comments.</td>
+	</tr>
+	<tr><td></td><td></td><td></td></tr>
+	<tr>
+		<td>Part 2</td>
+		<td>(E (?P&lt;trackName&gt;[12])\n(^E|(E 3)|(#.*))*E [^((?P=trackName)|3)]\n((^G)|(G 3)|(#.*))*G (?P=trackName)\n((^G)|(G 3)|(#.*))*G [^((?P=trackName)|3)]\n)</td>
+		<td>2 trains arrive (on track 1 and 2), and get a green light in order of arrival.</td>
 	</tr>
 	<tr>
-		<th>2.1</th>
-		<th>E (?P<trackName>[12])\n</th>
-		<th>A train arrives on track 1 or 2, we call this track "trackName".</th>
+		<td>2</td>
+		<td>( 2.1 2.2 2.3 2.4 2.5 2.6 2.7)</td>
+		<td></td>
 	</tr>
 	<tr>
-		<th>2.2</th>
-		<th>(^E|(E 3)|(#.*))*</th>
-		<th>Equal to part 1.</th>
+		<td>2.1</td>
+		<td>E (?P&lt;trackName&gt;[12])\n</td>
+		<td>A train arrives on track 1 or 2, we call this track "trackName".</td>
 	</tr>
 	<tr>
-		<th>2.3</th>
-		<th>E [^((?P=trackName)|3)]\n</th>
-		<th>A train arriving on the second track, thus not trackName or 3</th>
+		<td>2.2</td>
+		<td>(^E|(E 3)|(#.*))*</td>
+		<td>Equal to part 1.</td>
 	</tr>
 	<tr>
-		<th>2.4</th>
-		<th>(^E|(E 3)|(#.*))*</th>
-		<th>Ignore actions that aren't green lights, green lights on track3 and cmments.</th>
+		<td>2.3</td>
+		<td>E [^((?P=trackName)|3)]\n</td>
+		<td>A train arriving on the second track, thus not trackName or 3</td>
 	</tr>
 	<tr>
-		<th>2.5</th>
-		<th>G (?P=trackName)\n</th>
-		<th>Green light for the first train.</th>
+		<td>2.4</td>
+		<td>(^E|(E 3)|(#.*))*</td>
+		<td>Ignore actions that aren't green lights, green lights on track3 and cmments.</td>
 	</tr>
 	<tr>
-		<th>2.6</th>
-		<th>(^E|(E 3)|(#.*))*</th>
-		<th>Equal to 2.4</th>
+		<td>2.5</td>
+		<td>G (?P=trackName)\n</td>
+		<td>Green light for the first train.</td>
 	</tr>
 	<tr>
-		<th>2.7</th>
-		<th>G [^((?P=trackName)|3)]\n</th>
-		<th>Green light for the second train.</th>
-	</tr>
-	<tr><th></th><th></th><th></th></tr>
-	<tr>
-		<th>Part 3</th>
-		<th>(E 1\n((^G)|(G 3\n)|(#.*))*G 1\n)</th>
-		<th>A train arrives on track 1 and gets a green light.</th>
+		<td>2.6</td>
+		<td>(^E|(E 3)|(#.*))*</td>
+		<td>Equal to 2.4</td>
 	</tr>
 	<tr>
-		<th>3</th>
-		<th>(3.1 3.2 3.3)</th>
-		<th></th>
+		<td>2.7</td>
+		<td>G [^((?P=trackName)|3)]\n</td>
+		<td>Green light for the second train.</td>
+	</tr>
+	<tr><td></td><td></td><td></td></tr>
+	<tr>
+		<td>Part 3</td>
+		<td>(E 1\n((^G)|(G 3\n)|(#.*))*G 1\n)</td>
+		<td>A train arrives on track 1 and gets a green light.</td>
 	</tr>
 	<tr>
-		<th>3.1</th>
-		<th>E 1\n</th>
-		<th>A train arrives on track 1.</th>
+		<td>3</td>
+		<td>(3.1 3.2 3.3)</td>
+		<td></td>
 	</tr>
 	<tr>
-		<th>3.2</th>
-		<th>((^G)|(G 3\n)|(#.*))*</th>
-		<th>Equal to part 2.4.</th>
+		<td>3.1</td>
+		<td>E 1\n</td>
+		<td>A train arrives on track 1.</td>
 	</tr>
 	<tr>
-		<th>3.3</th>
-		<th>G 1\n</th>
-		<th>Green light for track 1.</th>
-	</tr>
-	<tr><th></th><th></th><th></th></tr>
-	<tr>
-		<th>Part 4</th>
-		<th>(E 2\n((^G)|(G 3\n)|(#.*))*G 2\n)</th>
-		<th>A train arrives on track 2 and gets a green light.</th>
+		<td>3.2</td>
+		<td>((^G)|(G 3\n)|(#.*))*</td>
+		<td>Equal to part 2.4.</td>
 	</tr>
 	<tr>
-		<th>4</th>
-		<th>(4.1 4.2 4.3)</th>
-		<th></th>
+		<td>3.3</td>
+		<td>G 1\n</td>
+		<td>Green light for track 1.</td>
+	</tr>
+	<tr><td></td><td></td><td></td></tr>
+	<tr>
+		<td>Part 4</td>
+		<td>(E 2\n((^G)|(G 3\n)|(#.*))*G 2\n)</td>
+		<td>A train arrives on track 2 and gets a green light.</td>
 	</tr>
 	<tr>
-		<th>4.1</th>
-		<th>E 2\n</th>
-		<th>A train arrives on track 2.</th>
+		<td>4</td>
+		<td>(4.1 4.2 4.3)</td>
+		<td></td>
 	</tr>
 	<tr>
-		<th>4.2</th>
-		<th>((^G)|(G 3\n)|(#.*))*</th>
-		<th>Equal to part 2.4.</th>
+		<td>4.1</td>
+		<td>E 2\n</td>
+		<td>A train arrives on track 2.</td>
 	</tr>
 	<tr>
-		<th>4.3</th>
-		<th>G 2\n</th>
-		<th>Green light for track 2.</th>
+		<td>4.2</td>
+		<td>((^G)|(G 3\n)|(#.*))*</td>
+		<td>Equal to part 2.4.</td>
+	</tr>
+	<tr>
+		<td>4.3</td>
+		<td>G 2\n</td>
+		<td>Green light for track 2.</td>
 	</tr>
 </table>
 <br>
@@ -312,9 +315,22 @@ The Finite State Automata, implementing the regex above.<br>
 
 <h3>Implementation</h3>
 
+The comments are ignored by the states Init, S4, S11 and S15. All the text following a # is ignored until there is a newline. In these states all characters besides either E (states Init and S4) or G (S4, S11 and S15) will be ignored. If an E or G is seen and not in a comment it will transition to the next state.<br>
+In state S2 if we see a 1 or 2 we store this value in <i>self.T</i>. In state S9 if we see a 1 or 2, and <i>self.T</i> is not equal to this new value, store the new value in <i>self.T2</i>.<br><br>
+
+To run the program yourself, execute the following command: <b>python testUseCase4.py</b>. Make sure that you use version 2.7 of Python. You can choose if you want to see the whole trace output or just the results by setting the variable <i>__trace__</i> in <i>scannerUseCase4.py</i> accordingly.
+
 <h3>Results</h3>
 
+When we run the program on the trace file, we see that use case 4 is not satisfied. The reason is that at one point a train enters an incoming track and but the controller issues a green light to the other incoming track, which is not as specified in use case 4.
+
+<h3>Workload</h3>
+
+In total 7 hours were spent on this assignment, most on constructing the FSA.
+
 <h2>Conclusion</h2>
+
+We can conclude that the program satisfies use case 3 but not use case 4.
 
 </body>
 </html>

@@ -1,0 +1,15 @@
+Use Case: TrainOnJunction
+Actors: Train on segment 3
+Scope: Railway Junction Control System
+Intention: Lights of incoming tracks have to remain red while the train is on the junction.
+Level: User Goal
+Multiplicity: There can be only one train on the junction at a time. All three lights are active.
+Main Success Scenario:
+
+    System checks every second if there is a train on the junction.
+    If there is a train (system detects it), put lights of segment 1 and 2 on red. Light 3 can be green, train has to leave junction one time.
+
+Extensions:
+
+    If there is a train on the junction and one of the incoming segments detects a train, add the new train to the cue of trains on that segment.
+    If there is no train on the junction and none of the incoming segments detects a train, all the lights stay red.

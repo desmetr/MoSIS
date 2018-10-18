@@ -1,0 +1,19 @@
+4. If two trains are waiting to enter the junction at the same time, permission will be granted in order of arrival (i.e., the first train to arrive will get a green light, and the second one has to wait).
+
+Use Case: TwoTrainsAtTheSameTime
+Actors: Train on segment 1, Train on segment 2
+Scope: Railway Junction Control System
+Intention: The train that arrives first should get a green light first.
+Level: User Goal
+Multiplicity: There are two incoming tracks, with each one traffic light.
+Main Success Scenario:
+
+    A train arrives at one of the incoming sections.
+    A second train arrives at the other incoming section.
+    The first train gets a green light
+    The second train gets a green light
+
+Extensions:
+
+    If there are no trains, the FSA should end in an accepting state.
+    If there is only one train, it should eventually get a green light.
