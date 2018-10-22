@@ -1,0 +1,11 @@
+
+digraph graphname {
+ InNumber [label="InputPortBlock (InNumber)"];
+OutDouble [label="OutputPortBlock (OutDouble)"];
+mult -> OutDouble [label=""];
+mult [label="ProductBlock (mult)"];
+InNumber -> mult [label=""];
+two -> mult [label=""];
+two [label="ConstantBlock (two)\n2.0"];
+
+}
