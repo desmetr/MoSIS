@@ -70,7 +70,11 @@ class BaseBlock:
 
     def getDependencies(self, curIteration):
         # TO IMPLEMENT: this is a helper function you can use to create the dependency graph...
-        pass
+        # Rafael: eerste versie
+        dependencies = []
+        for linkIn in self._linksIn:
+            dependencies.append(self._linksIn[linkIn].block)
+        return dependencies
 
     def getBlockConnectedToInput(self, input_port):
         return self._linksIn[input_port]
@@ -538,7 +542,32 @@ class CBD(BaseBlock):
         # TO IMPLEMENT
         # hints: use depGraph.setDependency(block, block_it_depends_on)
         #        use the getDependencies that is implemented in each specific block.
-        #
+        
+        # Rafael eerste versie
+
+        # Rules for constructing the dependency graph
+        # 1. For each block identified by b, create a unique node v. Let node(b) denote the corresponding node.
+        # 2. For each connection (p, q) from port id p to port id q, let b_p and b_q denote
+        # the block ids associated with ports p and q, respectively. If p or q have no
+        # associated blocks, then ignore this connection and proceed to the next one.
+        # Create a directed edge (node(b_q), node(b_p)) in the dependency graph, to mark
+        # that fact that bq depends on bp.
+
+        # for b in blocks:
+        #     print b
+
+        for currentBlock in blocks:
+            currentDepNode = DepNode(currentBlock)
+            depGraph.addMember(currentBlock)
+
+        for currentBlock in blocks:
+            currentDependencies = currentBlock.getDependencies(curIteration)
+            for currentDep in currentDependencies:
+                print currentDep
+                depGraph.setDependency(currentBlock, currentDep, curIteration)
+        
+        print depGraph
+
         return depGraph
 
     def __computeBlocks(self, sortedGraph, depGraph, curIteration):
@@ -882,7 +911,6 @@ class DepGraph:
             if not self.hasMember(dependent):
                 raise ValueError("Specified dependent object is not member of this graph")
             if not self.hasMember(influencer):
-                print(influencer)
                 raise ValueError("Specified influencer object is not member of this graph")
 
     def hasDependency(self, dependent, influencer):

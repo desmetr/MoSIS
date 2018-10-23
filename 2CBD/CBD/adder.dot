@@ -1,0 +1,10 @@
+digraph graphname
+{OutDouble [label="OutputPortBlock (OutDouble)"];
+adder -> OutDouble [label=""];
+three [label="ConstantBlock (three)\n3.0"];
+two [label="ConstantBlock (two)\n2.0"];
+adder [label="AdderBlock (adder)"];
+three -> adder [label=""];
+two -> adder [label=""];
+
+}

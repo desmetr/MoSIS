@@ -7,9 +7,7 @@ def draw(cbd, filename, colors=None):
 	f = open(filename, "w")
 	write = lambda s: f.write(s)
 
-	write("""
-digraph graphname {
- """)
+	write("""digraph graphname\n{""")
 
 	if colors == None:
 		colors = {}
