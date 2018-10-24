@@ -141,7 +141,8 @@ class ConstantBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        pass
+        print "IN COMPUTE CONSTANTBLOCK"
+        self.appendToSignal(self.__value, "OUT1")
 
     def __repr__(self):
         return BaseBlock.__repr__(self) + "  Value = " + str(self.getValue()) + "\n"
@@ -155,7 +156,10 @@ class NegatorBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        pass
+        print "IN COMPUTE NEGATORBLOCK"
+        in1 = self.getInputSignal(curIteration, "IN1").value
+        result = -1 * in1
+        self.appendToSignal(result, "OUT1")
 
 class InverterBlock(BaseBlock):
     """
@@ -166,7 +170,12 @@ class InverterBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        pass
+        print "IN COMPUTE INVERTERBLOCK"
+        in1 = self.getInputSignal(curIteration, "IN1").value
+        result = None
+        if in1 != 0:
+            result = 1 / in1
+        self.appendToSignal(result, "OUT1")
 
 class AdderBlock(BaseBlock):
     """
@@ -176,8 +185,12 @@ class AdderBlock(BaseBlock):
         BaseBlock.__init__(self, block_name, ["IN1", "IN2"], ["OUT1"])
 
     def	compute(self, curIteration):
-    # TO IMPLEMENT
-        pass
+        # TO IMPLEMENT
+        print "IN COMPUTE ADDERBLOCK"
+        in1 = self.getInputSignal(curIteration, "IN1").value
+        in2 = self.getInputSignal(curIteration, "IN2").value
+        result = in1 + in2
+        self.appendToSignal(result, "OUT1")
 
 class ProductBlock(BaseBlock):
     """
@@ -188,7 +201,11 @@ class ProductBlock(BaseBlock):
 
     def	compute(self, curIteration):
         # TO IMPLEMENT
-        pass
+        print "IN COMPUTE PRODUCTBLOCK"
+        in1 = self.getInputSignal(curIteration, "IN1").value
+        in2 = self.getInputSignal(curIteration, "IN2").value
+        result = in1 * in2
+        self.appendToSignal(result, "OUT1")
 
 class GenericBlock(BaseBlock):
     """
@@ -207,7 +224,10 @@ class GenericBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        pass
+        print "IN COMPUTE GENERICBLOCK"
+        in1 = self.getInputSignal(curIteration, "IN1").value
+        result = None
+        self.appendToSignal(result, "OUT1")
 
     def __repr__(self):
         repr = BaseBlock.__repr__(self)
@@ -226,18 +246,28 @@ class RootBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        pass
+        print "IN COMPUTE ROOTBLOCK"
+        in1 = self.getInputSignal(curIteration, "IN1").value
+        in2 = self.getInputSignal(curIteration, "IN2").value
+        result = None
+        if in1 >= 0:
+            result = in1 ** (1 / in2)
+        self.appendToSignal(result, "OUT1")
 
 class ModuloBlock(BaseBlock):
     """
-    A basic block that computes the IN1 modulo IN3
+    A basic block that computes the IN1 modulo IN2
     """
     def __init__(self, block_name):
         BaseBlock.__init__(self, block_name, ["IN1", "IN2"], ["OUT1"])
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        pass
+        print "IN COMPUTE MODULOBLOCK"
+        in1 = self.getInputSignal(curIteration, "IN1").value
+        in2 = self.getInputSignal(curIteration, "IN2").value
+        result = in1 % in2
+        self.appendToSignal(result, "OUT1")
 
 class DelayBlock(BaseBlock):
     """
@@ -255,7 +285,7 @@ class DelayBlock(BaseBlock):
 
     def compute(self, curIteration):
         #TO IMPLEMENT
-        pass
+        print "IN COMPUTE DELAYBLOCK"
 
 class InputPortBlock(BaseBlock):
     """
@@ -278,6 +308,7 @@ class OutputPortBlock(BaseBlock):
 
     def	compute(self, curIteration):
         self.appendToSignal(self.getInputSignal(curIteration, "IN1").value)
+        print self.getSignal()
 
 class WireBlock(BaseBlock):
     """
@@ -563,10 +594,10 @@ class CBD(BaseBlock):
         for currentBlock in blocks:
             currentDependencies = currentBlock.getDependencies(curIteration)
             for currentDep in currentDependencies:
-                print currentDep
+                # print currentDep
                 depGraph.setDependency(currentBlock, currentDep, curIteration)
         
-        print depGraph
+        # print depGraph
 
         return depGraph
 

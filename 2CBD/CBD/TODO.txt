@@ -1,17 +1,17 @@
 CBD.py
 	
-	* BaseBlock.getDependencies()	:	NOK by <author>		
-		PRIORITEIT, Rafael al eerste versie
-	* ConstantBlock.compute()		:	NOK by <author>
-	* NegatorBlock.compute()		:	NOK by <author>
-	* InverterBlock.compute()		:	NOK by <author>
-	* AdderBlock.compute()			:	NOK by <author>
-	* ProductBlock.compute()		:	NOK by <author>
+	* BaseBlock.getDependencies()	:	NOK by Rafael V1
+		PRIORITEIT
+	* ConstantBlock.compute()		:	NOK by Rafael V1
+	* NegatorBlock.compute()		:	NOK by Rafael V1
+	* InverterBlock.compute()		:	NOK by Rafael V1
+	* AdderBlock.compute()			:	NOK by Rafael V1
+	* ProductBlock.compute()		:	NOK by Rafael V1
 	* GenericBlock.compute()		:	NOK by <author>
-	* RootBlock.compute()			:	NOK by <author>
-	* ModuloBlock.compute()			:	NOK by <author>
+	* RootBlock.compute()			:	NOK by Rafael V1
+	* ModuloBlock.compute()			:	NOK by Rafael V1
 	* DelayBlock.getDependencies()	:	NOK by <author>
 	* DelayBlock.compute()			:	NOK by <author>
-	* CBD.__createDepGraph()		:	NOK by <author>		
-		PRIORITEIT, Rafael al eerste versie
+	* CBD.__createDepGraph()		:	NOK by Rafael V1
+		PRIORITEIT
 	* CBD.__isLinear()				:	NOK by <author>
