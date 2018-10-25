@@ -6,6 +6,7 @@ class LatexWriter:
 
 	def writeBeginDocument(self):
 		self.file.write("\\documentclass[a4paper,12pt]{article}\n")
+		self.file.write("\\usepackage{amsmath}\n")
 		self.file.write("\\begin{document}\n")
 
 	def writeEndDocument(self):
@@ -19,7 +20,7 @@ class LatexWriter:
 	def writeNewSection(self, name):
 		self.file.write("\\section{" + name + "}\n")
 
-	def writeEquations(self):
+	def writeEquations(self, sortedGraph, depGraph, curIteration):
 		self.file.write("\\[\n")
 		self.file.write("\\left\\{\n")
 		self.file.write("\\begin{array}{c}\n")
@@ -32,3 +33,51 @@ class LatexWriter:
 		self.file.write("\\end{array}\n")
 		self.file.write("\\right.\n")
 		self.file.write("\\]\n")
+
+	def getConstant(self, in1, out=None):
+		result = str(in1)
+		if out != None:
+			result += " = " + str(out)
+		return result
+
+	def getNegation(self, in1, out=None):
+		result = "-" + str(in1)
+		if out != None:
+			result += " = " + str(out)
+		return result
+
+	def getInverter(self, in1, out=None):
+		result = "\\frac{1}{" + str(in1) + "}"
+		if out != None:
+			result += " = " + str(out)
+		return result
+
+	def getAddition(self, in1, in2, out=None):
+		result = str(in1) + "+" + str(in2) 
+		if out != None:
+			result += " = " + str(out)
+		return result
+	
+	def getProduct(self, in1, in2, out=None):
+		result = str(in1) + "*" + str(in2)
+		if out != None:
+			result += " = " + str(out)
+		return result
+
+	def getDivision(self, in1, in2, out=None):
+		result = "\\frac{" + str(in1) + "}{" + str(in2)
+		if out != None:
+			result += " = " + str(out)
+		return result
+
+	def getRoot(self, in1, in2, out=None):
+		result = "\\sqrt[" + str(in2) + "]{" + str(in1) + "}"
+		if out != None:
+			result += " = " + str(out)
+		return result
+
+	def getModulo(self, in1, in2, out=None):
+		result = str(in1) + "*\\mod" + str(in2)
+		if out != None:
+			result += " = " + str(out)
+		return result
