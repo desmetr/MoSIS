@@ -2,6 +2,14 @@
 from bokeh.plotting import figure, output_file, show
 from CBDMultipleOutput.Source.CBD import *
 from CBDMultipleOutput.Source.CBDDraw import draw
+from CBDMultipleOutput.Source.LatexWriter import *
+
+latexWriter = LatexWriter()
+latexWriter.writeBeginDocument()
+latexWriter.writeTitle("Test")
+latexWriter.writeNewSection("Equations Test")
+latexWriter.writeEquations()
+latexWriter.writeEndDocument()
 
 class Adder(CBD):        
     def __init__(self, block_name):
