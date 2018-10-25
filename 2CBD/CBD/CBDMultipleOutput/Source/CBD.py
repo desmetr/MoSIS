@@ -6,8 +6,8 @@ InputLink = namedtuple("InputLink", ["block", "output_port"])
 Signal = namedtuple("Signal", ["time", "value"])
 def enum(**enums):
             return type('Enum', (), enums)
-level = enum(WARNING=1, ERROR=2, FATAL=3)	
-epsilon = 0.001		
+level = enum(WARNING=1, ERROR=2, FATAL=3)
+epsilon = 0.001
 
 class BaseBlock:
     """
@@ -71,9 +71,16 @@ class BaseBlock:
     def getDependencies(self, curIteration):
         # TO IMPLEMENT: this is a helper function you can use to create the dependency graph...
         # Rafael: eerste versie
+
+        #The input links produced by this block is encoded as a dictionary.
+        #The key of this dictionary is the name of the input port.
+        #Each element of the dictionary contains
+        #an tuple of the block and the output name of the other block.
+        #"InputLink", ["block", "output_port"]
+
         dependencies = []
-        for linkIn in self._linksIn:
-            dependencies.append(self._linksIn[linkIn].block)
+        for InputLink, (block, output_port) in self._linksIn:
+            dependencies.append(block)
         return dependencies
 
     def getBlockConnectedToInput(self, input_port):
@@ -250,8 +257,11 @@ class RootBlock(BaseBlock):
         in1 = self.getInputSignal(curIteration, "IN1").value
         in2 = self.getInputSignal(curIteration, "IN2").value
         result = None
-        if in1 >= 0:
+        if in2 >= 0:
             result = in1 ** (1 / in2)
+        else:
+            pass
+            #TODO log error
         self.appendToSignal(result, "OUT1")
 
 class ModuloBlock(BaseBlock):
@@ -281,11 +291,28 @@ class DelayBlock(BaseBlock):
     def getDependencies(self, curIteration):
         # TO IMPLEMENT: This is a helper function you can use to create the dependency graph
         # Treat dependencies differently. For instance, at the first iteration (curIteration == 0), the block only depends on the IC;
-        pass
+
+        # InputLink = namedtuple("InputLink", ["block", "output_port"])
+
+        # dependencies = []
+        # for InputLink, (block, output_port) in self._linksIn:
+        #     dependencies.append(block)
+        # return dependencies
+
+        dependencies = []
+        if curIteration == 0:
+            return dependencies.append(self._linksIn[0])
+        return dependencies
 
     def compute(self, curIteration):
-        #TO IMPLEMENT
+        # TO IMPLEMENT
         print "IN COMPUTE DELAYBLOCK"
+        if curIteration == 0:
+            result = self.getInputSignal(curIteration, "IC").value
+        else:
+            result = self.__values[-1]
+        self.__values.append(self.getInputSignal(curIteration, "IN1").value)
+        self.appendToSignal(result, "OUT1")
 
 class InputPortBlock(BaseBlock):
     """
@@ -573,7 +600,7 @@ class CBD(BaseBlock):
         # TO IMPLEMENT
         # hints: use depGraph.setDependency(block, block_it_depends_on)
         #        use the getDependencies that is implemented in each specific block.
-        
+
         # Rafael eerste versie
 
         # Rules for constructing the dependency graph
@@ -587,6 +614,8 @@ class CBD(BaseBlock):
         # for b in blocks:
         #     print b
 
+        #BP:         volgens mij is er recursie nodig voor sub-models
+
         for currentBlock in blocks:
             currentDepNode = DepNode(currentBlock)
             depGraph.addMember(currentBlock)
@@ -596,7 +625,7 @@ class CBD(BaseBlock):
             for currentDep in currentDependencies:
                 # print currentDep
                 depGraph.setDependency(currentBlock, currentDep, curIteration)
-        
+
         # print depGraph
 
         return depGraph
@@ -637,7 +666,7 @@ class CBD(BaseBlock):
         If the loop is linear return True
         Else: call exit(1) to exit the simulation with exit code 1
         """
-        #TO IMPLEMENT
+        # TO IMPLEMENT
         pass
 
     def __constructLinearInput(self, strongComponent, curIteration):
@@ -791,7 +820,36 @@ class DerivatorBlock(CBD):
     """
     def __init__(self, block_name):
         CBD.__init__(self, block_name, ["IN1", "delta_t", "IC"], ["OUT1"])
-        #TO IMPLEMENT
+        # TO IMPLEMENT
+        self.addBlock(ProductBlock("Product"))
+        self.addBlock(NegatorBlock("Negator"))
+        self.addBlock(AdderBlock("Adder"))
+        self.addBlock(DelayBlock("Delay"))
+        self.addBlock(NegatorBlock("Negator2"))
+        self.addBlock(AdderBlock("Adder2"))
+        self.addBlock(InverterBlock("Inverter"))
+
+        self.addConnection("IC","Product")
+        self.addConnection("delta_t","Product")
+
+        self.addConnection("Product","Negator")
+
+        self.addConnection("Negator","Adder")
+        self.addConnection("IN1", "Adder")
+
+        self.addConnection("IN1","Delay")
+        self.addConnection("Adder","Delay")
+
+        self.addConnection("Delay","Negator2")
+
+        self.addConnection("Negator2","Adder2")
+        self.addConnection("IN1","Adder2")
+
+        self.addConnection("Adder2","Inverter")
+        self.addConnection("delta_t","Inverter")
+
+        self.addConnection("Inverter","OUT1")
+        #TODO test correctness
 
 class IntegratorBlock(CBD):
     """
@@ -800,6 +858,28 @@ class IntegratorBlock(CBD):
     def __init__(self, block_name):
         CBD.__init__(self, block_name, ["IN1", "delta_t", "IC"], ["OUT1"])
         # TO IMPLEMENT
+        self.addBlock(ProductBlock("Product"))
+        self.addBlock(NegatorBlock("Negator"))
+        self.addBlock(DelayBlock("Delay"))
+        self.addBlock(AdderBlock("AdderIC"))
+        self.addBlock(AdderBlock("AdderOut"))
+
+        self.addConnection("IN1", "Product")
+        self.addConnection("delta_t", "Product")
+
+        self.addConnection("Product", "Negator")
+
+        self.addConnection("IC","AdderIC")
+        self.addConnection("Negator", "AdderIC")
+
+        self.addConnection("AdderOut","Delay")
+        self.addConnection("AdderIC","Delay")
+
+        self.addConnection("Delay","AdderOut")
+        self.addConnection("Product","AdderOut", out_port_name="OUT1")
+
+        self.addConnection("AdderOut","OUT1")
+        #TODO test correctness
 
 
 """ This module implements a dependency graph
@@ -1072,16 +1152,3 @@ class DepGraph:
                 self.__dfsCollect(dependent, component, curIt)
 
             component.append(object)
-
-
-
-
-
-
-
-
-
-
-
-
-
