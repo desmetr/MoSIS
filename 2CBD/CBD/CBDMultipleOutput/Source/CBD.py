@@ -1,6 +1,7 @@
 import math
 import naivelog
 from collections import namedtuple
+from LatexWriter import *
 
 InputLink = namedtuple("InputLink", ["block", "output_port"])
 Signal = namedtuple("Signal", ["time", "value"])
@@ -79,8 +80,13 @@ class BaseBlock:
         #"InputLink", ["block", "output_port"]
 
         dependencies = []
-        for InputLink, (block, output_port) in self._linksIn:
-            dependencies.append(block)
+
+        # for InputLink, (block, output_port) in self._linksIn:
+        #     dependencies.append(block)
+
+        # Denk dat dit de juiste code is? Anders krijg ik een too many values to unpack error
+        for linkIn in self._linksIn:
+            dependencies.append(self._linksIn[linkIn].block)
         return dependencies
 
     def getBlockConnectedToInput(self, input_port):
@@ -150,6 +156,7 @@ class ConstantBlock(BaseBlock):
         # TO IMPLEMENT
         print "IN COMPUTE CONSTANTBLOCK"
         self.appendToSignal(self.__value, "OUT1")
+        latexWriter.writeConstant(self.__value)
 
     def __repr__(self):
         return BaseBlock.__repr__(self) + "  Value = " + str(self.getValue()) + "\n"
@@ -167,6 +174,7 @@ class NegatorBlock(BaseBlock):
         in1 = self.getInputSignal(curIteration, "IN1").value
         result = -1 * in1
         self.appendToSignal(result, "OUT1")
+        latexWriter.writeNegation(result)
 
 class InverterBlock(BaseBlock):
     """
@@ -183,6 +191,7 @@ class InverterBlock(BaseBlock):
         if in1 != 0:
             result = 1 / in1
         self.appendToSignal(result, "OUT1")
+        latexWriter.writeInvertion(in1)
 
 class AdderBlock(BaseBlock):
     """
@@ -198,6 +207,7 @@ class AdderBlock(BaseBlock):
         in2 = self.getInputSignal(curIteration, "IN2").value
         result = in1 + in2
         self.appendToSignal(result, "OUT1")
+        latexWriter.writeAddition(in1, in2)
 
 class ProductBlock(BaseBlock):
     """
@@ -213,6 +223,7 @@ class ProductBlock(BaseBlock):
         in2 = self.getInputSignal(curIteration, "IN2").value
         result = in1 * in2
         self.appendToSignal(result, "OUT1")
+        latexWriter.writeProduct(in1, in2)
 
 class GenericBlock(BaseBlock):
     """
@@ -263,6 +274,7 @@ class RootBlock(BaseBlock):
             pass
             #TODO log error
         self.appendToSignal(result, "OUT1")
+        latexWriter.writeRoot(in1, in2)
 
 class ModuloBlock(BaseBlock):
     """
@@ -278,6 +290,7 @@ class ModuloBlock(BaseBlock):
         in2 = self.getInputSignal(curIteration, "IN2").value
         result = in1 % in2
         self.appendToSignal(result, "OUT1")
+        latexWriter.writeModulo(in1, in2)
 
 class DelayBlock(BaseBlock):
     """
@@ -667,7 +680,7 @@ class CBD(BaseBlock):
         Else: call exit(1) to exit the simulation with exit code 1
         """
         # TO IMPLEMENT
-        pass
+        print strongComponent
 
     def __constructLinearInput(self, strongComponent, curIteration):
         """

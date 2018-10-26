@@ -4,6 +4,9 @@ class LatexWriter:
 	def __init__(self):
 		self.file = open("equations.tex", "w")
 
+		self.constantCounter = 0
+		self.variableCounter = 0
+
 	def writeBeginDocument(self):
 		self.file.write("\\documentclass[a4paper,12pt]{article}\n")
 		self.file.write("\\usepackage{amsmath}\n")
@@ -20,64 +23,54 @@ class LatexWriter:
 	def writeNewSection(self, name):
 		self.file.write("\\section{" + name + "}\n")
 
-	def writeEquations(self, sortedGraph, depGraph, curIteration):
+	def writeBeginArray(self):
 		self.file.write("\\[\n")
 		self.file.write("\\left\\{\n")
 		self.file.write("\\begin{array}{c}\n")
-
-		# TODO write equations
-		self.file.write("a_1x+b_1y+c_1z=d_1 \\\\\n") 
-		self.file.write("a_2x+b_2y+c_2z=d_2 \\\\\n") 
-		self.file.write("a_3x+b_3y+c_3z=d_3\n")
 		
+	def writeEndArray(self):
 		self.file.write("\\end{array}\n")
 		self.file.write("\\right.\n")
 		self.file.write("\\]\n")
 
-	def getConstant(self, in1, out=None):
-		result = str(in1)
-		if out != None:
-			result += " = " + str(out)
-		return result
+	def writeConstant(self, in1):
+		result = "c_" + str(self.constantCounter) + " = " + str(in1)
+		self.file.write(result + " \\\\\n")
+		self.constantCounter += 1
 
-	def getNegation(self, in1, out=None):
-		result = "-" + str(in1)
-		if out != None:
-			result += " = " + str(out)
-		return result
+	def writeNegation(self, in1):
+		result = "v_" + str(self.variableCounter) + " = " + str(in1)
+		self.file.write(result + " \\\\\n")
+		self.variableCounter += 1
 
-	def getInverter(self, in1, out=None):
-		result = "\\frac{1}{" + str(in1) + "}"
-		if out != None:
-			result += " = " + str(out)
-		return result
+	def writeInvertion(self, in1):
+		result = "v_" + str(self.variableCounter) + " = " + "\\frac{1}{" + str(in1) + "}"
+		self.file.write(result + " \\\\\n")
+		self.variableCounter += 1
 
-	def getAddition(self, in1, in2, out=None):
-		result = str(in1) + "+" + str(in2) 
-		if out != None:
-			result += " = " + str(out)
-		return result
+	def writeAddition(self, in1, in2):
+		result = "v_" + str(self.variableCounter) + " = " + str(in1) + "+" + str(in2) 
+		self.file.write(result + " \\\\\n")
+		self.variableCounter += 1
 	
-	def getProduct(self, in1, in2, out=None):
-		result = str(in1) + "*" + str(in2)
-		if out != None:
-			result += " = " + str(out)
-		return result
+	def writeProduct(self, in1, in2):
+		result = "v_" + str(self.variableCounter) + " = " + str(in1) + "*" + str(in2)
+		self.file.write(result + " \\\\\n")
+		self.variableCounter += 1
 
-	def getDivision(self, in1, in2, out=None):
-		result = "\\frac{" + str(in1) + "}{" + str(in2)
-		if out != None:
-			result += " = " + str(out)
-		return result
+	def writeDivision(self, in1, in2):
+		result = "v_" + str(self.variableCounter) + " = " + "\\frac{" + str(in1) + "}{" + str(in2) + "}"
+		self.file.write(result + " \\\\\n")
+		self.variableCounter += 1
 
-	def getRoot(self, in1, in2, out=None):
-		result = "\\sqrt[" + str(in2) + "]{" + str(in1) + "}"
-		if out != None:
-			result += " = " + str(out)
-		return result
+	def writeRoot(self, in1, in2):
+		result = "v_" + str(self.variableCounter) + " = " + "\\sqrt[" + str(in2) + "]{" + str(in1) + "}"
+		self.file.write(result + " \\\\\n")
+		self.variableCounter += 1
 
-	def getModulo(self, in1, in2, out=None):
-		result = str(in1) + "*\\mod" + str(in2)
-		if out != None:
-			result += " = " + str(out)
-		return result
+	def writeModulo(self, in1, in2, out=None):
+		result = "v_" + str(self.variableCounter) + " = " + str(in1) + "*\\mod" + str(in2)
+		self.file.write(result + " \\\\\n")
+		self.variableCounter += 1
+
+latexWriter = LatexWriter()

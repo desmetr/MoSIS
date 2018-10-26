@@ -15,3 +15,7 @@ CBD.py
 	* CBD.__createDepGraph()		:	NOK by Rafael V1
 		PRIORITEIT
 	* CBD.__isLinear()				:	NOK by <author>
+
+	- bug bij Double CBD iets met input ports
+	- loop oplossen in CBD = __isLinear method
+	- bij latex de variablen die reeds zijn gevonden in vergelijking gebruiken
