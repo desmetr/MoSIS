@@ -240,6 +240,7 @@ class GenericBlock(BaseBlock):
         in1 = self.getInputSignal(curIteration, "IN1").value
         result = getattr(math, self.__block_operator)(in1)
         self.appendToSignal(result, "OUT1")
+        latexWriter.writeGeneric(in1, self.__block_operator)
 
     def __repr__(self):
         repr = BaseBlock.__repr__(self)

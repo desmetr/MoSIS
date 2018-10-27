@@ -98,8 +98,16 @@ class GenericCBD(CBD):
         CBD.__init__(self, block_name, input_ports=[], output_ports=["OutGeneric"])
         self.addBlock(ConstantBlock(block_name="two", value=2.0))
         self.addBlock(GenericBlock(block_name="exp", block_operator="exp"))
+        self.addBlock(GenericBlock(block_name="floor", block_operator="floor"))
+        self.addBlock(GenericBlock(block_name="ceil", block_operator="ceil"))
+        self.addBlock(GenericBlock(block_name="fabs", block_operator="fabs"))
+        self.addBlock(GenericBlock(block_name="sin", block_operator="sin"))
 
         self.addConnection("two", "exp")
+        self.addConnection("two", "floor")
+        self.addConnection("two", "ceil")
+        self.addConnection("two", "fabs")
+        self.addConnection("two", "sin")
         self.addConnection("exp", "OutGeneric")
 
 latexWriter.writeBeginDocument()

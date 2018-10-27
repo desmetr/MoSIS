@@ -58,6 +58,22 @@ class LatexWriter:
 		self.file.write(result + " \\\\\n")
 		self.variableCounter += 1
 
+	def writeGeneric(self, in1, operator):
+		# TODO is het de bedoeling dat we alle math operators moeten kunnen wegschrijven?
+		result = "v_" + str(self.variableCounter) + " = "
+		if operator == "exp":
+			result += "e^{" + str(in1) + "}"
+		elif operator == "ceil":
+			result += "\\left \\lceil{" + str(in1) + "}\\right \\rceil"
+		elif operator == "floor":
+			result += "\\left \\lfloor{" + str(in1) + "}\\right \\rfloor"
+		elif operator == "fabs":
+			result += "\\lvert" + str(in1) + "\\rvert"
+		else:
+			result += operator + "(" + str(in1) + ")"
+		self.file.write(result + " \\\\\n")
+		self.variableCounter += 1
+	
 	def writeDivision(self, in1, in2):
 		result = "v_" + str(self.variableCounter) + " = " + "\\frac{" + str(in1) + "}{" + str(in2) + "}"
 		self.file.write(result + " \\\\\n")
