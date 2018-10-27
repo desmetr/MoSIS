@@ -238,7 +238,7 @@ class GenericBlock(BaseBlock):
     def compute(self, curIteration):
         # TO IMPLEMENT
         in1 = self.getInputSignal(curIteration, "IN1").value
-        result = None
+        result = getattr(math, self.__block_operator)(in1)
         self.appendToSignal(result, "OUT1")
 
     def __repr__(self):

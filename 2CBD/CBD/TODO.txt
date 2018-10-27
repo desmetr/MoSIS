@@ -1,21 +1,20 @@
 CBD.py
 	
 	* BaseBlock.getDependencies()	:	NOK by Rafael V1
-		PRIORITEIT
 	* ConstantBlock.compute()		:	NOK by Rafael V1
 	* NegatorBlock.compute()		:	NOK by Rafael V1
 	* InverterBlock.compute()		:	NOK by Rafael V1
 	* AdderBlock.compute()			:	NOK by Rafael V1
 	* ProductBlock.compute()		:	NOK by Rafael V1
-	* GenericBlock.compute()		:	NOK by <author>
+	* GenericBlock.compute()		:	NOK by Rafael V1
 	* RootBlock.compute()			:	NOK by Rafael V1
 	* ModuloBlock.compute()			:	NOK by Rafael V1
-	* DelayBlock.getDependencies()	:	NOK by <author>
-	* DelayBlock.compute()			:	NOK by <author>
+	* DelayBlock.getDependencies()	:	NOK by BP V1
+	* DelayBlock.compute()			:	NOK by BP V1
 	* CBD.__createDepGraph()		:	NOK by Rafael V1
-		PRIORITEIT
-	* CBD.__isLinear()				:	NOK by <author>
+	* CBD.__isLinear()				:	NOK by Rafael V1
+	* IntegratorBlock				:	NOK by BP V1
+	* DerivativeBlock				:	NOK by BP V1
 
 	- bug bij Double CBD iets met input ports
-	- loop oplossen in CBD = __isLinear method
 	- bij latex de variablen die reeds zijn gevonden in vergelijking gebruiken

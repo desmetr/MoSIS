@@ -93,6 +93,15 @@ class ConstantCBD(CBD):
         self.addBlock(ConstantBlock(block_name="minus1", value=-1.0))
         self.addBlock(ConstantBlock(block_name="five", value=5.0))
 
+class GenericCBD(CBD):
+    def __init__(self, block_name):
+        CBD.__init__(self, block_name, input_ports=[], output_ports=["OutGeneric"])
+        self.addBlock(ConstantBlock(block_name="two", value=2.0))
+        self.addBlock(GenericBlock(block_name="exp", block_operator="exp"))
+
+        self.addConnection("two", "exp")
+        self.addConnection("exp", "OutGeneric")
+
 latexWriter.writeBeginDocument()
 latexWriter.writeTitle("Assignment 2 - CBD")
 latexWriter.writeNewSection("Equations")
@@ -115,9 +124,13 @@ latexWriter.writeBeginArray()
 # linearLoopCBD2.run(1)
 # draw(linearLoopCBD2, "linearLoopCBD2.dot")
 
-nonLinearLoopCBD1 = NonLinearLoopCBD1("nonLinearLoopCBD1")
-nonLinearLoopCBD1.run(1)
+# nonLinearLoopCBD1 = NonLinearLoopCBD1("nonLinearLoopCBD1")
+# nonLinearLoopCBD1.run(1)
 # draw(nonLinearLoopCBD1, "nonLinearLoopCBD1.dot")
+
+genericCBD = GenericCBD("genericCBD")
+genericCBD.run(1)
+draw(genericCBD, "genericCBD.dot")
 
 # constantCBD = ConstantCBD("constantCBD")
 # constantCBD.run(1)

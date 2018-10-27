@@ -1,0 +1,8 @@
+digraph graphname
+{OutGeneric [label="OutputPortBlock (OutGeneric)"];
+exp -> OutGeneric [label=""];
+two [label="ConstantBlock (two)\n2.0"];
+exp [label="GenericBlock (exp)"];
+two -> exp [label=""];
+
+}
