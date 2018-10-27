@@ -4,31 +4,31 @@ from CBDMultipleOutput.Source.CBD import *
 from CBDMultipleOutput.Source.CBDDraw import draw
 from CBDMultipleOutput.Source.LatexWriter import *
 
-class Adder(CBD):        
+class Adder(CBD):
     def __init__(self, block_name):
         CBD.__init__(self, block_name, input_ports=[], output_ports=["OutDouble"])
         self.addBlock(ConstantBlock(block_name="three", value=3.0))
         self.addBlock(ConstantBlock(block_name="two", value=2.0))
         self.addBlock(AdderBlock(block_name="adder"))
-      
+
         self.addConnection("three", "adder")
         self.addConnection("two", "adder")
         self.addConnection("adder", "OutDouble")
 
 # TODO fix input ports bug
-class Double(CBD):        
+class Double(CBD):
     def __init__(self, block_name):
         CBD.__init__(self, block_name, input_ports=["InNumber"], output_ports=["OutDouble"])
         self.addBlock(ProductBlock(block_name="mult"))
         self.addBlock(ConstantBlock(block_name="two", value=2.0))
-        
+
         self.addConnection("InNumber", "mult")
         self.addConnection("two", "mult")
         self.addConnection("mult", "OutDouble")
 
 class ModInv(CBD):
     def __init__(self, block_name):
-        CBD.__init__(self, block_name, input_ports=[], output_ports=["OutModInv"])      
+        CBD.__init__(self, block_name, input_ports=[], output_ports=["OutModInv"])
         self.addBlock(ConstantBlock(block_name="five", value=5.0))
         self.addBlock(ConstantBlock(block_name="ten", value=10.0))
         self.addBlock(ModuloBlock(block_name="modulo"))

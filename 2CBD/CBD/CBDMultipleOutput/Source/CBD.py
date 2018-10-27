@@ -154,7 +154,6 @@ class ConstantBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        print "IN COMPUTE CONSTANTBLOCK"
         self.appendToSignal(self.__value, "OUT1")
         latexWriter.writeConstant(self.__value)
 
@@ -170,7 +169,6 @@ class NegatorBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        print "IN COMPUTE NEGATORBLOCK"
         in1 = self.getInputSignal(curIteration, "IN1").value
         result = -1 * in1
         self.appendToSignal(result, "OUT1")
@@ -185,7 +183,6 @@ class InverterBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        print "IN COMPUTE INVERTERBLOCK"
         in1 = self.getInputSignal(curIteration, "IN1").value
         result = None
         if in1 != 0:
@@ -202,7 +199,6 @@ class AdderBlock(BaseBlock):
 
     def	compute(self, curIteration):
         # TO IMPLEMENT
-        print "IN COMPUTE ADDERBLOCK"
         in1 = self.getInputSignal(curIteration, "IN1").value
         in2 = self.getInputSignal(curIteration, "IN2").value
         result = in1 + in2
@@ -218,7 +214,6 @@ class ProductBlock(BaseBlock):
 
     def	compute(self, curIteration):
         # TO IMPLEMENT
-        print "IN COMPUTE PRODUCTBLOCK"
         in1 = self.getInputSignal(curIteration, "IN1").value
         in2 = self.getInputSignal(curIteration, "IN2").value
         result = in1 * in2
@@ -242,7 +237,6 @@ class GenericBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        print "IN COMPUTE GENERICBLOCK"
         in1 = self.getInputSignal(curIteration, "IN1").value
         result = None
         self.appendToSignal(result, "OUT1")
@@ -264,7 +258,6 @@ class RootBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        print "IN COMPUTE ROOTBLOCK"
         in1 = self.getInputSignal(curIteration, "IN1").value
         in2 = self.getInputSignal(curIteration, "IN2").value
         result = None
@@ -285,7 +278,6 @@ class ModuloBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        print "IN COMPUTE MODULOBLOCK"
         in1 = self.getInputSignal(curIteration, "IN1").value
         in2 = self.getInputSignal(curIteration, "IN2").value
         result = in1 % in2
@@ -319,7 +311,7 @@ class DelayBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        print "IN COMPUTE DELAYBLOCK"
+        print "IN DELAY BLOCK"
         if curIteration == 0:
             result = self.getInputSignal(curIteration, "IC").value
         else:
@@ -841,27 +833,30 @@ class DerivatorBlock(CBD):
         self.addBlock(NegatorBlock("Negator2"))
         self.addBlock(AdderBlock("Adder2"))
         self.addBlock(InverterBlock("Inverter"))
+        self.addBlock(ProductBlock("Product2"))
 
         self.addConnection("IC","Product")
-        self.addConnection("delta_t","Product")
+        self.addConnection("delta_t","Product", output_port_name="OUT1")
 
         self.addConnection("Product","Negator")
 
         self.addConnection("Negator","Adder")
-        self.addConnection("IN1", "Adder")
+        self.addConnection("IN1", "Adder", output_port_name="OUT1")
 
-        self.addConnection("IN1","Delay")
-        self.addConnection("Adder","Delay")
+        self.addConnection("IN1","Delay", output_port_name="OUT1")
+        self.addConnection("Adder","Delay", input_port_name="IC")
 
         self.addConnection("Delay","Negator2")
 
         self.addConnection("Negator2","Adder2")
         self.addConnection("IN1","Adder2")
 
-        self.addConnection("Adder2","Inverter")
-        self.addConnection("delta_t","Inverter")
+        self.addConnection("delta_t","Inverter", output_port_name="OUT1")
 
-        self.addConnection("Inverter","OUT1")
+        self.addConnection("Adder2","Product2")
+        self.addConnection("Inverter","Product2")
+
+        self.addConnection("Product2","OUT1")
         #TODO test correctness
 
 class IntegratorBlock(CBD):
@@ -880,16 +875,16 @@ class IntegratorBlock(CBD):
         self.addConnection("IN1", "Product")
         self.addConnection("delta_t", "Product")
 
-        self.addConnection("Product", "Negator")
+        self.addConnection("Product", "Negator", output_port_name="OUT1")
 
         self.addConnection("IC","AdderIC")
         self.addConnection("Negator", "AdderIC")
 
         self.addConnection("AdderOut","Delay")
-        self.addConnection("AdderIC","Delay")
+        self.addConnection("AdderIC","Delay", input_port_name="IC")
 
         self.addConnection("Delay","AdderOut")
-        self.addConnection("Product","AdderOut", out_port_name="OUT1")
+        self.addConnection("Product","AdderOut", output_port_name="OUT1")
 
         self.addConnection("AdderOut","OUT1")
         #TODO test correctness
