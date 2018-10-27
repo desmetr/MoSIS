@@ -39,7 +39,7 @@ class ModInv(CBD):
         self.addConnection("modulo", "inverter")
         self.addConnection("inverter", "OutModInv")
 
-class LoopCBD1(CBD):
+class LinearLoopCBD1(CBD):
     def __init__(self, block_name):
         CBD.__init__(self, block_name, input_ports=[], output_ports=[])
         self.addBlock(ConstantBlock(block_name="two", value=2.0))
@@ -57,6 +57,34 @@ class LoopCBD1(CBD):
         self.addConnection("adder1", "negator")
         self.addConnection("negator", "adder2")
         self.addConnection("adder2", "product") # LOOP
+
+class LinearLoopCBD2(CBD):
+    def __init__(self, block_name):
+        CBD.__init__(self, block_name, input_ports=[], output_ports=[])
+        self.addBlock(ConstantBlock(block_name="two", value=2.0))
+        self.addBlock(ConstantBlock(block_name="three", value=3.0))
+        self.addBlock(ProductBlock(block_name="product"))
+        self.addBlock(AdderBlock(block_name="adder"))
+        self.addBlock(NegatorBlock(block_name="negator"))
+
+        self.addConnection("two", "product")
+        self.addConnection("three", "negator")
+        self.addConnection("negator", "adder")
+        self.addConnection("product", "adder")
+        self.addConnection("adder", "product") # LOOP
+
+class NonLinearLoopCBD1(CBD):
+    def __init__(self, block_name):
+        CBD.__init__(self, block_name, input_ports=[], output_ports=[])
+        self.addBlock(ConstantBlock(block_name="two", value=2.0))
+        self.addBlock(ConstantBlock(block_name="three", value=3.0))
+        self.addBlock(ProductBlock(block_name="product"))
+        self.addBlock(RootBlock(block_name="root"))
+
+        self.addConnection("two", "product")
+        self.addConnection("three", "root")
+        self.addConnection("product", "root")
+        self.addConnection("root", "product") # LOOP
 
 class ConstantCBD(CBD):
     def __init__(self, block_name):
@@ -79,8 +107,17 @@ latexWriter.writeBeginArray()
 # modInv = ModInv(block_name="modInv")
 # modInv.run(1)
 
-loopCBD1 = LoopCBD1("loopCBD1")
-loopCBD1.run(1)
+# linearLoopCBD1 = LinearLoopCBD1("linearLoopCBD1")
+# linearLoopCBD1.run(1)
+# draw(linearLoopCBD1, "linearLoopCBD1.dot")
+
+# linearLoopCBD2 = LinearLoopCBD2("linearLoopCBD2")
+# linearLoopCBD2.run(1)
+# draw(linearLoopCBD2, "linearLoopCBD2.dot")
+
+nonLinearLoopCBD1 = NonLinearLoopCBD1("nonLinearLoopCBD1")
+nonLinearLoopCBD1.run(1)
+# draw(nonLinearLoopCBD1, "nonLinearLoopCBD1.dot")
 
 # constantCBD = ConstantCBD("constantCBD")
 # constantCBD.run(1)

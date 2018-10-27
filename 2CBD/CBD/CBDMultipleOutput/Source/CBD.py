@@ -644,6 +644,7 @@ class CBD(BaseBlock):
                 # Detected a strongly connected component
                 if not self.__isLinear(component):
                     self.__logger.fatal("Cannot solve non-linear algebraic loop")
+                print "IS LINEAR"
                 solverInput = self.__constructLinearInput(component, curIteration)
                 self.__gaussjLinearSolver(solverInput)
                 solutionVector = solverInput[1]
@@ -672,7 +673,40 @@ class CBD(BaseBlock):
         Else: call exit(1) to exit the simulation with exit code 1
         """
         # TO IMPLEMENT
-        print strongComponent
+
+        # Zie paper MDE_project_final in assignment folder voor de regels hier gebruikt.
+
+        for i in strongComponent:
+            # If the strong component contains a RootBlock, we know it's nonlinear.
+            if isinstance(i, RootBlock):
+                self.__logger.fatal("Found a non-linear algebraic loop")
+                exit(1)
+
+            # If a ProductBlock has no ConstantBlocks as input, we know it's nonlinear.
+            elif isinstance(i, ProductBlock):
+                dependencies = i.getDependencies(0)
+                
+                numberOfConstantBlocks = 0
+                for dep in dependencies:
+                    if isinstance(dep, ConstantBlock):
+                        numberOfConstantBlocks += 1
+
+                    # If one of the inputs is either a 
+                    # WireBlock, an InputPortBlock, an OutputPortBlock, an IntegratorBlock or a DerivatorBlock
+                    # we have found a linear equation.
+                    elif isinstance(dep, WireBlock) or \
+                         isinstance(dep, InputPortBlock) or \
+                         isinstance(dep, OutputPortBlock) or \
+                         isinstance(dep, IntegratorBlock) or \
+                         isinstance(dep, DerivatorBlock):
+                        return True
+
+                if numberOfConstantBlocks < 1:
+                    self.__logger.fatal("Found a non-linear algebraic loop")
+                    exit(1)
+
+            else:
+                return True
 
     def __constructLinearInput(self, strongComponent, curIteration):
         """
