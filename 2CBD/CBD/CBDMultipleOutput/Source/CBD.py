@@ -262,7 +262,7 @@ class GenericBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        self.in1 = self.getInputSignal(curIteration, "IN1").value
+        in1 = self.getInputSignal(curIteration, "IN1").value
         result = getattr(math, self.__block_operator)(in1)
         self.appendToSignal(result, "OUT1")
         latexWriter.writeGeneric(in1, self.__block_operator)
