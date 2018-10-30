@@ -101,6 +101,9 @@ class BaseBlock:
         curIteration = -1 if curIteration == None else curIteration
 
         (incoming_block, out_port_name) = self._linksIn[input_port]
+        print curIteration, self.getBlockName(), self._linksIn
+        print " ###", incoming_block.getBlockName(), out_port_name, incoming_block.getSignal(out_port_name)
+        # print incoming_block.getSignal(out_port_name)[curIteration]
         return incoming_block.getSignal(out_port_name)[curIteration]
 
     def compute(self, curIteration):
@@ -307,15 +310,13 @@ class DelayBlock(BaseBlock):
 
         dependencies = []
         if curIteration == 0:
-            return dependencies.append(self._linksIn[0])
+            dependencies.append(self._linksIn["IC"].block)
         return dependencies
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        print "IN DELAY BLOCK"
-        if curIteration == 0:
-            result = self.getInputSignal(curIteration, "IC").value
-        else:
+        result = self.getInputSignal(curIteration, "IC").value
+        if curIteration > 0:
             result = self.__values[-1]
         self.__values.append(self.getInputSignal(curIteration, "IN1").value)
         self.appendToSignal(result, "OUT1")
@@ -686,13 +687,13 @@ class CBD(BaseBlock):
             # If a ProductBlock has no ConstantBlocks as input, we know it's nonlinear.
             elif isinstance(i, ProductBlock):
                 dependencies = i.getDependencies(0)
-                
+
                 numberOfConstantBlocks = 0
                 for dep in dependencies:
                     if isinstance(dep, ConstantBlock):
                         numberOfConstantBlocks += 1
 
-                    # If one of the inputs is either a 
+                    # If one of the inputs is either a
                     # WireBlock, an InputPortBlock, an OutputPortBlock, an IntegratorBlock or a DerivatorBlock
                     # we have found a linear equation.
                     elif isinstance(dep, WireBlock) or \

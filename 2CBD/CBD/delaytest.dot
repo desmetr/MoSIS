@@ -1,0 +1,8 @@
+digraph graphname
+{c1 [label="ConstantBlock (c1)\n5.0"];
+c2 [label="ConstantBlock (c2)\n3.0"];
+d [label="DelayBlock (d)"];
+c1 -> d [label="IC"];
+c2 -> d [label=""];
+
+}
