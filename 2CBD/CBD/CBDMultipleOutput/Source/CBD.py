@@ -101,9 +101,9 @@ class BaseBlock:
         curIteration = -1 if curIteration == None else curIteration
 
         (incoming_block, out_port_name) = self._linksIn[input_port]
-        print curIteration, self.getBlockName(), self._linksIn
-        print " ###", incoming_block.getBlockName(), out_port_name, incoming_block.getSignal(out_port_name)
-        # print incoming_block.getSignal(out_port_name)[curIteration]
+        # print curIteration, self.getBlockName(), self._linksIn
+        # print " ###", incoming_block.getBlockName(), out_port_name, incoming_block.getSignal(out_port_name)
+        print incoming_block, "curIteration: ", curIteration
         return incoming_block.getSignal(out_port_name)[curIteration]
 
     def compute(self, curIteration):

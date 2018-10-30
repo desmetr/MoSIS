@@ -2,11 +2,11 @@ from bokeh.plotting import figure, output_file, show
 from CBDMultipleOutput.Source.CBD import *
 from CBDMultipleOutput.Source.CBDDraw import draw
 
-deriv = DerivatorBlock("deriv")
-draw(deriv, "deriv.dot")
+# deriv = DerivatorBlock("deriv")
+# draw(deriv, "deriv.dot")
 
-integr = IntegratorBlock("integrator")
-draw(integr, "integrator.dot")
+# integr = IntegratorBlock("integrator")
+# draw(integr, "integrator.dot")
 
 def _getSignal(cbd, blockname, output_port = None):
   foundBlocks = [ block for block in cbd.getBlocks() if block.getBlockName() == blockname ]
@@ -29,6 +29,6 @@ def testDelayBlock():
 
     cbd.run(4)
     print _getSignal(cbd, "d")
-    draw(cbd, "delaytest.dot")
+    # draw(cbd, "delaytest.dot")
 
 testDelayBlock()
