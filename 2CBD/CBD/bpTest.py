@@ -8,6 +8,16 @@ from CBDMultipleOutput.Source.CBDDraw import draw
 # integr = IntegratorBlock("integrator")
 # draw(integr, "integrator.dot")
 
+def testNegatorBlockPos():
+  cbd = CBD("CBD")
+  cbd.addBlock(ConstantBlock(block_name="c1", value=6.0))
+  cbd.addBlock(NegatorBlock(block_name="n"))
+  cbd.addConnection("c1", "n")
+
+  cbd.run(4)
+  print _getSignal(cbd, "n")
+
+
 def _getSignal(cbd, blockname, output_port = None):
   foundBlocks = [ block for block in cbd.getBlocks() if block.getBlockName() == blockname ]
   numFoundBlocks = len(foundBlocks)
@@ -29,6 +39,7 @@ def testDelayBlock():
 
     cbd.run(4)
     print _getSignal(cbd, "d")
+    print _getSignal(cbd, "d") == [5.0, 3.0, 3.0, 3.0]
     # draw(cbd, "delaytest.dot")
 
 testDelayBlock()

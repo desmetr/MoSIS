@@ -107,7 +107,7 @@ class BaseBlock:
         (incoming_block, out_port_name) = self._linksIn[input_port]
         # print curIteration, self.getBlockName(), self._linksIn
         # print " ###", incoming_block.getBlockName(), out_port_name, incoming_block.getSignal(out_port_name)
-        print incoming_block, "curIteration: ", curIteration
+        # print incoming_block, "curIteration: ", curIteration
         return incoming_block.getSignal(out_port_name)[curIteration]
 
     def compute(self, curIteration):
@@ -177,12 +177,12 @@ class NegatorBlock(BaseBlock):
     """
     def __init__(self, block_name):
         BaseBlock.__init__(self, block_name, ["IN1"], ["OUT1"])
-        self.result = None
+        # self.result = None
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        self.in1 = self.getInputSignal(curIteration, "IN1").value
-        self.result = -1 * in1
+        in1 = self.getInputSignal(curIteration, "IN1").value
+        result = -1 * in1
         self.appendToSignal(result, "OUT1")
         latexWriter.writeNegation(result)
 
@@ -199,7 +199,7 @@ class InverterBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        self.in1 = self.getInputSignal(curIteration, "IN1").value
+        in1 = self.getInputSignal(curIteration, "IN1").value
         result = None
         if in1 != 0:
             result = 1 / in1
@@ -219,8 +219,8 @@ class AdderBlock(BaseBlock):
 
     def	compute(self, curIteration):
         # TO IMPLEMENT
-        self.in1 = self.getInputSignal(curIteration, "IN1").value
-        self.in2 = self.getInputSignal(curIteration, "IN2").value
+        in1 = self.getInputSignal(curIteration, "IN1").value
+        in2 = self.getInputSignal(curIteration, "IN2").value
         result = in1 + in2
         self.appendToSignal(result, "OUT1")
         latexWriter.writeAddition(in1, in2)
@@ -238,8 +238,8 @@ class ProductBlock(BaseBlock):
 
     def	compute(self, curIteration):
         # TO IMPLEMENT
-        self.in1 = self.getInputSignal(curIteration, "IN1").value
-        self.in2 = self.getInputSignal(curIteration, "IN2").value
+        in1 = self.getInputSignal(curIteration, "IN1").value
+        in2 = self.getInputSignal(curIteration, "IN2").value
         result = in1 * in2
         self.appendToSignal(result, "OUT1")
         latexWriter.writeProduct(in1, in2)
@@ -291,8 +291,8 @@ class RootBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        self.in1 = self.getInputSignal(curIteration, "IN1").value
-        self.in2 = self.getInputSignal(curIteration, "IN2").value
+        in1 = self.getInputSignal(curIteration, "IN1").value
+        in2 = self.getInputSignal(curIteration, "IN2").value
         result = None
         if in2 >= 0:
             result = in1 ** (1 / in2)
@@ -315,8 +315,8 @@ class ModuloBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        self.in1 = self.getInputSignal(curIteration, "IN1").value
-        self.in2 = self.getInputSignal(curIteration, "IN2").value
+        in1 = self.getInputSignal(curIteration, "IN1").value
+        in2 = self.getInputSignal(curIteration, "IN2").value
         result = in1 % in2
         self.appendToSignal(result, "OUT1")
         latexWriter.writeModulo(in1, in2)
@@ -352,10 +352,11 @@ class DelayBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        result = self.getInputSignal(curIteration, "IC").value
-        if curIteration > 0:
-            result = self.__values[-1]
-        self.__values.append(self.getInputSignal(curIteration, "IN1").value)
+        result = None
+        if curIteration == 0:
+            result = self.getInputSignal(curIteration, "IC").value
+        else :
+            result = self.getInputSignal(curIteration-1, "IN1").value
         self.appendToSignal(result, "OUT1")
 
 class InputPortBlock(BaseBlock):
