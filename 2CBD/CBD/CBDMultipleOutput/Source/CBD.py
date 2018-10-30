@@ -105,9 +105,6 @@ class BaseBlock:
         curIteration = -1 if curIteration == None else curIteration
 
         (incoming_block, out_port_name) = self._linksIn[input_port]
-        # print curIteration, self.getBlockName(), self._linksIn
-        # print " ###", incoming_block.getBlockName(), out_port_name, incoming_block.getSignal(out_port_name)
-        # print incoming_block, "curIteration: ", curIteration
         return incoming_block.getSignal(out_port_name)[curIteration]
 
     def compute(self, curIteration):
@@ -380,7 +377,7 @@ class OutputPortBlock(BaseBlock):
 
     def	compute(self, curIteration):
         self.appendToSignal(self.getInputSignal(curIteration, "IN1").value)
-        print self.getSignal()
+        # print self.getSignal()
 
 class WireBlock(BaseBlock):
     """
@@ -634,14 +631,18 @@ class CBD(BaseBlock):
         self.getClock().setDeltaT(self.__deltaT)
         self.getClock().step()
 
-    def __createDepGraph(self, curIteration):
+    def __createDepGraph(self, curIteration, depGraph=None):
         """
          Create a dependency graph of the CBD model.
          Use the curIteration to differentiate between the first and other iterations
          Watch out for dependencies with sub-models.
         """
         blocks = self.getBlocks()
-        depGraph = DepGraph()
+        if depGraph == None:
+            depGraph = DepGraph()
+            for currentBlock in blocks:
+                currentDepNode = DepNode(currentBlock)
+                depGraph.addMember(currentBlock)
         # TO IMPLEMENT
         # hints: use depGraph.setDependency(block, block_it_depends_on)
         #        use the getDependencies that is implemented in each specific block.
@@ -656,22 +657,13 @@ class CBD(BaseBlock):
         # Create a directed edge (node(b_q), node(b_p)) in the dependency graph, to mark
         # that fact that bq depends on bp.
 
-        # for b in blocks:
-        #     print b
-
-        #BP:         volgens mij is er recursie nodig voor sub-models
-
-        for currentBlock in blocks:
-            currentDepNode = DepNode(currentBlock)
-            depGraph.addMember(currentBlock)
 
         for currentBlock in blocks:
             currentDependencies = currentBlock.getDependencies(curIteration)
             for currentDep in currentDependencies:
-                # print currentDep
                 depGraph.setDependency(currentBlock, currentDep, curIteration)
-
-        # print depGraph
+            if isinstance(currentBlock, CBD):
+                currentBlock.__createDepGraph(curIteration, depGraph)
 
         return depGraph
 

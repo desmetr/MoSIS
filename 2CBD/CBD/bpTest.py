@@ -42,4 +42,34 @@ def testDelayBlock():
     print _getSignal(cbd, "d") == [5.0, 3.0, 3.0, 3.0]
     # draw(cbd, "delaytest.dot")
 
-testDelayBlock()
+def initializeFuncDerBas():
+    #f(t) = 5*t
+    CBDFunc = CBD("function", output_ports = ["OUT1"])
+    CBDFunc.addBlock(TimeBlock(block_name="t"))
+    CBDFunc.addBlock(ProductBlock(block_name="p"))
+    CBDFunc.addBlock(ConstantBlock(block_name="c", value=5.0))
+    CBDFunc.addConnection("t", "p")
+    CBDFunc.addConnection("c", "p")
+    CBDFunc.addConnection("p", "OUT1")
+    return CBDFunc
+
+def testDerivatorBlock():
+    cbd = CBD("CBD")
+    cbd.addBlock(ConstantBlock(block_name="c3", value=1.0))
+    cbd.addBlock(ConstantBlock(block_name="zero", value=0.0))
+    CBDFunc = initializeFuncDerBas()
+    cbd.addBlock(CBDFunc)
+    der = DerivatorBlock(block_name="der")
+    cbd.addBlock(der)
+
+    cbd.addConnection("c3", "der", input_port_name="delta_t")
+    cbd.addConnection("zero", "der", input_port_name="IC")
+    cbd.addConnection("function", "der")
+
+    # draw(der, "deriv.dot")
+    # draw(CBDFunc, "deriv2.dot")
+    # draw(cbd, "deriv3.dot")
+
+    cbd.run(5)
+    print _getSignal(cbd, "der"), [0.0]+[5.0]*4
+testDerivatorBlock()
