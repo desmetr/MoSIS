@@ -35,6 +35,10 @@ class BaseBlock:
         #In wich CBD the baseblock is situated
         self._parent = None
 
+        # Nieuw - Rafael
+        self.in1 = None
+        self.in2 = None
+
     def getBlockName(self):
         return self.__block_name
 
@@ -160,6 +164,10 @@ class ConstantBlock(BaseBlock):
         self.appendToSignal(self.__value, "OUT1")
         latexWriter.writeConstant(self.__value)
 
+    # Nieuw - Rafael
+    # def writeLatex(self, curIteration):
+    #     latexWriter.writeConstant(self.__value)
+
     def __repr__(self):
         return BaseBlock.__repr__(self) + "  Value = " + str(self.getValue()) + "\n"
 
@@ -169,13 +177,18 @@ class NegatorBlock(BaseBlock):
     """
     def __init__(self, block_name):
         BaseBlock.__init__(self, block_name, ["IN1"], ["OUT1"])
+        self.result = None
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        in1 = self.getInputSignal(curIteration, "IN1").value
-        result = -1 * in1
+        self.in1 = self.getInputSignal(curIteration, "IN1").value
+        self.result = -1 * in1
         self.appendToSignal(result, "OUT1")
         latexWriter.writeNegation(result)
+
+    # Nieuw - Rafael
+    # def writeLatex(self, curIteration):
+    #     latexWriter.writeNegation(self.result)
 
 class InverterBlock(BaseBlock):
     """
@@ -186,12 +199,16 @@ class InverterBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        in1 = self.getInputSignal(curIteration, "IN1").value
+        self.in1 = self.getInputSignal(curIteration, "IN1").value
         result = None
         if in1 != 0:
             result = 1 / in1
         self.appendToSignal(result, "OUT1")
         latexWriter.writeInvertion(in1)
+
+    # Nieuw - Rafael
+    # def writeLatex(self, curIteration):
+    #     latexWriter.writeInvertion(self.in1)
 
 class AdderBlock(BaseBlock):
     """
@@ -202,11 +219,15 @@ class AdderBlock(BaseBlock):
 
     def	compute(self, curIteration):
         # TO IMPLEMENT
-        in1 = self.getInputSignal(curIteration, "IN1").value
-        in2 = self.getInputSignal(curIteration, "IN2").value
+        self.in1 = self.getInputSignal(curIteration, "IN1").value
+        self.in2 = self.getInputSignal(curIteration, "IN2").value
         result = in1 + in2
         self.appendToSignal(result, "OUT1")
         latexWriter.writeAddition(in1, in2)
+
+    # Nieuw - Rafael
+    # def writeLatex(self, curIteration):
+    #     latexWriter.writeAddition(self.in1, self.in2)
 
 class ProductBlock(BaseBlock):
     """
@@ -217,11 +238,15 @@ class ProductBlock(BaseBlock):
 
     def	compute(self, curIteration):
         # TO IMPLEMENT
-        in1 = self.getInputSignal(curIteration, "IN1").value
-        in2 = self.getInputSignal(curIteration, "IN2").value
+        self.in1 = self.getInputSignal(curIteration, "IN1").value
+        self.in2 = self.getInputSignal(curIteration, "IN2").value
         result = in1 * in2
         self.appendToSignal(result, "OUT1")
         latexWriter.writeProduct(in1, in2)
+
+    # Nieuw - Rafael
+    # def writeLatex(self, curIteration):
+    #     latexWriter.writeProduct(self.in1, self.in2)
 
 class GenericBlock(BaseBlock):
     """
@@ -240,10 +265,14 @@ class GenericBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        in1 = self.getInputSignal(curIteration, "IN1").value
+        self.in1 = self.getInputSignal(curIteration, "IN1").value
         result = getattr(math, self.__block_operator)(in1)
         self.appendToSignal(result, "OUT1")
         latexWriter.writeGeneric(in1, self.__block_operator)
+
+    # Nieuw - Rafael
+    # def writeLatex(self, curIteration):
+    #     latexWriter.writeGeneric(self.in1, self.__block_operator)
 
     def __repr__(self):
         repr = BaseBlock.__repr__(self)
@@ -262,16 +291,20 @@ class RootBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        in1 = self.getInputSignal(curIteration, "IN1").value
-        in2 = self.getInputSignal(curIteration, "IN2").value
+        self.in1 = self.getInputSignal(curIteration, "IN1").value
+        self.in2 = self.getInputSignal(curIteration, "IN2").value
         result = None
         if in2 >= 0:
             result = in1 ** (1 / in2)
         else:
-            pass
-            #TODO log error
+            self.__logger.fatal("Can't take the root of a negative number")
+            exit(1)
         self.appendToSignal(result, "OUT1")
         latexWriter.writeRoot(in1, in2)
+
+    # Nieuw - Rafael
+    # def writeLatex(self, curIteration):
+    #     latexWriter.writeRoot(self.in1, self.in2)
 
 class ModuloBlock(BaseBlock):
     """
@@ -282,11 +315,15 @@ class ModuloBlock(BaseBlock):
 
     def compute(self, curIteration):
         # TO IMPLEMENT
-        in1 = self.getInputSignal(curIteration, "IN1").value
-        in2 = self.getInputSignal(curIteration, "IN2").value
+        self.in1 = self.getInputSignal(curIteration, "IN1").value
+        self.in2 = self.getInputSignal(curIteration, "IN2").value
         result = in1 % in2
         self.appendToSignal(result, "OUT1")
         latexWriter.writeModulo(in1, in2)
+
+    # Nieuw - Rafael
+    # def writeLatex(self, curIteration):
+    #     latexWriter.writeModulo(self.in1, self.in2)
 
 class DelayBlock(BaseBlock):
     """
@@ -646,10 +683,15 @@ class CBD(BaseBlock):
                 # Detected a strongly connected component
                 if not self.__isLinear(component):
                     self.__logger.fatal("Cannot solve non-linear algebraic loop")
-                print "IS LINEAR"
                 solverInput = self.__constructLinearInput(component, curIteration)
+                print "M1", solverInput[0]
+                print "M2", solverInput[1]
+                latexWriter.writeSystemOfEquations(solverInput)
                 self.__gaussjLinearSolver(solverInput)
                 solutionVector = solverInput[1]
+                print "----"
+                print solutionVector
+                latexWriter.writeSolution(solutionVector)
                 for block in component:
                     blockIndex = component.index(block)
                     block.appendToSignal(solutionVector[blockIndex])
