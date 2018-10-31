@@ -59,7 +59,6 @@ class LatexWriter:
 		self.variableCounter += 1
 
 	def writeGeneric(self, in1, operator):
-		# TODO is het de bedoeling dat we alle math operators moeten kunnen wegschrijven?
 		result = "x_" + str(self.variableCounter) + " = "
 		if operator == "exp":
 			result += "e^{" + str(in1) + "}"
@@ -108,18 +107,20 @@ class LatexWriter:
 				else:
 					result += "+"
 
-		newResult = []
-		resultList = list(result)
-		found = False
-		for i in range(len(resultList)):
-			if resultList[i] == '+' and resultList[i+1] == '-':
-				newResult.append('-')
-				found = True
-			elif resultList[i] == '-' and found:
-				found = False
-			else:
-				newResult.append(resultList[i])
-		result = ''.join(newResult)
+		# newResult = []
+		# resultList = list(result)
+		# found = False
+		# print len(resultList)
+		# for i in range(len(resultList) - 1):
+		# 	print i
+		# 	if resultList[i] == '+' and resultList[i+1] == '-':
+		# 		newResult.append('-')
+		# 		found = True
+		# 	elif resultList[i] == '-' and found:
+		# 		found = False
+		# 	else:
+		# 		newResult.append(resultList[i])
+		# result = ''.join(newResult)
 
 		self.file.write(result)
 

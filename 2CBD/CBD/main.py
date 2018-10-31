@@ -15,7 +15,6 @@ class Adder(CBD):
         self.addConnection("two", "adder")
         self.addConnection("adder", "OutDouble")
 
-# TODO fix input ports bug
 class Double(CBD):
     def __init__(self, block_name):
         CBD.__init__(self, block_name, input_ports=["InNumber"], output_ports=["OutDouble"])
@@ -110,6 +109,23 @@ class GenericCBD(CBD):
         self.addConnection("two", "sin")
         self.addConnection("exp", "OutGeneric")
 
+class testSC(CBD):
+    def __init__(self, block_name):
+        CBD.__init__(self, block_name, input_ports=[], output_ports=[])
+
+        self.addBlock(ConstantBlock(block_name="c1", value=15))
+        self.addBlock(ConstantBlock(block_name="c2", value=10))
+        self.addBlock(AdderBlock(block_name="a1"))
+        self.addBlock(AdderBlock(block_name="a2"))
+        self.addBlock(ProductBlock(block_name="p"))
+
+        self.addConnection("c2", "a1")
+        self.addConnection("p", "a1")
+        self.addConnection("a1", "p")
+        self.addConnection("a2", "p")
+        self.addConnection("p", "a2")
+        self.addConnection("c1", "a2")
+
 latexWriter.writeBeginDocument()
 latexWriter.writeTitle("Assignment 2 - CBD")
 latexWriter.writeNewSection("Equations")
@@ -124,9 +140,13 @@ latexWriter.writeBeginArray()
 # modInv = ModInv(block_name="modInv")
 # modInv.run(1)
 
-linearLoopCBD1 = LinearLoopCBD1("linearLoopCBD1")
-linearLoopCBD1.run(1)
-draw(linearLoopCBD1, "linearLoopCBD1.dot")
+# linearLoopCBD1 = LinearLoopCBD1("linearLoopCBD1")
+# linearLoopCBD1.run(1)
+# draw(linearLoopCBD1, "linearLoopCBD1.dot")
+
+testSC = testSC("testSC")
+draw(testSC, "testSC.dot")
+testSC.run(1)
 
 # linearLoopCBD2 = LinearLoopCBD2("linearLoopCBD2")
 # linearLoopCBD2.run(1)

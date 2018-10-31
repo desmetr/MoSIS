@@ -677,13 +677,14 @@ class CBD(BaseBlock):
                 if not self.__isLinear(component):
                     self.__logger.fatal("Cannot solve non-linear algebraic loop")
                 solverInput = self.__constructLinearInput(component, curIteration)
-                print "M1", solverInput[0]
-                print "M2", solverInput[1]
+                # op basis van M1 bereken determinant???
+                # print "M1", solverInput[0]
+                # print "M2", solverInput[1]
                 latexWriter.writeSystemOfEquations(solverInput)
                 self.__gaussjLinearSolver(solverInput)
                 solutionVector = solverInput[1]
-                print "----"
-                print solutionVector
+                # print "----"
+                # print solutionVector
                 latexWriter.writeSolution(solutionVector)
                 for block in component:
                     blockIndex = component.index(block)
@@ -742,8 +743,7 @@ class CBD(BaseBlock):
                     self.__logger.fatal("Found a non-linear algebraic loop")
                     exit(1)
 
-            else:
-                return True
+        return True
 
     def __constructLinearInput(self, strongComponent, curIteration):
         """
@@ -939,11 +939,14 @@ class IntegratorBlock(CBD):
         # TO IMPLEMENT
         self.addBlock(ProductBlock("Product"))
         self.addBlock(NegatorBlock("Negator"))
-        self.addBlock(DelayBlock("Delay"))
+        self.addBlock(DelayBlock("Delay1"))
+        self.addBlock(DelayBlock("Delay2"))
         self.addBlock(AdderBlock("AdderIC"))
         self.addBlock(AdderBlock("AdderOut"))
 
-        self.addConnection("IN1", "Product")
+        self.addConnection("IN1", "Delay2")
+        self.addConnection("IN1", "Delay2", input_port_name="IC")
+        self.addConnection("Delay2", "Product")
         self.addConnection("delta_t", "Product")
 
         self.addConnection("Product", "Negator", output_port_name="OUT1")
@@ -951,15 +954,13 @@ class IntegratorBlock(CBD):
         self.addConnection("IC","AdderIC")
         self.addConnection("Negator", "AdderIC")
 
-        self.addConnection("AdderOut","Delay")
-        self.addConnection("AdderIC","Delay", input_port_name="IC")
+        self.addConnection("AdderOut","Delay1")
+        self.addConnection("AdderIC","Delay1", input_port_name="IC")
 
-        self.addConnection("Delay","AdderOut")
+        self.addConnection("Delay1","AdderOut")
         self.addConnection("Product","AdderOut", output_port_name="OUT1")
 
         self.addConnection("AdderOut","OUT1")
-        #TODO test correctness
-
 
 """ This module implements a dependency graph
     @author: Marc Provost
