@@ -52,9 +52,6 @@ class EvenNumberGen(CBD):
                            output_port_name="OutCount")
         self.addConnection("double", "OutEven",
                            output_port_name="OutDouble")
-        
-
-
 
 cbd = EvenNumberGen("number_gen")
 draw(cbd, "number_gen.dot")
@@ -69,11 +66,7 @@ for timeValuePair in cbd.getSignal("OutEven"):
     output.append(timeValuePair.value)
             
 #Plot
-output_file("./number_gen.html", title="Even Numbers")
+# output_file("./number_gen.html", title="Even Numbers")
 p = figure(title="Even Numbers", x_axis_label='time', y_axis_label='N')
 p.circle(x=times, y=output, legend="Even numbers")
 show(p)
-
-
-
-

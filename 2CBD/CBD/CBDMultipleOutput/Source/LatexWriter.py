@@ -2,12 +2,14 @@
 
 class LatexWriter:
 	def __init__(self):
-		self.file = open("equations.tex", "w")
+		self.file = None
 
 		self.constantCounter = 0
 		self.variableCounter = 0
 
-	def writeBeginDocument(self):
+	def writeBeginDocument(self, name):
+		self.file = open(name, "w")
+
 		self.file.write("\\documentclass[a4paper,12pt]{article}\n")
 		self.file.write("\\usepackage{amsmath}\n")
 		self.file.write("\\begin{document}\n")
@@ -124,3 +126,4 @@ class LatexWriter:
 		self.file.write(result)
 
 latexWriter = LatexWriter()
+latexWrite = False

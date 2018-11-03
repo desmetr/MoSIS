@@ -35,10 +35,6 @@ class BaseBlock:
         #In wich CBD the baseblock is situated
         self._parent = None
 
-        # Nieuw - Rafael
-        self.in1 = None
-        self.in2 = None
-
     def getBlockName(self):
         return self.__block_name
 
@@ -75,7 +71,6 @@ class BaseBlock:
 
     def getDependencies(self, curIteration):
         # TO IMPLEMENT: this is a helper function you can use to create the dependency graph...
-        # Rafael: eerste versie
 
         #The input links produced by this block is encoded as a dictionary.
         #The key of this dictionary is the name of the input port.
@@ -84,11 +79,6 @@ class BaseBlock:
         #"InputLink", ["block", "output_port"]
 
         dependencies = []
-
-        # for InputLink, (block, output_port) in self._linksIn:
-        #     dependencies.append(block)
-
-        # Denk dat dit de juiste code is? Anders krijg ik een too many values to unpack error
         for linkIn in self._linksIn:
             dependencies.append(self._linksIn[linkIn].block)
         return dependencies
@@ -159,7 +149,8 @@ class ConstantBlock(BaseBlock):
     def compute(self, curIteration):
         # TO IMPLEMENT
         self.appendToSignal(self.__value, "OUT1")
-        latexWriter.writeConstant(self.__value)
+        if latexWrite:
+            latexWriter.writeConstant(self.__value)
 
     def __repr__(self):
         return BaseBlock.__repr__(self) + "  Value = " + str(self.getValue()) + "\n"
@@ -177,7 +168,8 @@ class NegatorBlock(BaseBlock):
         in1 = self.getInputSignal(curIteration, "IN1").value
         result = -1 * in1
         self.appendToSignal(result, "OUT1")
-        latexWriter.writeNegation(result)
+        if latexWrite:
+            latexWriter.writeNegation(result)
 
 class InverterBlock(BaseBlock):
     """
@@ -193,7 +185,8 @@ class InverterBlock(BaseBlock):
         if in1 != 0:
             result = 1 / in1
         self.appendToSignal(result, "OUT1")
-        latexWriter.writeInvertion(in1)
+        if latexWrite:
+            latexWriter.writeInvertion(in1)
 
 class AdderBlock(BaseBlock):
     """
@@ -208,7 +201,8 @@ class AdderBlock(BaseBlock):
         in2 = self.getInputSignal(curIteration, "IN2").value
         result = in1 + in2
         self.appendToSignal(result, "OUT1")
-        latexWriter.writeAddition(in1, in2)
+        if latexWrite:
+            latexWriter.writeAddition(in1, in2)
 
 class ProductBlock(BaseBlock):
     """
@@ -223,7 +217,8 @@ class ProductBlock(BaseBlock):
         in2 = self.getInputSignal(curIteration, "IN2").value
         result = in1 * in2
         self.appendToSignal(result, "OUT1")
-        latexWriter.writeProduct(in1, in2)
+        if latexWrite:
+            latexWriter.writeProduct(in1, in2)
 
 class GenericBlock(BaseBlock):
     """
@@ -245,7 +240,8 @@ class GenericBlock(BaseBlock):
         in1 = self.getInputSignal(curIteration, "IN1").value
         result = getattr(math, self.__block_operator)(in1)
         self.appendToSignal(result, "OUT1")
-        latexWriter.writeGeneric(in1, self.__block_operator)
+        if latexWrite:
+            latexWriter.writeGeneric(in1, self.__block_operator)
 
     def __repr__(self):
         repr = BaseBlock.__repr__(self)
@@ -273,7 +269,8 @@ class RootBlock(BaseBlock):
             self.__logger.fatal("Can't take the root of a negative number")
             exit(1)
         self.appendToSignal(result, "OUT1")
-        latexWriter.writeRoot(in1, in2)
+        if latexWrite:
+            latexWriter.writeRoot(in1, in2)
 
 class ModuloBlock(BaseBlock):
     """
@@ -288,7 +285,8 @@ class ModuloBlock(BaseBlock):
         in2 = self.getInputSignal(curIteration, "IN2").value
         result = in1 % in2
         self.appendToSignal(result, "OUT1")
-        latexWriter.writeModulo(in1, in2)
+        if latexWrite:
+            latexWriter.writeModulo(in1, in2)
 
 class DelayBlock(BaseBlock):
     """
@@ -304,11 +302,6 @@ class DelayBlock(BaseBlock):
         # Treat dependencies differently. For instance, at the first iteration (curIteration == 0), the block only depends on the IC;
 
         # InputLink = namedtuple("InputLink", ["block", "output_port"])
-
-        # dependencies = []
-        # for InputLink, (block, output_port) in self._linksIn:
-        #     dependencies.append(block)
-        # return dependencies
 
         dependencies = []
         if curIteration == 0:
@@ -634,13 +627,14 @@ class CBD(BaseBlock):
                 if not self.__isLinear(component):
                     self.__logger.fatal("Cannot solve non-linear algebraic loop")
                 solverInput = self.__constructLinearInput(component, curIteration)
-
-                latexWriter.writeSystemOfEquations(solverInput)
+                
+                if latexWrite:
+                    latexWriter.writeSystemOfEquations(solverInput)
 
                 self.__gaussjLinearSolver(solverInput)
                 solutionVector = solverInput[1]
-
-                latexWriter.writeSolution(solutionVector)
+                if latexWrite:
+                    latexWriter.writeSolution(solutionVector)
 
                 for block in component:
                     blockIndex = component.index(block)

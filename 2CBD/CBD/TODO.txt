@@ -11,10 +11,10 @@ CBD.py
 	* ModuloBlock.compute()			:	NOK by Rafael V1
 	* DelayBlock.getDependencies()	:	NOK by BP V1
 	* DelayBlock.compute()			:	NOK by BP V1
-	* CBD.__createDepGraph()		:	NOK by Rafael V1
+	* CBD.__createDepGraph()		:	NOK by Rafael V1 BP V2
 	* CBD.__isLinear()				:	NOK by Rafael V1
 	* IntegratorBlock				:	NOK by BP V1
 	* DerivativeBlock				:	NOK by BP V1
 
-	- bug bij Double CBD iets met input ports
-	- bij latex de variablen die reeds zijn gevonden in vergelijking gebruiken
+
+Zelf een CBD met loop/delay/hierarchie maken in CBDSimulator

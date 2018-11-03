@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<style>
+	td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+</style>
+<body>
+
+<h1>Assignment 2: Algebraic and Discrete Time CBDs</h1>
+<ul>
+	<li>Rafael De Smet - 20131145</li>
+	<li>Beno&#238;t-Philippe Fornoville - 20133299</li>
+</ul>
+
+This report shows the results of assignment 2.
+
+<h2>Task 1: Discrete Time CBD Simulator</h2>
+
+The first task was to implement several functions of the given CBD class in <a href="CBDMultipleOutput/Source/CBD.py">CBD.py</a>. In the provided code these functions were denoted by the <b>TO IMPLEMENT</b> comments. In the submitted code, we left these comments intact for convenience. <br>
+
+<ol>
+	<li>
+		The first function to implement was the <i>getDependencies</i> function of the <i>BaseBlock</i>. This is the general function that is the same for every block except for the <i>DelayBlock</i>, but more on that later. A dependency is a link to a previous value needed to execute the current block. In other words, a dependency denotes an input of a block. This logic is seen in the code were we return the current inputs of the current block.
+	</li>
+	<br>
+	<li>
+		Next are the <i>compute</i> functions of the blocks. Based on what type of block the function is in, we perform the operation of that block on the current inputs. This resulting value is added to the signal and can be used later on in the simulation.  
+	</li>
+	<br>
+	<li>
+		Next is the <i>getDependencies</i> function of the <i>DelayBlock</i>. As this is a special of the <i>BaseBlock.getDependencies</i> function, we override it and implement it differently. A <i>DelayBlock</i> has two inputs, the previous value and the initial condition (IC). Based on the current iteration we choose one of these inputs as the new value for the next iteration. At iteration 0, we choose the IC because we don't know yet what the value at the previous iteration is. All subsequent iterations will choose the value of the previous iteration.
+	</li>
+	<br>
+	<li>
+		Next is the <i>__createDepGraph</i> function of the <i>CBD</i> class. This function will take as input the blocks of the CBD and create the corresponding dependency graph. It starts with adding all the blocks separately to the graph, these are the nodes. Now these nodes are all separate from each other, without any edges between them. These edges represent the dependencies between the nodes (blocks). Per block we ask what it's dependencies are and add them to the graph, between the right nodes. If a block of the CBD is another CBD, we call this method recursively to ensure that this inner CBD is handled correctly.
+	</li>
+	<br>
+	<li>
+		The last function to implement is the <i>__isLinear</i> function of the <i>CBD</i> class. This function takes as input a strong component (which indicates an algebraic loop) and will determine if this algebraic loop is linear or not. If it is, we can solve it as a sysem of linear equations.
+		The way this function is implemented is based on the findings of Nicolas Demarbaix of the University of Antwerp in his paper <a href="MDE_project_final.pdf">Causal Block Diagrams: Compiler to Latex and DEVS</a>. He discussed a way to find out the linearity of a loop without computing the determinant of the coefficientmatrix of the system of equations. The advantage of this is clear in the flow of the program. At the time we need to know whether the loop is linear or not, we don't have access to the coefficientmatrix of the system of equations. So calculating the determinant is not an option. If we look at the blocks of the loop we can deduce if it is linear or not. There are some rules we can follow for this.
+		<ul>
+			<li>
+				If the loop contains a <i>RootBlock</i> we know for sure that it is a non-linear loop and we can exit the simulation. Taking the root of a variable is always non-linear.
+			</li>
+			<br>	
+			<li>
+				If we have a <i>ProductBlock</i> and both its inputs are not a <i>ConstantBlock</i> we know it is a non-linear loop and we can exit the simulation. If the inputs are non constant we know that we have a multiplication of the form x*y, which is not linear. Multiplications of the form c*x or x*c (c is constant) are linear and therefore accepted.
+			</li>
+			<br>
+			<li>
+				There are cases where the inputs of a <i>ProductBlock</i> can be non constant and we still have a linear equation. If there is an <i>IntegratorBlock</i>, <i>DerivatorBlock</i>, <i>DelayBlock</i>, <i>WireBlock</i>, <i>InputPortBlock</i> or a <i>OutputPortBlock</i> as an input, we still have a linear equation, because all these blocks have a IC that always results in a constant.
+			</li>
+		</ul>
+	</li>
+</ol>
+
+<h2>Task 2: CBD Simulator</h2>
+
+The next task was to make sure the provided unit tests succeed. If you run the test file <a href="runAllTests.py">runAllTests.py</a> you will see that all the tests succeed. Another part of this task was to provide our own CBD model that contains at least one inner CBD, at least one linear algebraic loop and at least one <i>DelayBlock</i>. This model will be executed and results will be plotted.<br>
+
+The code for this can be found in <a href="CBDSimulator.py">CBDSimulator.py</a>. This code will result in a LaTeX file called <a href="CBDSimulator.tex">CBDSimulator.tex</a>.
+
+<h2>Task 3: Dicrete Time CBD Denotational Semantics</h2>
+
+The final task was to add code that can generate a LaTeX document that contains the equations of the CBD. The code for this can be found in <a href="CBDMultipleOutput/Source/LatexWriter.py">LatexWriter.py</a>. If you want to see the results of this, execute the file <a href="equations.py">equations.py</a>. This code will take in a CBD and generate a LaTeX document called <a href="equations.tex">equations.tex</a>, where the equations of the CBD are printed. This code will execute another CBD than the one generated in Task 2.
+
+</body>
+</html>
