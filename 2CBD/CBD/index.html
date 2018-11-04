@@ -27,11 +27,11 @@ The first task was to implement several functions of the given CBD class in <a h
 	</li>
 	<br>
 	<li>
-		Next are the <i>compute</i> functions of the blocks. Based on what type of block the function is in, we perform the operation of that block on the current inputs. This resulting value is added to the signal and can be used later on in the simulation.  
+		Next are the <i>compute</i> functions of the blocks. Based on what type of block the function is in, we perform the operation of that block on the current inputs. This resulting value is added to the signal and can be used later on in the simulation.
 	</li>
 	<br>
 	<li>
-		Next is the <i>getDependencies</i> function of the <i>DelayBlock</i>. As this is a special of the <i>BaseBlock.getDependencies</i> function, we override it and implement it differently. A <i>DelayBlock</i> has two inputs, the previous value and the initial condition (IC). Based on the current iteration we choose one of these inputs as the new value for the next iteration. At iteration 0, we choose the IC because we don't know yet what the value at the previous iteration is. All subsequent iterations will choose the value of the previous iteration.
+		Next is the <i>getDependencies</i> function of the <i>DelayBlock</i>. As this is a special of the <i>BaseBlock.getDependencies</i> function, we override it and implement it differently: at iteration 0 it is dependent of the initial condition (IC) and there are no dependencies for the following iterations. A <i>DelayBlock</i> has two inputs, the previous value and the IC. Based on the current iteration we choose one of these inputs as the new value for the next iteration. At iteration 0, we choose the IC because we don't know yet what the value at the previous iteration is. All subsequent iterations will choose the value of the previous iteration.
 	</li>
 	<br>
 	<li>
@@ -45,7 +45,7 @@ The first task was to implement several functions of the given CBD class in <a h
 			<li>
 				If the loop contains a <i>RootBlock</i> we know for sure that it is a non-linear loop and we can exit the simulation. Taking the root of a variable is always non-linear.
 			</li>
-			<br>	
+			<br>
 			<li>
 				If we have a <i>ProductBlock</i> and both its inputs are not a <i>ConstantBlock</i> we know it is a non-linear loop and we can exit the simulation. If the inputs are non constant we know that we have a multiplication of the form x*y, which is not linear. Multiplications of the form c*x or x*c (c is constant) are linear and therefore accepted.
 			</li>

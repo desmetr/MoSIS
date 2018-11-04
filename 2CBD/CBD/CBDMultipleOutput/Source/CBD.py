@@ -627,7 +627,7 @@ class CBD(BaseBlock):
                 if not self.__isLinear(component):
                     self.__logger.fatal("Cannot solve non-linear algebraic loop")
                 solverInput = self.__constructLinearInput(component, curIteration)
-                
+
                 if latexWrite:
                     latexWriter.writeSystemOfEquations(solverInput)
 
