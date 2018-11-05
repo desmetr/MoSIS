@@ -38,7 +38,7 @@ class LinearLoopCBD2(CBD):
         self.addConnection("product", "adder")
         self.addConnection("adder", "product") # LOOP
 
-latexWrite = True
+LatexWriter.latexWrite = True
 latexWriter.writeBeginDocument("equations.tex")
 latexWriter.writeTitle("Assignment 2 - Task 3 - CBD")
 latexWriter.writeNewSection("Equations")

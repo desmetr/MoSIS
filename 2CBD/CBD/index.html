@@ -31,15 +31,15 @@ The first task was to implement several functions of the given CBD class in <a h
 	</li>
 	<br>
 	<li>
-		Next is the <i>getDependencies</i> function of the <i>DelayBlock</i>. As this is a special of the <i>BaseBlock.getDependencies</i> function, we override it and implement it differently: at iteration 0 it is dependent of the initial condition (IC) and there are no dependencies for the following iterations. A <i>DelayBlock</i> has two inputs, the previous value and the IC. Based on the current iteration we choose one of these inputs as the new value for the next iteration. At iteration 0, we choose the IC because we don't know yet what the value at the previous iteration is. All subsequent iterations will choose the value of the previous iteration.
+		Next is the <i>getDependencies</i> function of the <i>DelayBlock</i>. As this is a special case of the <i>BaseBlock.getDependencies</i> function, we override it and implement it differently: at iteration 0 it is dependent of the initial condition (IC) and there are no dependencies for the following iterations. A <i>DelayBlock</i> has two inputs, the previous value and the IC. Based on the current iteration we choose one of these inputs as the new value for the next iteration. At iteration 0, we choose the IC because there wasn't a previous iteration yet. All subsequent iterations will choose the value of the previous iteration.
 	</li>
 	<br>
 	<li>
-		Next is the <i>__createDepGraph</i> function of the <i>CBD</i> class. This function will take as input the blocks of the CBD and create the corresponding dependency graph. It starts with adding all the blocks separately to the graph, these are the nodes. Now these nodes are all separate from each other, without any edges between them. These edges represent the dependencies between the nodes (blocks). Per block we ask what it's dependencies are and add them to the graph, between the right nodes. If a block of the CBD is another CBD, we call this method recursively to ensure that this inner CBD is handled correctly.
+		Next is the <i>__createDepGraph</i> function of the <i>CBD</i> class. This function will take as input the blocks of the CBD and create the corresponding dependency graph. It starts with adding all the blocks separately to the graph, these are the nodes. Now these nodes are all separate from each other, without any edges between them. These edges represent the dependencies between the nodes (blocks). Per block we ask what it's dependencies are and add them to the graph, between the right nodes. If a block of the CBD is another CBD (called an inner CBD), we call this method recursively to ensure that this inner CBD is handled correctly.
 	</li>
 	<br>
 	<li>
-		The last function to implement is the <i>__isLinear</i> function of the <i>CBD</i> class. This function takes as input a strong component (which indicates an algebraic loop) and will determine if this algebraic loop is linear or not. If it is, we can solve it as a sysem of linear equations.
+		The last function to implement is the <i>__isLinear</i> function of the <i>CBD</i> class. This function takes as input a strong component of the dependency graph (which indicates an algebraic loop) and will determine if this algebraic loop is linear or not. If it is, we can solve it as a sysem of linear equations.
 		The way this function is implemented is based on the findings of Nicolas Demarbaix of the University of Antwerp in his paper <a href="MDE_project_final.pdf">Causal Block Diagrams: Compiler to Latex and DEVS</a>. He discussed a way to find out the linearity of a loop without computing the determinant of the coefficientmatrix of the system of equations. The advantage of this is clear in the flow of the program. At the time we need to know whether the loop is linear or not, we don't have access to the coefficientmatrix of the system of equations. So calculating the determinant is not an option. If we look at the blocks of the loop we can deduce if it is linear or not. There are some rules we can follow for this.
 		<ul>
 			<li>
@@ -57,15 +57,40 @@ The first task was to implement several functions of the given CBD class in <a h
 	</li>
 </ol>
 
+Based on the provided unit tests, we can check if our implementation is correct. If you run the test file <a href="runAllTests.py">runAllTests.py</a> you will see that all the tests succeed.
+
 <h2>Task 2: CBD Simulator</h2>
 
-The next task was to make sure the provided unit tests succeed. If you run the test file <a href="runAllTests.py">runAllTests.py</a> you will see that all the tests succeed. Another part of this task was to provide our own CBD model that contains at least one inner CBD, at least one linear algebraic loop and at least one <i>DelayBlock</i>. This model will be executed and results will be plotted.<br>
+Another part of this task was to provide our own CBD model that contains at least one inner CBD, at least one linear algebraic loop and at least one <i>DelayBlock</i>. We have provided two CBDs with their results.
 
-The code for this can be found in <a href="CBDSimulator.py">CBDSimulator.py</a>. This code will result in a LaTeX file called <a href="CBDSimulator.tex">CBDSimulator.tex</a>.
+<h3>CBD 1</h3>
+
+The code for the first CBD can be found in <a href="CBDSimulation1.py">CBDSimulation1.py</a>. This CBD can be seen in the image below. This CBD computes the integral of 5x + 2, <math>&#x222b;(5x + 2)dx</math> 
+
+<img src="CBDSimulation1.png">
+<br>
+When we simulate the execution of this CBD for 5 time steps, we get the following results as seen in <a href="CBDSimulation1.html">CBDSimulation1.html</a>. 
+
+<h3>CBD 2</h3>
+
+The code for the second CBD can be found in <a href="CBDSimulation2.py">CBDSimulation2.py</a>. This CBD can be seen in the image below and generates all multiples of 5, for as long as the simulation runs.
+
+<img src="CBDSimulation2.png">
+<br>
+When we simulate the execution of this CBD for 5 time steps, we get the following results as seen in <a href="CBDSimulation2.html">CBDSimulation2.html</a>. 
 
 <h2>Task 3: Dicrete Time CBD Denotational Semantics</h2>
 
-The final task was to add code that can generate a LaTeX document that contains the equations of the CBD. The code for this can be found in <a href="CBDMultipleOutput/Source/LatexWriter.py">LatexWriter.py</a>. If you want to see the results of this, execute the file <a href="equations.py">equations.py</a>. This code will take in a CBD and generate a LaTeX document called <a href="equations.tex">equations.tex</a>, where the equations of the CBD are printed. This code will execute another CBD than the one generated in Task 2.
+The final task was to add code that can generate a LaTeX document that contains the equations of the CBD. The code for the writing of LaTeX can be found in <a href="CBDMultipleOutput/Source/LatexWriter.py">LatexWriter.py</a>. If you want to see the results of this, execute the file <a href="equations.py">equations.py</a>. This code will take in a CBD and generate a LaTeX document called <a href="equations.tex">equations.tex</a>, where the equations of the CBD are printed. There are two CBDs provided, so you can choose which one you want to see. <br> <br>
+In the generated LaTeX you will see the constant blocks as simple equations and the full system of equations. All the intermediate results (as seen in the CBD) have one equation assigned to them. For example, the first CBD has four equations, one for the result of the <i>ProductBlock</i> product, one for the result of the <i>AdderBlock</i> adder1, one for the result of <i>AdderBlock</i> adder2 and for the result of <i>NegatorBlock</i> negator. The LaTeX result is the verbose system of equations and not yet simplified. The only processing done is replacing a '+' and a '-' by one '-'. The last lines give the solution to the system.<br><br>
+
+The two CBDs used in this file are shown below. <br>
+
+<img src="LinearLoopCBD1.png">
+<br>
+Second CBD:
+<br>
+<img src="LinearLoopCBD2.png">
 
 </body>
 </html>

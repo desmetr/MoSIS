@@ -1,0 +1,17 @@
+digraph graphname
+{two [label="ConstantBlock (two)\n2.0"];
+minus1 [label="ConstantBlock (minus1)\n-1.0"];
+five [label="ConstantBlock (five)\n5.0"];
+product [label="ProductBlock (product)"];
+two -> product [label=""];
+adder2 -> product [label=""];
+adder1 [label="AdderBlock (adder1)"];
+minus1 -> adder1 [label=""];
+product -> adder1 [label=""];
+negator [label="NegatorBlock (negator)"];
+adder1 -> negator [label=""];
+adder2 [label="AdderBlock (adder2)"];
+five -> adder2 [label=""];
+negator -> adder2 [label=""];
+
+}

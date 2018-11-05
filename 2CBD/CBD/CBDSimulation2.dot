@@ -1,0 +1,8 @@
+digraph graphname
+{OutMultipleFive [label="OutputPortBlock (OutMultipleFive)"];
+timesFive -> OutMultipleFive [label=" / OutTimesFive"];
+counter [label="Counter (counter)",shape=Msquare];
+timesFive [label="TimesFive (timesFive)",shape=Msquare];
+counter -> timesFive [label="InNumber / OutCount"];
+
+}

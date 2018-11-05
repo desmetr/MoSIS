@@ -46,14 +46,6 @@ class CBDSimulation(CBD):
         #output
         self.addConnection("Integrator", "OUT1", output_port_name="OUT1")
 
-
-
-latexWrite = True
-latexWriter.writeBeginDocument("CBDSimulator.tex")
-latexWriter.writeTitle("Assignment 2 - Task 2 - CBD")
-latexWriter.writeNewSection("Equations")
-latexWriter.writeBeginArray()
-
 cbd = CBDSimulation("CBDSimulation")
 draw(cbd, "CBDSimulation.dot")
 cbd.run(5)
@@ -61,7 +53,7 @@ cbd.run(5)
 times = []
 output = []
 
-for timeValuePair in cbd.getSignal("Adder"):
+for timeValuePair in cbd.getSignal("OUT1"):
     times.append(timeValuePair.time)
     output.append(timeValuePair.value)
 
@@ -72,6 +64,3 @@ print output, times
 p = figure(title="CBD Simulator", x_axis_label='time', y_axis_label='N')
 p.circle(x=times, y=output)
 show(p)
-
-latexWriter.writeEndArray()
-latexWriter.writeEndDocument()

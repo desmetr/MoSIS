@@ -126,4 +126,4 @@ class LatexWriter:
 		self.file.write(result)
 
 latexWriter = LatexWriter()
-latexWrite = False
+LatexWriter.latexWrite = False
