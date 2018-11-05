@@ -17,7 +17,6 @@ class CBDSimulation(CBD):
         self.addBlock(DelayBlock("DelayDeltaT"))
         self.addBlock(AdderBlock("AdderDeltaT"))
 
-        self.addBlock(DelayBlock("Delay"))
         self.addBlock(ProductBlock("Product"))
         self.addBlock(AdderBlock("Adder"))
         self.addBlock(IntegratorBlock("Integrator"))
@@ -30,37 +29,33 @@ class CBDSimulation(CBD):
         self.addConnection("DeltaT", "AdderDeltaT")
 
         #Loop
-        self.addConnection("Product", "Integrator")
-        self.addConnection("AdderDeltaT", "Integrator", output_port_name="OUT1", input_port_name="delta_t")
-        self.addConnection("Zero", "Integrator", output_port_name="OUT1", input_port_name="IC")
-
-        self.addConnection("Adder", "Delay", output_port_name="OUT1")
-        self.addConnection("One", "Delay", output_port_name="OUT1", input_port_name="IC")
-
         self.addConnection("Five", "Product")
-        self.addConnection("Delay", "Product")
+        self.addConnection("AdderDeltaT", "Product", output_port_name="OUT1")
 
         self.addConnection("Two", "Adder")
         self.addConnection("Product", "Adder")
 
+        self.addConnection("Product", "Integrator")
+        self.addConnection("AdderDeltaT", "Integrator", output_port_name="OUT1", input_port_name="delta_t")
+        self.addConnection("Zero", "Integrator", output_port_name="OUT1", input_port_name="IC")
+
         #output
         self.addConnection("Integrator", "OUT1", output_port_name="OUT1")
 
-cbd = CBDSimulation("CBDSimulation")
-draw(cbd, "CBDSimulation.dot")
+cbd = CBDSimulation("CBDSimulation1")
+draw(cbd, "CBDSimulation1.dot")
 cbd.run(5)
 
 times = []
 output = []
 
-for timeValuePair in cbd.getSignal("OUT1"):
+for timeValuePair in cbd.getSignal():
     times.append(timeValuePair.time)
     output.append(timeValuePair.value)
 
 print output, times
 
 #Plot
-# output_file("./number_gen.html", title="Even Numbers")
-p = figure(title="CBD Simulator", x_axis_label='time', y_axis_label='N')
+p = figure(title="CBD Simulation 1", x_axis_label='time', y_axis_label='N')
 p.circle(x=times, y=output)
 show(p)
