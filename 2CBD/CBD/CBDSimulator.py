@@ -61,7 +61,7 @@ cbd.run(5)
 times = []
 output = []
 
-for timeValuePair in cbd.getSignal("Adder"):
+for timeValuePair in cbd.getSignal():
     times.append(timeValuePair.time)
     output.append(timeValuePair.value)
 
