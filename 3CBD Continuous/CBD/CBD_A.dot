@@ -1,24 +1,22 @@
 digraph graphname
 {OUT1 [label="OutputPortBlock (OUT1)"];
 Integrator2 -> OUT1 [label=""];
+Clock [label="ClockCBD (Clock)",shape=Msquare];
+DeltaT -> Clock [label="delta_t"];
+Zero -> Clock [label="IC"];
 Zero [label="ConstantBlock (Zero)\n0"];
-One [label="ConstantBlock (One)\n1"];
-DeltaT [label="ConstantBlock (DeltaT)\n1"];
-Negate [label="NegatorBlock (Negate)"];
-Integrator2 -> Negate [label=""];
+DeltaT [label="ConstantBlock (DeltaT)\n1e-05"];
+Negator [label="NegatorBlock (Negator)"];
+Integrator2 -> Negator [label=""];
 Integrator1 [label="IntegratorBlock (Integrator1)",shape=Msquare];
-AdderDeltaT -> Integrator1 [label="delta_t"];
-One -> Integrator1 [label="IC"];
-Negate -> Integrator1 [label=""];
+Clock -> Integrator1 [label="delta_t"];
+V0 -> Integrator1 [label="IC"];
+Negator -> Integrator1 [label=""];
 Integrator2 [label="IntegratorBlock (Integrator2)",shape=Msquare];
-AdderDeltaT -> Integrator2 [label="delta_t"];
-Zero -> Integrator2 [label="IC"];
+Clock -> Integrator2 [label="delta_t"];
+X0 -> Integrator2 [label="IC"];
 Integrator1 -> Integrator2 [label=""];
-DelayDeltaT [label="DelayBlock (DelayDeltaT)"];
-Zero -> DelayDeltaT [label="IC"];
-AdderDeltaT -> DelayDeltaT [label=""];
-AdderDeltaT [label="AdderBlock (AdderDeltaT)"];
-DelayDeltaT -> AdderDeltaT [label=""];
-DeltaT -> AdderDeltaT [label=""];
+X0 [label="ConstantBlock (X0)\n0"];
+V0 [label="ConstantBlock (V0)\n1"];
 
 }
