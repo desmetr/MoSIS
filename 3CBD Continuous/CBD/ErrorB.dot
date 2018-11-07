@@ -1,0 +1,23 @@
+digraph graphname
+{OUT1 [label="OutputPortBlock (OUT1)"];
+Integrator -> OUT1 [label=""];
+Clock [label="ClockCBD (Clock)",shape=Msquare];
+DeltaT -> Clock [label="delta_t"];
+Zero -> Clock [label="IC"];
+Zero [label="ConstantBlock (Zero)\n0"];
+DeltaT [label="ConstantBlock (DeltaT)\n0.001"];
+Sin [label="SinBlock (Sin)"];
+Absolute [label="GenericBlock (Absolute)"];
+Adder -> Absolute [label=""];
+Adder [label="AdderBlock (Adder)"];
+Negator -> Adder [label=""];
+Sin -> Adder [label=""];
+Negator [label="NegatorBlock (Negator)"];
+CBD_B -> Negator [label=""];
+CBD_B [label="CBD_B (CBD_B)",shape=Msquare];
+Integrator [label="IntegratorBlock (Integrator)",shape=Msquare];
+Clock -> Integrator [label="delta_t"];
+Zero -> Integrator [label="IC"];
+Absolute -> Integrator [label=""];
+
+}

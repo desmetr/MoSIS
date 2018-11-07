@@ -14,11 +14,8 @@ V0 -> Derivator1 [label="IC"];
 Negator -> Derivator1 [label=""];
 Derivator2 [label="DerivatorBlock (Derivator2)",shape=Msquare];
 Clock -> Derivator2 [label="delta_t"];
-NegatorX0 -> Derivator2 [label="IC"];
+Zero -> Derivator2 [label="IC"];
 Derivator1 -> Derivator2 [label=""];
-X0 [label="ConstantBlock (X0)\n0"];
 V0 [label="ConstantBlock (V0)\n1"];
-NegatorX0 [label="NegatorBlock (NegatorX0)"];
-X0 -> NegatorX0 [label=""];
 
 }
