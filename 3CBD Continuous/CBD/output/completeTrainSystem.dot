@@ -1,0 +1,22 @@
+digraph graphname
+{Time [label="TimeCBD (Time)",shape=Msquare];
+Lookup [label="ComputerBlock (Lookup)"];
+Time -> Lookup [label=""];
+Sum [label="AdderBlock (Sum)"];
+Lookup -> Sum [label=""];
+Negator -> Sum [label=""];
+Negator [label="NegatorBlock (Negator)"];
+Plant -> Negator [label=" / V_TRAIN"];
+PIDController [label="PIDControllerCBD (PIDController)",shape=Msquare];
+Time -> PIDController [label="DELTA / DELTA"];
+Sum -> PIDController [label="ERROR"];
+Plant [label="PlantCBD (Plant)",shape=Msquare];
+PIDController -> Plant [label="F_TRACTION / F_TRACTION"];
+Time -> Plant [label="DELTA"];
+CostFunction [label="CostFunctionCBD (CostFunction)",shape=Msquare];
+Plant -> CostFunction [label="V_TRAIN / V_TRAIN"];
+Time -> CostFunction [label="DELTA / DELTA"];
+Plant -> CostFunction [label="X_PASSENGER / X_PASSENGER"];
+Lookup -> CostFunction [label="V_IDEAL"];
+
+}

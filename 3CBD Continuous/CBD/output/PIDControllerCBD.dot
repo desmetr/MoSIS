@@ -1,0 +1,33 @@
+digraph graphname
+{ERROR [label="InputPortBlock (ERROR)"];
+DELTA [label="InputPortBlock (DELTA)"];
+F_TRACTION [label="OutputPortBlock (F_TRACTION)"];
+Adder1 -> F_TRACTION [label=""];
+Zero [label="ConstantBlock (Zero)\n0"];
+Kp [label="ConstantBlock (Kp)\n200"];
+Ki [label="ConstantBlock (Ki)\n0"];
+Kd [label="ConstantBlock (Kd)\n0"];
+Adder1 [label="AdderBlock (Adder1)"];
+ProductKp -> Adder1 [label=""];
+Adder2 -> Adder1 [label=""];
+Adder2 [label="AdderBlock (Adder2)"];
+ProductKd -> Adder2 [label=""];
+ProductKi -> Adder2 [label=""];
+ProductKp [label="ProductBlock (ProductKp)"];
+Kp -> ProductKp [label=""];
+ProductKi [label="ProductBlock (ProductKi)"];
+Ki -> ProductKi [label=""];
+Integrator -> ProductKi [label=""];
+ProductKd [label="ProductBlock (ProductKd)"];
+Kd -> ProductKd [label=""];
+Derivator -> ProductKd [label=""];
+Integrator [label="IntegratorBlock (Integrator)",shape=Msquare];
+DELTA -> Integrator [label="delta_t"];
+Zero -> Integrator [label="IC"];
+ERROR -> Integrator [label=""];
+Derivator [label="DerivatorBlock (Derivator)",shape=Msquare];
+DELTA -> Derivator [label="delta_t"];
+Zero -> Derivator [label="IC"];
+ERROR -> Derivator [label=""];
+
+}

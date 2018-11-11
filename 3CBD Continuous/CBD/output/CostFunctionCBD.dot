@@ -1,0 +1,12 @@
+digraph graphname
+{IN_V_I [label="InputPortBlock (IN_V_I)"];
+IN_V_TRAIN [label="InputPortBlock (IN_V_TRAIN)"];
+DELTA [label="InputPortBlock (DELTA)"];
+IN_X_PASSENGER [label="InputPortBlock (IN_X_PASSENGER)"];
+CostFunction [label="CostFunctionBlock (CostFunction)"];
+IN_V_TRAIN -> CostFunction [label="InVTrain"];
+DELTA -> CostFunction [label="InDelta"];
+IN_V_I -> CostFunction [label="InVi"];
+IN_X_PASSENGER -> CostFunction [label="InXPerson"];
+
+}

@@ -1,7 +1,7 @@
 {
 	1.	IntegralBlock en DerivativeBlock: KLAAR
 
-	2.	Harmonic oscillator: KLAAR
+	2.	Harmonic oscillator: KLAAR alleen B nog?
 			d²x/dt² = -x
 			x(0) = 0
 			dx/dt(0) = 1
@@ -11,7 +11,7 @@
 			c) Continuous time CBD: models oscillator using derivative blocks = CBD B
 			d) Simulate CBD B, plot x over time 
 
-	3.	Error meten: NIET KLAAR
+	3.	Error meten: KLAAR
 			a) CBD A: -> voeg blocks toe die de error van x meten tov de echte waarde van x
 				e(t) = integraal van abs(sin(t) - x(t)) dt
 				-> maak SinBlock
