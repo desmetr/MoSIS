@@ -207,7 +207,7 @@ class PlantCBD(CBD):
         ##############
 
         # Part1 = 1/2 * P * V*V * CD * A
-        self.addBlock(ConstantBlock("_Half", 0.5))
+        self.addBlock(ConstantBlock("Half", 0.5))
         self.addBlock(ProductBlock("_Product1_1"))
         self.addBlock(ProductBlock("_Product1_2"))
         self.addBlock(ProductBlock("_Product1_3"))
@@ -218,7 +218,7 @@ class PlantCBD(CBD):
         # self.addBlock(IntegratorBlock("_Integrator2"))
 
         # Connections
-        self.addConnection("_Half", "_Product1_1")
+        self.addConnection("Half", "_Product1_1")
         self.addConnection("P", "_Product1_1")
 
         self.addConnection("_Product1_1", "_Product1_2")
@@ -272,7 +272,7 @@ class PlantCBD(CBD):
         # Connections
         self.addConnection("V_PASSENGER", "__Integrator")
         self.addConnection("V0Passenger", "__Integrator", output_port_name="OUT1", input_port_name="IC")
-        self.addConnection("DELTA", "_Integrator", output_port_name="OUT1", input_port_name="delta_t")
+        self.addConnection("DELTA", "__Integrator", output_port_name="OUT1", input_port_name="delta_t")
         
         # Outputs
         self.addConnection("__Integrator", "X_PASSENGER", output_port_name="OUT1")
@@ -286,7 +286,7 @@ class PlantCBD(CBD):
         # Connections
         self.addConnection("V_TRAIN", "___Integrator")
         self.addConnection("V0Train", "___Integrator", output_port_name="OUT1", input_port_name="IC")
-        self.addConnection("DELTA", "_Integrator", output_port_name="OUT1", input_port_name="delta_t")
+        self.addConnection("DELTA", "___Integrator", output_port_name="OUT1", input_port_name="delta_t")
         
         # Outputs
         self.addConnection("___Integrator", "X_TRAIN", output_port_name="OUT1")

@@ -768,6 +768,7 @@ class CBD(BaseBlock):
                 possibleDep, output_port = block.parent.getBlockConnectedToInput(block.getBlockName())
                 M1[i][indexdict[resolveBlock(possibleDep, output_port)]] = - 1
             elif block.getBlockType() == "OutputPortBlock" or block.getBlockType() == "WireBlock":
+                print "##", block, "##"
                 #M2 can stay 0
                 M1[i][i] = 1
                 M1[i][indexdict[block.getDependencies(0)[0]]] = - 1
