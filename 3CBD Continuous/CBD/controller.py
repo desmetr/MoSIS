@@ -1,6 +1,9 @@
 from CBDMultipleOutput.Source.CBD import *
 from CBDMultipleOutput.Source.CBDDraw import draw
 from TrainCostModelBlock import *
+from bokeh.plotting import figure, output_file, show
+
+steps = 350
 
 class ComputerBlock(BaseBlock):
     """
@@ -28,9 +31,6 @@ class ComputerBlock(BaseBlock):
         else:
             result = 6
         self.appendToSignal(result, "OUT1")
-
-        if LatexWriter.latexWrite:
-            latexWriter.writeAddition(in1)
 
 class TimeCBD(CBD):
     """
@@ -63,8 +63,6 @@ class PIDControllerCBD(CBD):
     """
     def __init__(self, block_name):
         CBD.__init__(self, block_name, input_ports=["ERROR","DELTA"], output_ports=["F_TRACTION"])
-        # TODO
-        
         # Constants
         self.addBlock(ConstantBlock("Zero", 0))
         self.addBlock(ConstantBlock("Kp", 200))
@@ -81,6 +79,7 @@ class PIDControllerCBD(CBD):
 
         # Connections
         self.addConnection("Kp", "ProductKp")
+        self.addConnection("ERROR", "ProductKp")
         self.addConnection("Ki", "ProductKi")
         self.addConnection("Kd", "ProductKd")
 
@@ -300,7 +299,7 @@ class CostFunctionCBD(CBD):
     DELTA = timestep
     """
     def __init__(self, block_name):
-        CBD.__init__(self, block_name, input_ports=["IN_V_I","IN_V_TRAIN","DELTA","IN_X_PASSENGER"], output_ports=[])
+        CBD.__init__(self, block_name, input_ports=["IN_V_I","IN_V_TRAIN","DELTA","IN_X_PASSENGER"], output_ports=["OUT1"])
         
         self.addBlock(CostFunctionBlock("CostFunction"))
 
@@ -309,11 +308,15 @@ class CostFunctionCBD(CBD):
         self.addConnection("DELTA", "CostFunction", input_port_name="InDelta")
         self.addConnection("IN_X_PASSENGER", "CostFunction", input_port_name="InXPerson")
 
+        self.addConnection("CostFunction", "OUT1")
+
 class CompleteTrainSystemCBD(CBD):
     """
     """
     def __init__(self, block_name):
-        CBD.__init__(self, block_name, input_ports=[], output_ports=[])
+        CBD.__init__(self, block_name, 
+                     input_ports=["ERROR", "V_IDEAL"], 
+                     output_ports=["DELTA", "F_TRACTION", "OUT_DELTA", "V_TRAIN", "OUT1", "X_PASSENGER"])
         # Blocks
         self.addBlock(TimeCBD("Time"))
         self.addBlock(ComputerBlock("Lookup"))
@@ -332,17 +335,17 @@ class CompleteTrainSystemCBD(CBD):
         self.addConnection("Time", "PIDController", output_port_name="DELTA", input_port_name="DELTA")
 
         self.addConnection("PIDController", "Plant", output_port_name="F_TRACTION", input_port_name="F_TRACTION")
-        self.addConnection("Time", "Plant", output_port_name="OUT_DELTA", input_port_name="DELTA")
+        self.addConnection("Time", "Plant", output_port_name="DELTA", input_port_name="DELTA")
 
         self.addConnection("Plant", "Negator", output_port_name="V_TRAIN")
 
-        self.addConnection("Lookup", "CostFunction", output_port_name="OUT1", input_port_name="V_IDEAL")
-        self.addConnection("Plant", "CostFunction", output_port_name="V_TRAIN", input_port_name="V_TRAIN")
-        self.addConnection("Plant", "CostFunction", output_port_name="X_PASSENGER", input_port_name="X_PASSENGER")
+        self.addConnection("Lookup", "CostFunction", output_port_name="OUT1", input_port_name="IN_V_I")
+        self.addConnection("Plant", "CostFunction", output_port_name="V_TRAIN", input_port_name="IN_V_TRAIN")
+        self.addConnection("Plant", "CostFunction", output_port_name="X_PASSENGER", input_port_name="IN_X_PASSENGER")
         self.addConnection("Time", "CostFunction", output_port_name="DELTA",  input_port_name="DELTA")
 
-
-# completeTrainSystem = CompleteTrainSystemCBD("completeTrainSystem")
+completeTrainSystem = CompleteTrainSystemCBD("completeTrainSystem")
+completeTrainSystem.run(steps)
 # draw(completeTrainSystem, "output/completeTrainSystem.dot")
 
 # tempTimeCBD = TimeCBD("tempTimeCBD")
@@ -354,5 +357,20 @@ class CompleteTrainSystemCBD(CBD):
 # tempPlantCBD = PlantCBD("tempPlantCBD")
 # draw(tempPlantCBD, "output/PlantCBD.dot")
 
-tempCostFunctionCBD = CostFunctionCBD("tempCostFunctionCBD")
-draw(tempCostFunctionCBD, "output/CostFunctionCBD.dot")
+# tempCostFunctionCBD = CostFunctionCBD("tempCostFunctionCBD")
+# draw(tempCostFunctionCBD, "output/CostFunctionCBD.dot")
+
+# times = []
+# output = []
+
+# for timeValuePair in cbd.getSignal("IN_V_I"):
+#     times.append(timeValuePair.time)
+#     output.append(timeValuePair.value)
+
+# for i in [0, 10, 160, 200, 260]:
+#     print output[i], times[i]
+
+# # Plot
+# p = figure(title=ideal.getBlockName(), x_axis_label='time', y_axis_label='N')
+# p.circle(x=times, y=output, color="red")
+# show(p)

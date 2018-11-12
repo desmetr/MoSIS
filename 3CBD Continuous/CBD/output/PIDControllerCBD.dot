@@ -15,6 +15,7 @@ ProductKd -> Adder2 [label=""];
 ProductKi -> Adder2 [label=""];
 ProductKp [label="ProductBlock (ProductKp)"];
 Kp -> ProductKp [label=""];
+ERROR -> ProductKp [label=""];
 ProductKi [label="ProductBlock (ProductKi)"];
 Ki -> ProductKi [label=""];
 Integrator -> ProductKi [label=""];
