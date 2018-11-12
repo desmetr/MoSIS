@@ -3,8 +3,6 @@ from CBDMultipleOutput.Source.CBDDraw import draw
 from TrainCostModelBlock import *
 from bokeh.plotting import figure, output_file, show
 
-steps = 350
-
 class ComputerBlock(BaseBlock):
     """
     IN1 = current time
@@ -57,7 +55,7 @@ class TimeCBD(CBD):
 
 class PIDControllerCBD(CBD):
     """
-    ERROR = TODO
+    ERROR = DesiredSpeed - ActualSpeed of train
     DELTA = timestep
     F_TRACTION = F_traction
     """
@@ -80,26 +78,26 @@ class PIDControllerCBD(CBD):
         # Connections
         self.addConnection("Kp", "ProductKp")
         self.addConnection("ERROR", "ProductKp")
-        self.addConnection("Ki", "ProductKi")
-        self.addConnection("Kd", "ProductKd")
 
-        self.addConnection("ProductKp", "Adder1")
-        self.addConnection("Adder2", "Adder1")
+        self.addConnection("ERROR", "Integrator")
+        self.addConnection("Zero", "Integrator", output_port_name="OUT1", input_port_name="IC")
+        self.addConnection("DELTA", "Integrator", output_port_name="OUT1", input_port_name="delta_t")
+
+        self.addConnection("ERROR", "Derivator")
+        self.addConnection("Zero", "Derivator", input_port_name="IC")
+        self.addConnection("DELTA", "Derivator", output_port_name="OUT1", input_port_name="delta_t")
+
+        self.addConnection("Ki", "ProductKi")
+        self.addConnection("Integrator", "ProductKi")
+
+        self.addConnection("Kd", "ProductKd")
+        self.addConnection("Derivator", "ProductKd")
 
         self.addConnection("ProductKd", "Adder2")
         self.addConnection("ProductKi", "Adder2")
 
-        # Integrator
-        self.addConnection("ERROR", "Integrator")
-        self.addConnection("Zero", "Integrator", output_port_name="OUT1", input_port_name="IC")
-        self.addConnection("DELTA", "Integrator", output_port_name="OUT1", input_port_name="delta_t")
-        self.addConnection("Integrator", "ProductKi")
-
-        # Derivator
-        self.addConnection("ERROR", "Derivator")
-        self.addConnection("Zero", "Derivator", input_port_name="IC")
-        self.addConnection("DELTA", "Derivator", output_port_name="OUT1", input_port_name="delta_t")
-        self.addConnection("Derivator", "ProductKd")
+        self.addConnection("ProductKp", "Adder1")
+        self.addConnection("Adder2", "Adder1")
 
         self.addConnection("Adder1", "F_TRACTION", output_port_name="OUT1")
 
@@ -114,7 +112,7 @@ class PlantCBD(CBD):
         CBD.__init__(self, block_name, input_ports=["F_TRACTION","DELTA"], output_ports=["V_PASSENGER", "V_TRAIN", "X_PASSENGER", "X_TRAIN"])
 
         # Constants for Integrators
-        # self.addBlock(ConstantBlock("X0Train", 0))
+        self.addBlock(ConstantBlock("X0Train", 0))
         self.addBlock(ConstantBlock("V0Train", 0))
         self.addBlock(ConstantBlock("X0Passenger", 0))
         self.addBlock(ConstantBlock("V0Passenger", 0))
@@ -137,16 +135,16 @@ class PlantCBD(CBD):
         ##############
 
         # Part1 = k * (- X_PASSENGER)
-        self.addBlock(ProductBlock("Product1"))
         self.addBlock(NegatorBlock("Negator1"))
+        self.addBlock(ProductBlock("Product1"))
 
         self.addConnection("Integrator2", "Negator1", output_port_name="OUT1")
         self.addConnection("Negator1", "Product1")
         self.addConnection("K","Product1")
 
         # Part2 = C * (- V_PASSENGER)
-        self.addBlock(ProductBlock("Product2"))
         self.addBlock(NegatorBlock("Negator2"))
+        self.addBlock(ProductBlock("Product2"))
 
         self.addConnection("Integrator", "Negator2", output_port_name="OUT1")
         self.addConnection("Negator2", "Product2")
@@ -200,7 +198,8 @@ class PlantCBD(CBD):
         self.addConnection("X0Passenger", "Integrator", output_port_name="OUT1", input_port_name="IC")
         self.addConnection("DELTA", "Integrator", output_port_name="OUT1", input_port_name="delta_t")
 
-        self.addConnection("Integrator", "V_PASSENGER", output_port_name="OUT1")    #?? juist?
+        self.addConnection("Integrator", "V_PASSENGER", output_port_name="OUT1")
+        self.addConnection("Integrator2", "X_PASSENGER", output_port_name="OUT1")
 
         ##############
         # EQUATION 2 #
@@ -215,7 +214,7 @@ class PlantCBD(CBD):
         self.addBlock(ProductBlock("_Product1_5"))
 
         self.addBlock(IntegratorBlock("_Integrator"))
-        # self.addBlock(IntegratorBlock("_Integrator2"))
+        self.addBlock(IntegratorBlock("_Integrator2"))
 
         # Connections
         self.addConnection("_Half", "_Product1_1")
@@ -255,67 +254,20 @@ class PlantCBD(CBD):
         self.addConnection("V0Train", "_Integrator", output_port_name="OUT1", input_port_name="IC")
         self.addConnection("DELTA", "_Integrator", output_port_name="OUT1", input_port_name="delta_t")
 
-        # self.addConnection("_Integrator", "_Integrator2")
-        # self.addConnection("X0Train", "_Integrator2", output_port_name="OUT1", input_port_name="IC")
-        # self.addConnection("DELTA", "_Integrator2", output_port_name="OUT1", input_port_name="delta_t")
+        self.addConnection("_Integrator", "_Integrator2")
+        self.addConnection("X0Train", "_Integrator2", output_port_name="OUT1", input_port_name="IC")
+        self.addConnection("DELTA", "_Integrator2", output_port_name="OUT1", input_port_name="delta_t")
 
         # Outputs
-        # self.addConnection("Integrator", "X_PASSENGER", output_port_name="OUT1")
         self.addConnection("_Integrator", "V_TRAIN", output_port_name="OUT1")
-
-        ##############
-        # EQUATION 3 #
-        ##############
-
-        self.addBlock(IntegratorBlock("__Integrator"))
-        
-        # Connections
-        self.addConnection("V_PASSENGER", "__Integrator")
-        self.addConnection("V0Passenger", "__Integrator", output_port_name="OUT1", input_port_name="IC")
-        self.addConnection("DELTA", "_Integrator", output_port_name="OUT1", input_port_name="delta_t")
-        
-        # Outputs
-        self.addConnection("__Integrator", "X_PASSENGER", output_port_name="OUT1")
-
-        ##############
-        # EQUATION 4 #
-        ##############
-
-        self.addBlock(IntegratorBlock("___Integrator"))
-        
-        # Connections
-        self.addConnection("V_TRAIN", "___Integrator")
-        self.addConnection("V0Train", "___Integrator", output_port_name="OUT1", input_port_name="IC")
-        self.addConnection("DELTA", "_Integrator", output_port_name="OUT1", input_port_name="delta_t")
-        
-        # Outputs
-        self.addConnection("___Integrator", "X_TRAIN", output_port_name="OUT1")
-
-class CostFunctionCBD(CBD):
-    """
-    V_IDEAL =
-    V_TRAIN =
-    X_PASSENGER =
-    DELTA = timestep
-    """
-    def __init__(self, block_name):
-        CBD.__init__(self, block_name, input_ports=["IN_V_I","IN_V_TRAIN","DELTA","IN_X_PASSENGER"], output_ports=["OUT1"])
-        
-        self.addBlock(CostFunctionBlock("CostFunction"))
-
-        self.addConnection("IN_V_I", "CostFunction", input_port_name="InVi")
-        self.addConnection("IN_V_TRAIN", "CostFunction", input_port_name="InVTrain")
-        self.addConnection("DELTA", "CostFunction", input_port_name="InDelta")
-        self.addConnection("IN_X_PASSENGER", "CostFunction", input_port_name="InXPerson")
-
-        self.addConnection("CostFunction", "OUT1")
+        self.addConnection("_Integrator2", "X_TRAIN", output_port_name="OUT1")
 
 class CompleteTrainSystemCBD(CBD):
     """
     """
     def __init__(self, block_name):
-        CBD.__init__(self, block_name, 
-                     input_ports=["ERROR", "V_IDEAL"], 
+        CBD.__init__(self, block_name,
+                     input_ports=["ERROR", "V_IDEAL"],
                      output_ports=["DELTA", "F_TRACTION", "OUT_DELTA", "V_TRAIN", "OUT1", "X_PASSENGER"])
         # Blocks
         self.addBlock(TimeCBD("Time"))
@@ -324,7 +276,7 @@ class CompleteTrainSystemCBD(CBD):
         self.addBlock(NegatorBlock("Negator"))
         self.addBlock(PIDControllerCBD("PIDController"))
         self.addBlock(PlantCBD("Plant"))
-        self.addBlock(CostFunctionCBD("CostFunction"))
+        self.addBlock(CostFunctionBlock("CostFunction"))
 
         # Connections
         self.addConnection("Time", "Lookup")
@@ -339,11 +291,12 @@ class CompleteTrainSystemCBD(CBD):
 
         self.addConnection("Plant", "Negator", output_port_name="V_TRAIN")
 
-        self.addConnection("Lookup", "CostFunction", output_port_name="OUT1", input_port_name="IN_V_I")
-        self.addConnection("Plant", "CostFunction", output_port_name="V_TRAIN", input_port_name="IN_V_TRAIN")
-        self.addConnection("Plant", "CostFunction", output_port_name="X_PASSENGER", input_port_name="IN_X_PASSENGER")
-        self.addConnection("Time", "CostFunction", output_port_name="DELTA",  input_port_name="DELTA")
+        self.addConnection("Lookup", "CostFunction", output_port_name="OUT1", input_port_name="InVi")
+        self.addConnection("Plant", "CostFunction", output_port_name="V_TRAIN", input_port_name="InVTrain")
+        self.addConnection("Plant", "CostFunction", output_port_name="X_PASSENGER", input_port_name="InXPerson")
+        self.addConnection("Time", "CostFunction", output_port_name="DELTA",  input_port_name="InDelta")
 
+steps = 350
 completeTrainSystem = CompleteTrainSystemCBD("completeTrainSystem")
 completeTrainSystem.run(steps)
 # draw(completeTrainSystem, "output/completeTrainSystem.dot")
