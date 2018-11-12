@@ -206,7 +206,7 @@ class PlantCBD(CBD):
         ##############
 
         # Part1 = 1/2 * P * V*V * CD * A
-        self.addBlock(ConstantBlock("_Half", 0.5))
+        self.addBlock(ConstantBlock("Half", 0.5))
         self.addBlock(ProductBlock("_Product1_1"))
         self.addBlock(ProductBlock("_Product1_2"))
         self.addBlock(ProductBlock("_Product1_3"))
@@ -217,7 +217,7 @@ class PlantCBD(CBD):
         self.addBlock(IntegratorBlock("_Integrator2"))
 
         # Connections
-        self.addConnection("_Half", "_Product1_1")
+        self.addConnection("Half", "_Product1_1")
         self.addConnection("P", "_Product1_1")
 
         self.addConnection("_Product1_1", "_Product1_2")
