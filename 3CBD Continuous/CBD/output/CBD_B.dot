@@ -1,19 +1,16 @@
 digraph graphname
 {OUT1 [label="OutputPortBlock (OUT1)"];
 Derivator2 -> OUT1 [label=""];
-Clock [label="ClockCBD (Clock)",shape=Msquare];
-DeltaT -> Clock [label="delta_t"];
-Zero -> Clock [label="IC"];
 Zero [label="ConstantBlock (Zero)\n0"];
-DeltaT [label="ConstantBlock (DeltaT)\n1"];
+DeltaT [label="ConstantBlock (DeltaT)\n0.001"];
 Negator [label="NegatorBlock (Negator)"];
 Derivator2 -> Negator [label=""];
 Derivator1 [label="DerivatorBlock (Derivator1)",shape=Msquare];
-Clock -> Derivator1 [label="delta_t"];
+DeltaT -> Derivator1 [label="delta_t"];
 V0 -> Derivator1 [label="IC"];
 Negator -> Derivator1 [label=""];
 Derivator2 [label="DerivatorBlock (Derivator2)",shape=Msquare];
-Clock -> Derivator2 [label="delta_t"];
+DeltaT -> Derivator2 [label="delta_t"];
 Zero -> Derivator2 [label="IC"];
 Derivator1 -> Derivator2 [label=""];
 V0 [label="ConstantBlock (V0)\n1"];

@@ -313,15 +313,15 @@ completeTrainSystem.run(steps)
 # tempCostFunctionCBD = CostFunctionCBD("tempCostFunctionCBD")
 # draw(tempCostFunctionCBD, "output/CostFunctionCBD.dot")
 
-# times = []
-# output = []
+times = []
+output = []
 
-# for timeValuePair in cbd.getSignal("IN_V_I"):
-#     times.append(timeValuePair.time)
-#     output.append(timeValuePair.value)
+for timeValuePair in completeTrainSystem.getSignal("IN_V_I"):
+    times.append(timeValuePair.time)
+    output.append(timeValuePair.value)
 
-# for i in [0, 10, 160, 200, 260]:
-#     print output[i], times[i]
+for i in [0, 10, 160, 200, 260]:
+    print output[i], times[i]
 
 # # Plot
 # p = figure(title=ideal.getBlockName(), x_axis_label='time', y_axis_label='N')

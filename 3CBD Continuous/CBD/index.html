@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<style>
+	td, th 
+	{
+	    border: 1px solid #dddddd;
+	    text-align: left;
+	    padding: 8px;
+	}
+
+	.frac 
+	{
+	    display: inline-block;
+	    position: relative;
+	    vertical-align: middle;
+	    letter-spacing: 0.001em;
+	    text-align: center;
+	}
+
+	.frac > span 
+	{
+	    display: block;
+	    padding: 0.1em;
+	}
+
+	.frac span.bottom 
+	{
+    	border-top: thin solid black;
+	}
+
+	.frac span.symbol 
+	{
+	    display: none;
+	} 
+</style>
+<body>
+
+<h1>Assignment 3: Continuous Time CBDs</h1>
+<ul>
+	<li>Rafael De Smet - 20131145</li>
+	<li>Beno&#238;t-Philippe Fornoville - 20133299</li>
+</ul>
+
+This report shows the results of assignment 3.
+
+<h2>Task 1: Harmonic Oscillator</h2>
+
+The goal of this task was to implement an harmonic oscillator using integral and derivative blocks. This will lead to an approximation of a <i>sin(t)</i> function. When build and simulated, the error of the oscillator was measured against the <i>sin(t)</i> function.
+
+<h3>Integrator And Derivative Blocks</h3>
+
+The first step of this task was to create the integrator and derivative blocks in the CBD class. These implementations can be found in <a href="CBDMultipleOutput/Source/CBD.py">CBD.py</a>. 
+
+<h3>Using Integral Blocks - CBD A</h3>
+
+Now we have the integral and derivative blocks, we can start building the oscillator. The oscillator is defined using the following second order differential equation:
+
+<div class="frac">
+    <span><i>d&sup2;x</i></span>
+    <span class="symbol">/</span>
+    <span class="bottom"><i>dt&sup2;</i></span>
+</div> = <i>-x</i>
+
+where <i>x(0) = 0</i> and 
+
+<div class="frac">
+    <span><i>dx</i></span>
+    <span class="symbol">/</span>
+    <span class="bottom"><i>dt</i></span>
+</div>(0) = 1.
+
+What we have to do is to translate this differential equation to a CBD model. The way we solve such a differential equation is by using integrals. In this case we are dealing with a second order differential equation, so we must use two integrals, two <i>IntegralBlocks</i> in a CBD. The output of the first integral will serve as the input of the second. This represents the difference between the orders of the equation. The conditions given by the equations serve as the IC of the integral. The first integral will have an IC of 1 since 
+
+<div class="frac">
+    <span><i>dx</i></span>
+    <span class="symbol">/</span>
+    <span class="bottom"><i>dt</i></span>
+</div>(0) = 1.
+
+The second integral will have an IC of 0 since <i>x(0) = 0</i>. Of course both <i>IntegralBlocks</i> will have a &Delta;t input as well.
+<br><br>
+
+The right hand side of the equation tells us what input the first integral should have. The output of the second integral is <i>x</i>. This means that we need to negate the output of the second integral and use this as input for the first integral. The CBD model of this can be found below.
+
+<img src="output/CBD_A.png">
+<br>
+When we simulate this CBD over time and plot the value of <i>x</i>, we get the results in <a href="output/PlotCBDA.html">PlotCBDA.html</a>. Note that in this plot &Delta;t is equal to 0.001. This leads to very satisfactory results. 
+
+<h3>Using Derivative Blocks - CBD B</h3>
+
+TODO
+
+<h3>Measuring Error In CBD A</h3>
+
+The next part of this task is to measure the error of the harmonic oscillator in CBD A against the <i>sin(t)</i> function. We know the function to measure the error, it is as follows: <i>e(t) = integral of |sin(t) - x(t)|</i>. <i>x(t)</i> is here the current value of the oscillator (CBD A). This means we take the integral of the magnitude of the difference between the ideal value and the approximated value. Note that in this case it is important to choose the right stepsize (&Delta;t). When we use stepsize 0.1 we get the result in <a href="output/PlotErrorA1.html">PlotErrorA1.html</a>, compared to the result when stepsize is 0.001 in <a href="output/PlotErrorA2.html">PlotErrorA2.html</a>. It is clear that the smaller stepsize leads to a smaller error. At time 1000, a stepsize of 0.1 leads to an error of 40000 and a stepsize of 0.001 leads to an error of 400. The CBD used to measure the error is shown below. This picture is the setting with a stepsize of 0.1. The <i>SinBlock</i> uses the current time to calculate its output value.<br>
+
+<img src="output/ErrorA.png">
+
+<h3>Measuring Error In CBD B</h3>
+
+Analogously to CBD A, we measure the error of CBD B against the <i>sin(t)</i> function. The same two stepsizes were used. The result of using stepsize 0.1 can be found in <a href="output/PlotErrorB1.html">PlotErrorB1.html</a> and the result of using stepsize 0.001 can be found in <a href="output/PlotErrorB2.html">PlotErrorB2.html</a>. Again, below is the CBD used to measure the error, it is the same as in the previous part, except we know use CBD B instead of CBD A.
+
+TODO
+
+<img src="output/ErrorB.png">
+
+<h3>Results Task 1</h3>
+
+TODO
+
+We can conclude that using a smaller stepsize leads to a smaller error. Besides that, it is clear that using a integral based implementation is better than a derivative based one.
+
+<h2>Task 2: Driver-less Train</h2>
+
+The second task was the build a simulation of a cruise control of a train. This system exists of several smaller CBDs. These will be discussed below. The next picture is a full overview of the system.<br>
+
+<img src="output/CompleteTrainSystem.png">
+
+<h3>Look-up Block</h3>
+
+The first part of this task was to build a block that tell the train which speed to take at which time. The implementation of this block can be found in <a href="controller.py">controller.py</a> in the class <i>ComputerBlock</i>.
+
+<h3>Build And Simulate</h3>
+
+The second and largest task is to build and simulate all the parts of a Driver-less Train. As shown in the assignment, this consists of 5 main elements.
+<ul>
+	<li>Time</li>
+	<li>Look-up Block</li>
+	<li>PID Controller</li>
+	<li>Plant</li>
+	<li>Cost Function</li>
+</ul>
+
+<h4>Time CBD And Look-up Block</h4>
+
+The Time CBD and Look-up Block have been discussed previously and in the previous assignment. Below is the full TimeCBD. <br>
+
+<img src="output/TimeBlockCBD.png">
+
+<h4>PID Controller</h4>
+
+TODO
+
+<br>
+<img src="output/PIDControllerCBD.png">
+
+<h4>Plant</h4>
+
+TODO
+
+<br>
+<img src="output/PlantCBD.png">
+
+<h4>Cost Function</h4>
+
+TODO
+
+<h3>Tune</h3>
+
+TODO
+
+</body>
+</html>

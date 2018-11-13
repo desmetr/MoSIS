@@ -5,7 +5,7 @@ Clock [label="ClockCBD (Clock)",shape=Msquare];
 DeltaT -> Clock [label="delta_t"];
 Zero -> Clock [label="IC"];
 Zero [label="ConstantBlock (Zero)\n0"];
-DeltaT [label="ConstantBlock (DeltaT)\n0.001"];
+DeltaT [label="ConstantBlock (DeltaT)\n0.1"];
 Sin [label="SinBlock (Sin)"];
 Absolute [label="GenericBlock (Absolute)"];
 Adder -> Absolute [label=""];
