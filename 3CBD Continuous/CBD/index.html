@@ -49,9 +49,24 @@ The goal of this task was to implement an harmonic oscillator using integral and
 
 <h3>Integrator And Derivative Blocks</h3>
 
-The first step of this task was to create the integrator and derivative blocks in the CBD class. These implementations can be found in <a href="CBDMultipleOutput/Source/CBD.py">CBD.py</a>. 
+The first step of this task was to create the integrator and derivative blocks in the CBD class. These implementations can be found in <a href="CBDMultipleOutput/Source/CBD.py">CBD.py</a>. Since both the derivator and integral need to know the value of the previous iterations to compute the complete value, the implementations of these blocks both rely on the use of delays. The <i>DerivatorBlock</i> implements the following formula:
+<div class="frac">
+    <span><i>x(t) - x(t-&Delta;t)</i></span>
+    <span class="symbol">/</span>
+    <span class="bottom"><i>&Delta;t</i></span>
+</div>. When we want to know the value of the derivative at time t, <i>x(t)</i>, we express this using the <i>DelayBlock</i> to get the previous value and calculate the new value. <br>
 
-<h3>Using Integral Blocks - CBD A</h3>
+One iteration of the <i>IntegratorBlock</i> is implemented based on the following formula:<i>&Delta;t * in(t - &Delta;t)</i>, where <i>in(t)</i> is the current incoming value. To calculate the integral over multiple values, we use the following formula: <br><i>IC(0) + (integral of in(&tau;) d&tau; from 0 to &Delta;t) + (integral of in(&tau;) d&tau; from &Delta; to 2&Delta;t) + ...</i>. <br>Here IC(0) is the initial condition that the integral has to take at iteration 0, the next iterations are calculated using the formula.<br><br>
+
+The two new blocks are shown below.<br>
+
+<b>Derivator</b><br>
+<img src="output/Derivator.png">
+<br>
+<b>Integrator</b><br>
+<img src="output/Integrator.png">
+
+<h3>Oscillator Using Integral Blocks - CBD A</h3>
 
 Now we have the integral and derivative blocks, we can start building the oscillator. The oscillator is defined using the following second order differential equation:
 
@@ -69,7 +84,7 @@ where <i>x(0) = 0</i> and
     <span class="bottom"><i>dt</i></span>
 </div>(0) = 1.
 
-What we have to do is to translate this differential equation to a CBD model. The way we solve such a differential equation is by using integrals. In this case we are dealing with a second order differential equation, so we must use two integrals, two <i>IntegralBlocks</i> in a CBD. The output of the first integral will serve as the input of the second. This represents the difference between the orders of the equation. The conditions given by the equations serve as the IC of the integral. The first integral will have an IC of 1 since 
+What we have to do is to translate this differential equation to a CBD model. The way we solve such a differential equation is by using integrals. In this case we are dealing with a second order differential equation, so we must use two integrals. The output of the first integral will serve as the input of the second. This represents the difference between the orders of the equation. The conditions given by the equations serve as the different ICs of the integrals. The first integral will have an IC of 1 since 
 
 <div class="frac">
     <span><i>dx</i></span>
@@ -77,48 +92,78 @@ What we have to do is to translate this differential equation to a CBD model. Th
     <span class="bottom"><i>dt</i></span>
 </div>(0) = 1.
 
-The second integral will have an IC of 0 since <i>x(0) = 0</i>. Of course both <i>IntegralBlocks</i> will have a &Delta;t input as well.
+The second integral will have an IC of 0 since <i>x(0) = 0</i>. Of course both <i>IntegralBlocks</i> will have a &Delta;t input as well. We will later see that the value of this &Delta;t is important for the overall result.
 <br><br>
 
-The right hand side of the equation tells us what input the first integral should have. The output of the second integral is <i>x</i>. This means that we need to negate the output of the second integral and use this as input for the first integral. The CBD model of this can be found below.
-
+The right hand side of the differential equation tells us what input the first integral should have. The output of the second integral is <i>x</i>. This means that we need to negate the output of the second integral and use this as input for the first integral. The CBD model of this can be found below.
+<br>
 <img src="output/CBD_A.png">
 <br>
 When we simulate this CBD over time and plot the value of <i>x</i>, we get the results in <a href="output/PlotCBDA.html">PlotCBDA.html</a>. Note that in this plot &Delta;t is equal to 0.001. This leads to very satisfactory results. 
 
-<h3>Using Derivative Blocks - CBD B</h3>
+<h3>Oscillator Using Derivative Blocks - CBD B</h3>
 
-TODO
+There are two ways of solving a differential equation. One is as shown in the previous section, by using integrals. The other way is to replace the integrals by derivators. This section shows the results of implementing the oscillator with derivators. The CBD model is very much alike the previous one. The <i>IntegralBlocks</i> have been replaced with <i>DerivatorBlocks</i>. Otherwise nothing changes. This CBD model is shown below.
+<br>
+<img src="output/CBD_B.png">
+<br>
+When we simulate this CBD over time and plot the value of <i>x</i>, we get the results in <a href="output/PlotCBDB.html">PlotCBDB.html</a>. Note that in this plot &Delta;t is equal to 0.001. When we compare the two oscillators we can see that they are each others inverse. This could be expected because the derivative and integral are each others inverse. 
+
 
 <h3>Measuring Error In CBD A</h3>
 
-The next part of this task is to measure the error of the harmonic oscillator in CBD A against the <i>sin(t)</i> function. We know the function to measure the error, it is as follows: <i>e(t) = integral of |sin(t) - x(t)|</i>. <i>x(t)</i> is here the current value of the oscillator (CBD A). This means we take the integral of the magnitude of the difference between the ideal value and the approximated value. Note that in this case it is important to choose the right stepsize (&Delta;t). When we use stepsize 0.1 we get the result in <a href="output/PlotErrorA1.html">PlotErrorA1.html</a>, compared to the result when stepsize is 0.001 in <a href="output/PlotErrorA2.html">PlotErrorA2.html</a>. It is clear that the smaller stepsize leads to a smaller error. At time 1000, a stepsize of 0.1 leads to an error of 40000 and a stepsize of 0.001 leads to an error of 400. The CBD used to measure the error is shown below. This picture is the setting with a stepsize of 0.1. The <i>SinBlock</i> uses the current time to calculate its output value.<br>
+The next part of this task is to measure the error of the harmonic oscillator in CBD A against the <i>sin(t)</i> function. We know the function to measure the error, it is as follows: <i>e(t) = integral of |sin(t) - x(t)|</i>. <i>x(t)</i> is the current value of the oscillator (CBD A). This means we take the integral of the magnitude of the difference between the ideal value and the approximated value. Note that in this case it is important to choose the right stepsize (&Delta;t). When we use stepsize 0.1 we get the result in <a href="output/PlotErrorA1.html">PlotErrorA1.html</a>, compared to the result when stepsize is 0.001 in <a href="output/PlotErrorA2.html">PlotErrorA2.html</a>. It is clear that the smaller stepsize leads to a smaller error. At time 1000, a stepsize of 0.1 leads to an error of 40000 while a stepsize of 0.001 leads to an error of 400. The CBD used to measure the error is shown below. This picture is the setting with a stepsize of 0.1. The <i>SinBlock</i> uses the current time to calculate its output value. The implementation of this new block can be found in <a href="CBDMultipleOutput/Source/CBD.py">CBD.py</a>.<br>
 
 <img src="output/ErrorA.png">
 
 <h3>Measuring Error In CBD B</h3>
 
-Analogously to CBD A, we measure the error of CBD B against the <i>sin(t)</i> function. The same two stepsizes were used. The result of using stepsize 0.1 can be found in <a href="output/PlotErrorB1.html">PlotErrorB1.html</a> and the result of using stepsize 0.001 can be found in <a href="output/PlotErrorB2.html">PlotErrorB2.html</a>. Again, below is the CBD used to measure the error, it is the same as in the previous part, except we know use CBD B instead of CBD A.
-
-TODO
+Analogously to CBD A, we measure the error of CBD B against the <i>sin(t)</i> function, using the same two stepsizes. The result of using a stepsize of 0.1 can be found in <a href="output/PlotErrorB1.html">PlotErrorB1.html</a> and the result of using a stepsize of 0.001 can be found in <a href="output/PlotErrorB2.html">PlotErrorB2.html</a>. Again, below is the CBD used to measure the error, it is the same as in the previous part, except we know use CBD B instead of CBD A.<br>
 
 <img src="output/ErrorB.png">
+<br>
+Interesting to note is that the resulting errorplots are very alike to the errorplots from CBD A. This is not very suprising because the two CBDs produce very similar results.
 
 <h3>Results Task 1</h3>
 
-TODO
-
-We can conclude that using a smaller stepsize leads to a smaller error. Besides that, it is clear that using a integral based implementation is better than a derivative based one.
+We can conclude that using a smaller stepsize leads to a smaller error. Besides that, there is not a lot of difference between the two implementations, but we know from the theory that using an integral based implementation will eventually smooth the error better than a derivative based implementation.
 
 <h2>Task 2: Driver-less Train</h2>
 
-The second task was the build a simulation of a cruise control of a train. This system exists of several smaller CBDs. These will be discussed below. The next picture is a full overview of the system.<br>
+The second task was the build a simulation of a cruise control of a train. This system exists of several smaller CBDs. These will be discussed below. The following picture is a full overview of the system and shows the several blocks we needed to implement.<br>
 
 <img src="output/CompleteTrainSystem.png">
 
 <h3>Look-up Block</h3>
 
-The first part of this task was to build a block that tell the train which speed to take at which time. The implementation of this block can be found in <a href="controller.py">controller.py</a> in the class <i>ComputerBlock</i>.
+The first part of this task was to build a block that tell the train which speed to take at which time. The implementation of this block can be found in <a href="controller.py">controller.py</a> in the class <i>ComputerBlock</i>. The table shows the speeds the controller should aim for.
+
+<table>
+	<tr>
+		<th>Time</th>
+		<th>Output</th>
+	</tr>
+	<tr>
+		<td>&lt; 10</td>
+		<td>0</td>
+	</tr>
+	<tr>
+		<td>&lt; 160</td>
+		<td>10</td>
+	</tr>
+	<tr>
+		<td>&lt; 200</td>
+		<td>4</td>
+	</tr>
+	<tr>
+		<td>&lt; 260</td>
+		<td>14</td> 
+	</tr>
+	<tr>
+		<td>&gt; 260</td>
+		<td>6</td>
+	</tr>
+</table>
 
 <h3>Build And Simulate</h3>
 
@@ -133,7 +178,7 @@ The second and largest task is to build and simulate all the parts of a Driver-l
 
 <h4>Time CBD And Look-up Block</h4>
 
-The Time CBD and Look-up Block have been discussed previously and in the previous assignment. Below is the full TimeCBD. <br>
+The Time CBD and Look-up Block have been discussed previously and in the previous assignment. Below is the full TimeCBD to be complete. <br>
 
 <img src="output/TimeBlockCBD.png">
 
@@ -149,11 +194,11 @@ TODO
 TODO
 
 <br>
-<img src="output/PlantCBD.png">
+This link will show the full PlantCBD (file is quite large so for convenience open in separate tab) <a href="output/PlantCBD.png">PlantCBD.png</a>.
 
 <h4>Cost Function</h4>
 
-TODO
+The Cost Function is a special block that will calculate the cost of the current system, based on the current and ideal velocity of the train at a point t, and the displacement of the passenger at that same time t. In the next section, the use of this block will be clear as we will tune the parameters of the PIDController to find the best set of values that produce the lowest cost.
 
 <h3>Tune</h3>
 

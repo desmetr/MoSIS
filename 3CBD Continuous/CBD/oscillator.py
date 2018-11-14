@@ -23,15 +23,15 @@ class ClockCBD(CBD):
 class CBD_A(CBD):
     def __init__(self, block_name):
         CBD.__init__(self, block_name, input_ports=[], output_ports=["OUT1"])
-        self.addBlock(ConstantBlock("DeltaT", 0.001))
-
         #blocks
         self.addBlock(NegatorBlock("Negator"))
         self.addBlock(IntegratorBlock("Integrator1"))
         self.addBlock(IntegratorBlock("Integrator2"))
+        draw(IntegratorBlock("integral"), "output/Integrator.dot")
 
         self.addBlock(ConstantBlock("X0", 0))
         self.addBlock(ConstantBlock("V0", 1))
+        self.addBlock(ConstantBlock("DeltaT", 0.001))
 
         #connections
         self.addConnection("Negator", "Integrator1")
@@ -51,28 +51,24 @@ class CBD_A(CBD):
 class CBD_B(CBD):
     def __init__(self, block_name):
         CBD.__init__(self, block_name, input_ports=[], output_ports=["OUT1"])
-        # Clock
-        self.addBlock(ConstantBlock("Zero", 0))
-        self.addBlock(ConstantBlock("DeltaT", 0.001))
-
         #blocks
         self.addBlock(NegatorBlock("Negator"))
         self.addBlock(DerivatorBlock("Derivator1"))
         self.addBlock(DerivatorBlock("Derivator2"))
-        draw(DerivatorBlock("test"), "output/tempDerivator.dot")
+        draw(DerivatorBlock("derivative"), "output/Derivator.dot")
 
-        # self.addBlock(ConstantBlock("X0", 0))
         self.addBlock(ConstantBlock("V0", 1))
-        # self.addBlock(NegatorBlock("NegatorX0"))#overbodig als X0 = 0
+        self.addBlock(ConstantBlock("Zero", 0))
+        self.addBlock(ConstantBlock("DeltaT", 0.001))
 
-        #connections
+
+        # Connections
         self.addConnection("Negator", "Derivator1")
         self.addConnection("V0", "Derivator1", input_port_name="IC")
         self.addConnection("DeltaT", "Derivator1", output_port_name="OUT1", input_port_name="delta_t")
 
         self.addConnection("Derivator1", "Derivator2")
         self.addConnection("Zero", "Derivator2", input_port_name="IC")
-        # self.addConnection("NegatorX0", "Derivator2", input_port_name="IC")
         self.addConnection("DeltaT", "Derivator2", output_port_name="OUT1", input_port_name="delta_t")
 
         self.addConnection("Derivator2", "Negator", output_port_name="OUT1")
@@ -155,11 +151,11 @@ def runCBD(cbd, steps):
     p.circle(x=times, y=output)
     show(p)
 
-# A = CBD_A("CBD_A")
+A = CBD_A("CBD_A")
 # draw(A, "output/CBD_A.dot")
 # runCBD(A, 6000)
 
-# B = CBD_B("CBD_B")
+B = CBD_B("CBD_B")
 # draw(B, "output/CBD_B.dot")
 # runCBD(B, 6000)
 
