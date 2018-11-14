@@ -93,7 +93,7 @@ class BaseBlock:
         """
         input_port = "IN1" if input_port == None else input_port
         curIteration = -1 if curIteration == None else curIteration
-        print curIteration, input_port, self.getBlockName()
+
         (incoming_block, out_port_name) = self._linksIn[input_port]
         return incoming_block.getSignal(out_port_name)[curIteration]
 
@@ -756,7 +756,6 @@ class CBD(BaseBlock):
             elif block.getBlockType() == "ProductBlock":
                 #M2 can stay 0
 
-                print "##", i, block, [ x.getBlockName() for x in getBlockDependencies2(block) if x not in strongComponent ]
                 M1[i][i] = -1
                 M1[i][indexdict[[ x for x in getBlockDependencies2(block)  if x in strongComponent ][0]]] = reduce(lambda x,y: x*y, [ x.getSignal()[curIteration].value for x in getBlockDependencies2(block) if x not in strongComponent ])
             elif block.getBlockType() == "NegatorBlock":
@@ -770,7 +769,6 @@ class CBD(BaseBlock):
                 possibleDep, output_port = block.parent.getBlockConnectedToInput(block.getBlockName())
                 M1[i][indexdict[resolveBlock(possibleDep, output_port)]] = - 1
             elif block.getBlockType() == "OutputPortBlock" or block.getBlockType() == "WireBlock":
-                print "##", block, "##"
                 #M2 can stay 0
                 M1[i][i] = 1
                 M1[i][indexdict[block.getDependencies(0)[0]]] = - 1
@@ -904,6 +902,7 @@ class IntegratorBlock(CBD):
     def __init__(self, block_name):
         CBD.__init__(self, block_name, ["IN1", "delta_t", "IC"], ["OUT1"])
         # TO IMPLEMENT
+        self.addBlock(ConstantBlock("Zero", 0))
         self.addBlock(ProductBlock("Product"))
         self.addBlock(NegatorBlock("Negator"))
         self.addBlock(DelayBlock("Delay1"))
@@ -912,7 +911,7 @@ class IntegratorBlock(CBD):
         self.addBlock(AdderBlock("AdderOut"))
 
         self.addConnection("IN1", "Delay2")
-        self.addConnection("IN1", "Delay2", input_port_name="IC")
+        self.addConnection("Zero", "Delay2", input_port_name="IC")
         self.addConnection("Delay2", "Product")
         self.addConnection("delta_t", "Product")
 

@@ -1,0 +1,4 @@
+digraph graphname
+{Plant [label="PlantCBD (Plant)",shape=Msquare];
+
+}

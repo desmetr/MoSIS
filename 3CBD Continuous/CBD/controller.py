@@ -125,6 +125,7 @@ class PlantCBD(CBD):
         self.addBlock(ConstantBlock("CD", 0.6))
         self.addBlock(ConstantBlock("P", 1.2))
         self.addBlock(ConstantBlock("A", 9.12))
+        self.addBlock(ConstantBlock("Half", 0.5))
 
         # Integrator Blocks
         self.addBlock(IntegratorBlock("Integrator"))
@@ -205,55 +206,48 @@ class PlantCBD(CBD):
         # EQUATION 2 #
         ##############
 
-        # ConstantBlocks
-        self.addBlock(ConstantBlock("Half", 0.5))
-
-        # IntegratorBlocks
+        self.addBlock(ProductBlock("_Product1"))
+        self.addBlock(ProductBlock("_Product2"))
+        self.addBlock(ProductBlock("_Product3"))
+        self.addBlock(ProductBlock("_Product4"))
+        self.addBlock(ProductBlock("_Product5"))
+        self.addBlock(ProductBlock("_Product6"))
+        self.addBlock(AdderBlock("_Adder1"))
+        self.addBlock(AdderBlock("_Adder2"))
+        self.addBlock(NegatorBlock("_Negator"))
+        self.addBlock(InverterBlock("_Inverter"))
         self.addBlock(IntegratorBlock("_Integrator"))
         self.addBlock(IntegratorBlock("_Integrator2"))
 
-        # Part1 = 1/2 * P * V_Train * V_Train * CD * A
-        self.addBlock(ProductBlock("_Product1_1"))
-        self.addBlock(ProductBlock("_Product1_2"))
-        self.addBlock(ProductBlock("_Product1_3"))
-        self.addBlock(ProductBlock("_Product1_4"))
-        self.addBlock(ProductBlock("_Product1_5"))
+        self.addConnection("Half", "_Product1")
+        self.addConnection("P", "_Product1")
 
-        # Connections
-        self.addConnection("_Integrator", "_Product1_1", output_port_name="OUT1")
-        self.addConnection("_Integrator", "_Product1_1", output_port_name="OUT1")
+        self.addConnection("_Product1", "_Product2")
+        self.addConnection("CD", "_Product2")
 
-        self.addConnection("_Product1_1", "_Product1_2")
-        self.addConnection("Half", "_Product1_2", output_port_name="OUT1")
+        self.addConnection("_Product2", "_Product3")
+        self.addConnection("A", "_Product3")
 
-        self.addConnection("_Product1_2", "_Product1_3")
-        self.addConnection("P", "_Product1_3", output_port_name="OUT1")
+        self.addConnection("_Product3", "_Product4")
+        self.addConnection("_Integrator", "_Product4")
 
-        self.addConnection("_Product1_3", "_Product1_4")
-        self.addConnection("CD", "_Product1_4", output_port_name="OUT1")
+        self.addConnection("_Product4", "_Product5")
+        self.addConnection("_Integrator", "_Product5")
 
-        self.addConnection("_Product1_4", "_Product1_5")
-        self.addConnection("A", "_Product1_5", output_port_name="OUT1")
+        self.addConnection("_Product5", "_Negator")
 
-        # Part2 = F_traction - Part1
-        self.addBlock(NegatorBlock("_Negator2"))
-        self.addBlock(AdderBlock("_Adder2"))
+        self.addConnection("_Negator", "_Adder1")
+        self.addConnection("F_TRACTION", "_Adder1")
 
-        # Connections
-        self.addConnection("_Product1_5", "_Negator2")
+        self.addConnection("M_Train", "_Adder2")
+        self.addConnection("M_Passenger", "_Adder2")
 
-        self.addConnection("_Negator2", "_Adder2")
-        self.addConnection("F_TRACTION", "_Adder2", output_port_name="OUT1")
+        self.addConnection("_Adder2", "_Inverter")
 
-        # Part3 = Part2 / (M_Train + M_Passenger)
-        self.addBlock(ProductBlock("_Product3"))
+        self.addConnection("_Adder1", "_Product6")
+        self.addConnection("_Inverter", "_Product6")
 
-        # Connections
-        self.addConnection("_Adder2", "_Product3")
-        self.addConnection("Inverter3", "_Product3", output_port_name="OUT1")
-
-        # Integrator
-        self.addConnection("_Product3", "_Integrator")
+        self.addConnection("_Product6", "_Integrator")
         self.addConnection("V0Train", "_Integrator", output_port_name="OUT1", input_port_name="IC")
         self.addConnection("DELTA", "_Integrator", output_port_name="OUT1", input_port_name="delta_t")
 
@@ -261,17 +255,14 @@ class PlantCBD(CBD):
         self.addConnection("X0Train", "_Integrator2", output_port_name="OUT1", input_port_name="IC")
         self.addConnection("DELTA", "_Integrator2", output_port_name="OUT1", input_port_name="delta_t")
 
-        # Outputs
-        self.addConnection("_Integrator", "V_TRAIN", output_port_name="OUT1")
-        self.addConnection("_Integrator2", "X_TRAIN", output_port_name="OUT1")
+        self.addConnection("_Integrator", "V_TRAIN")
+        self.addConnection("_Integrator2", "X_TRAIN")
 
 class CompleteTrainSystemCBD(CBD):
     """
     """
     def __init__(self, block_name):
-        CBD.__init__(self, block_name,
-                     input_ports=["ERROR", "V_IDEAL"],
-                     output_ports=["DELTA", "F_TRACTION", "OUT_DELTA", "V_TRAIN", "OUT1", "X_PASSENGER"])
+        CBD.__init__(self, block_name, input_ports=[], output_ports=["V_IDEAL", "V_TRAIN"])
         # Blocks
         self.addBlock(TimeCBD("Time"))
         self.addBlock(ComputerBlock("Lookup"))
@@ -299,47 +290,66 @@ class CompleteTrainSystemCBD(CBD):
         self.addConnection("Plant", "CostFunction", output_port_name="X_PASSENGER", input_port_name="InXPerson")
         self.addConnection("Time", "CostFunction", output_port_name="DELTA",  input_port_name="InDelta")
 
+        self.addConnection("Lookup", "V_IDEAL", output_port_name="OUT1")
+        self.addConnection("Plant", "V_TRAIN", output_port_name="V_TRAIN")
 
 def testPlant():
-    cbd = CBD("testPlant")
+    cbd = CBD("CBD")
     cbd.addBlock(PlantCBD("Plant"))
-    cbd.addBlock(ConstantBlock("F_TRACTION", 10))
-    cbd.addBlock(ConstantBlock("DELTA",1))
+    draw(cbd, "output/testPlant.dot")
+    cbd.addBlock(ConstantBlock("F_TRACTION_IN", 10))
+    cbd.addBlock(ConstantBlock("DELTA_IN", 1))
 
-    cbd.addConnection("F_TRACTION","Plant", input_port_name="F_TRACTION")
-    cbd.addConnection("DELTA","Plant", input_port_name="DELTA")
+    cbd.addConnection("F_TRACTION_IN", "Plant", input_port_name="F_TRACTION")
+    cbd.addConnection("DELTA_IN", "Plant", input_port_name="DELTA")
 
     cbd.run(10)
 
-testPlant()
-# steps = 350
-# completeTrainSystem = CompleteTrainSystemCBD("completeTrainSystem")
-# completeTrainSystem.run(steps)
+def testTimeCBD():
+    cbd = TimeCBD("testTimeCBD")
+
+    cbd.run(10)
+
+def testPIDControllerCBD():
+    cbd = CBD("CBD")
+    cbd.addBlock(PIDControllerCBD("testPIDControllerCBD"))
+    cbd.addBlock(ConstantBlock("ERROR_IN", 1))
+    cbd.addBlock(ConstantBlock("DELTA_IN", 1))
+
+    cbd.addConnection("ERROR_IN", "testPIDControllerCBD", input_port_name="ERROR")
+    cbd.addConnection("DELTA_IN", "testPIDControllerCBD", input_port_name="DELTA")
+
+    cbd.run(10)
+
+def runCBD(cbd, steps):
+    cbd.run(steps)
+
+    times = []
+    outputIdeal = []
+
+    for timeValuePair in cbd.getSignal("V_IDEAL"):
+        times.append(timeValuePair.time)
+        outputIdeal.append(timeValuePair.value)
+
+    outputTrain = []
+
+    for timeValuePair in cbd.getSignal("V_TRAIN"):
+        outputTrain.append(timeValuePair.value)
+
+    # Plot
+    p = figure(title=cbd.getBlockName(), x_axis_label='time', y_axis_label='N')
+    p.circle(x=times, y=outputIdeal, color="red")
+    p.circle(x=times, y=outputTrain, color="blue")
+    show(p)
+
+# testPlant()
+# print "PlantCBD OK"
+# testTimeCBD()
+# print "TimeCBD OK"
+# testPIDControllerCBD()
+# print "PIDControllerCBD OK"
+
+steps = 350
+completeTrainSystem = CompleteTrainSystemCBD("completeTrainSystem")
+runCBD(completeTrainSystem, steps)
 # draw(completeTrainSystem, "output/completeTrainSystem.dot")
-
-# tempTimeCBD = TimeCBD("tempTimeCBD")
-# draw(tempTimeCBD, "output/TimeCBD.dot")
-
-# tempPIDControllerCBD = PIDControllerCBD("tempPIDControllerCBD")
-# draw(tempPIDControllerCBD, "output/PIDControllerCBD.dot")
-
-# tempPlantCBD = PlantCBD("tempPlantCBD")
-# draw(tempPlantCBD, "output/PlantCBD.dot")
-
-# tempCostFunctionCBD = CostFunctionCBD("tempCostFunctionCBD")
-# draw(tempCostFunctionCBD, "output/CostFunctionCBD.dot")
-
-# times = []
-# output = []
-#
-# for timeValuePair in completeTrainSystem.getSignal("IN_V_I"):
-#     times.append(timeValuePair.time)
-#     output.append(timeValuePair.value)
-#
-# for i in [0, 10, 160, 200, 260]:
-#     print output[i], times[i]
-
-# # Plot
-# p = figure(title=ideal.getBlockName(), x_axis_label='time', y_axis_label='N')
-# p.circle(x=times, y=output, color="red")
-# show(p)
