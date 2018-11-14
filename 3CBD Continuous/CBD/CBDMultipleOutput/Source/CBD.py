@@ -688,7 +688,7 @@ class CBD(BaseBlock):
             # If a ProductBlock has no ConstantBlocks as input, we know it's nonlinear.
             elif isinstance(i, ProductBlock):
                 dependencies = i.getDependencies(0)
-
+                # print i
                 numberOfConstantBlocks = 0
                 for dep in dependencies:
                     if isinstance(dep, ConstantBlock):
@@ -701,7 +701,8 @@ class CBD(BaseBlock):
                          isinstance(dep, InputPortBlock) or \
                          isinstance(dep, OutputPortBlock) or \
                          isinstance(dep, IntegratorBlock) or \
-                         isinstance(dep, DerivatorBlock):
+                         isinstance(dep, DerivatorBlock) or \
+                         isinstance(dep, InverterBlock):
                         return True
 
                 if numberOfConstantBlocks < 1:

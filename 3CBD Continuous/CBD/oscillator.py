@@ -59,39 +59,13 @@ class CBD_B(CBD):
         self.addBlock(NegatorBlock("Negator"))
         self.addBlock(DerivatorBlock("Derivator1"))
         self.addBlock(DerivatorBlock("Derivator2"))
-        # self.addBlock(ConstantBlock("DerivConst", -0.16666))
-        # self.addBlock(ProductBlock("Product1"))
-        # self.addBlock(ProductBlock("Product2"))
-        # self.addBlock(ProductBlock("Product3"))
+        draw(DerivatorBlock("test"), "output/tempDerivator.dot")
 
         # self.addBlock(ConstantBlock("X0", 0))
         self.addBlock(ConstantBlock("V0", 1))
         # self.addBlock(NegatorBlock("NegatorX0"))#overbodig als X0 = 0
 
         #connections
-        # self.addConnection("Derivator1", "Derivator2")
-        # # x^2
-        # self.addConnection("Derivator2", "Product1", input_port_name="IN1")
-        # self.addConnection("Derivator2", "Product1", input_port_name="IN2")
-        # # x^3
-        # self.addConnection("Product1", "Product2")
-        # self.addConnection("Derivator2", "Product2")
-        # # -x^3/6
-        # self.addConnection("DerivConst", "Product3")
-        # self.addConnection("Product2", "Product3")
-
-        # self.addConnection("Product3", "Derivator1")
-
-        # self.addConnection("V0", "Derivator1", input_port_name="IC")
-        # self.addConnection("DeltaT", "Derivator1", output_port_name="OUT1", input_port_name="delta_t")
-
-        # self.addConnection("Zero", "Derivator2", input_port_name="IC")
-        # self.addConnection("DeltaT", "Derivator2", output_port_name="OUT1", input_port_name="delta_t")
-
-        # self.addConnection("Derivator2", "OUT1", output_port_name="OUT1")
-
-        # self.addConnection("X0", "NegatorX0")
-
         self.addConnection("Negator", "Derivator1")
         self.addConnection("V0", "Derivator1", input_port_name="IC")
         self.addConnection("DeltaT", "Derivator1", output_port_name="OUT1", input_port_name="delta_t")
@@ -185,9 +159,9 @@ def runCBD(cbd, steps):
 # draw(A, "output/CBD_A.dot")
 # runCBD(A, 6000)
 
-B = CBD_B("CBD_B")
-draw(B, "output/CBD_B.dot")
-runCBD(B, 6000)
+# B = CBD_B("CBD_B")
+# draw(B, "output/CBD_B.dot")
+# runCBD(B, 6000)
 
 # ErrorA1 = ErrorCBD_A("ErrorA1", step_size=0.1)
 # ErrorA2 = ErrorCBD_A("ErrorA2", step_size=0.001)  # VEEL BETERE ERROR PLOT
