@@ -1,1 +1,7 @@
 Cost: inf (KP=50.0, KI=48.0, KD=3.0)
+Cost: inf (KP=248.0, KI=556.0, KD=789.0)
+Cost: inf (KP=745.0, KI=520.0, KD=429.0)
+Cost: inf (KP=400.0, KI=992.0, KD=578.0)
+Cost: inf (KP=688.0, KI=634.0, KD=925.0)
+Cost: inf (KP=459.0, KI=630.0, KD=457.0)
+Cost: inf (KP=-1, KI=-1, KD=-1)

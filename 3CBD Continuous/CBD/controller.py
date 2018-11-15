@@ -405,22 +405,22 @@ class Score:
     def __repr__(self):
         return "{} {}".format(self.cost, self.triple)
 
-    def lt(a, b):
+    def __lt__(a, b):
         return a.cost < b.cost
 
-    def le(a, b):
+    def __le__(a, b):
         return a.cost <= b.cost
 
-    def eq(a, b):
+    def __eq__(a, b):
         return a.cost == b.cost
 
-    def gt(a, b):
+    def __gt__(a, b):
         return a.cost > b.cost
 
-    def ge(a, b):
+    def __ge__(a, b):
         return a.cost >= b.cost
 
-    def sub(a, b):
+    def __sub__(a, b):
         return a.cost - b.cost
 
 def getNeighbours(score, step=1):
@@ -434,13 +434,10 @@ def getNeighbours(score, step=1):
         triple2[i] -= 1
 
         for t in [triple1, triple2]:
-            print t
             try:
                 s = runCBD(t)
                 scores.append(Score(t, s))
-                print "## no exception raised"
             except StopSimulationException:
-                print "exception"
                 scores.append(Score(t, INFINITY))
     return scores
 
@@ -475,11 +472,10 @@ def tuneCBD():
 
             bestScore = newScore
 
-
-    with open("output/best.txt", "a") as f:
-        text = str(bestN) + "\n"
-        f.write(text)
-
+        if i % 100 == 0:
+            with open("output/best.txt", "a") as f:
+                text = str(bestN) + "\n"
+                f.write(text)
 
 tuneCBD()
 # print "PlantCBD OK"
