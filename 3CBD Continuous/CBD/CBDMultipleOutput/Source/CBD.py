@@ -165,7 +165,7 @@ class NegatorBlock(BaseBlock):
     def compute(self, curIteration):
         # TO IMPLEMENT
         in1 = self.getInputSignal(curIteration, "IN1").value
-        result = -1 * in1
+        result = -1.0 * in1
         self.appendToSignal(result, "OUT1")
         if LatexWriter.latexWrite:
             latexWriter.writeNegation(result)
@@ -182,7 +182,7 @@ class InverterBlock(BaseBlock):
         in1 = self.getInputSignal(curIteration, "IN1").value
         result = None
         if in1 != 0:
-            result = 1 / in1
+            result = 1.0 / float(in1)
         self.appendToSignal(result, "OUT1")
         if LatexWriter.latexWrite:
             latexWriter.writeInvertion(in1)
