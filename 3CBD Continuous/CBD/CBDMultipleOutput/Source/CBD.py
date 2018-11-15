@@ -903,7 +903,7 @@ class IntegratorBlock(CBD):
     def __init__(self, block_name):
         CBD.__init__(self, block_name, ["IN1", "delta_t", "IC"], ["OUT1"])
         # TO IMPLEMENT
-        self.addBlock(ConstantBlock("Zero", 0))
+        self.addBlock(ConstantBlock("Zero", 0.0))
         self.addBlock(ProductBlock("Product"))
         self.addBlock(NegatorBlock("Negator"))
         self.addBlock(DelayBlock("Delay1"))

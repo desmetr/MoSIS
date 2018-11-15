@@ -114,7 +114,7 @@ class PlantCBD(CBD):
     X_PASSENGER = displacement of the passenger
     """
     def __init__(self, block_name):
-        CBD.__init__(self, block_name, input_ports=["F_TRACTION","DELTA"], output_ports=["V_PASSENGER", "V_TRAIN", "X_PASSENGER", "X_TRAIN", "temp"])
+        CBD.__init__(self, block_name, input_ports=["F_TRACTION","DELTA"], output_ports=["V_PASSENGER", "V_TRAIN", "X_PASSENGER", "X_TRAIN"])
 
         # Constants for Integrators
         self.addBlock(ConstantBlock("X0Train", 0.0))
@@ -146,7 +146,7 @@ class PlantCBD(CBD):
 
         self.addConnection("Integrator2", "Negator1", output_port_name="OUT1")
         self.addConnection("Negator1", "Product1")
-        self.addConnection("K","Product1")
+        self.addConnection("K", "Product1")
 
         # Part2 = C * (- V_PASSENGER)
         self.addBlock(NegatorBlock("Negator2"))
@@ -196,11 +196,11 @@ class PlantCBD(CBD):
         self.addConnection("Inverter5", "Product5")
 
         # Integrator
-        self.addConnection("Product5", "Integrator")
+        self.addConnection("Product5", "Integrator", input_port_name="IN1")
         self.addConnection("V0Passenger", "Integrator", output_port_name="OUT1", input_port_name="IC")
         self.addConnection("DELTA", "Integrator", output_port_name="OUT1", input_port_name="delta_t")
 
-        self.addConnection("Integrator", "Integrator2", output_port_name="OUT1")
+        self.addConnection("Integrator", "Integrator2", output_port_name="OUT1", input_port_name="IN1")
         self.addConnection("X0Passenger", "Integrator2", output_port_name="OUT1", input_port_name="IC")
         self.addConnection("DELTA", "Integrator2", output_port_name="OUT1", input_port_name="delta_t")
 
@@ -262,7 +262,6 @@ class PlantCBD(CBD):
 
         self.addConnection("_Integrator", "V_TRAIN")
         self.addConnection("_Integrator2", "X_TRAIN")
-        self.addConnection("_Product6", "temp")
 
 class CompleteTrainSystemCBD(CBD):
     """
@@ -293,8 +292,8 @@ class CompleteTrainSystemCBD(CBD):
 
         self.addConnection("Lookup", "CostFunction", output_port_name="OUT1", input_port_name="InVi")
         self.addConnection("Plant", "CostFunction", output_port_name="V_TRAIN", input_port_name="InVTrain")
-        self.addConnection("Plant", "CostFunction", output_port_name="X_PASSENGER", input_port_name="InXPerson")
         self.addConnection("Time", "CostFunction", output_port_name="DELTA",  input_port_name="InDelta")
+        self.addConnection("Plant", "CostFunction", output_port_name="X_PASSENGER", input_port_name="InXPerson")
 
         self.addConnection("Lookup", "V_IDEAL", output_port_name="OUT1")
         self.addConnection("Plant", "V_TRAIN", output_port_name="V_TRAIN")
@@ -342,7 +341,7 @@ def plot(cbd, signalName, p=None, color="red"):
 ########
 
 def testPlant():
-    cbd = CBD("CBD", output_ports=["vtrain","vpassenger","xtrain","xpassenger","temp"])
+    cbd = CBD("CBD", output_ports=["vtrain","vpassenger","xtrain","xpassenger"])
     cbd.addBlock(PlantCBD("Plant"))
     cbd.addBlock(ConstantBlock("F_TRACTION_IN", 2))
     cbd.addBlock(ConstantBlock("DELTA_IN", 1))
@@ -354,7 +353,6 @@ def testPlant():
     cbd.addConnection("Plant", "xtrain", output_port_name="X_TRAIN")
     cbd.addConnection("Plant", "vpassenger", output_port_name="V_PASSENGER")
     cbd.addConnection("Plant", "xpassenger", output_port_name="X_PASSENGER")
-    cbd.addConnection("Plant", "temp", output_port_name="temp")
 
     cbd.run(20)
     p = plot(cbd, "vtrain")
@@ -389,7 +387,7 @@ def runCBD(triple):
     steps = 350
     cbd = CompleteTrainSystemCBD("completeTrainSystem", KP, KI, KD)
     cbd.run(steps)
-    cost = cbd.getSignal("V_IDEAL")[-1].value
+    cost = cbd.getSignal("COST")[-1].value
     return cost
 
 ################################################################################
@@ -477,7 +475,8 @@ def tuneCBD():
                 text = str(bestN) + "\n"
                 f.write(text)
 
-tuneCBD()
+# tuneCBD()
+print runCBD([200,0,0])
 # print "PlantCBD OK"
 # testTimeCBD()
 # print "TimeCBD OK"

@@ -173,7 +173,7 @@ The second and largest task is to build and simulate all the parts of a Driver-l
 	<li>Look-up Block</li>
 	<li>PID Controller</li>
 	<li>Plant</li>
-	<li>Cost Function</li>
+	<li>Cost Function (as given in the assignment)</li>
 </ul>
 
 <h4>Time CBD And Look-up Block</h4>
@@ -184,25 +184,24 @@ The Time CBD and Look-up Block have been discussed previously and in the previou
 
 <h4>PID Controller</h4>
 
-TODO
+The PIDController is implemented the way it is described in the assignment. The three variables K<sub>p</sub>, K<sub>i</sub> and K<sub>d</sub> can be set at initialization of the PIDControllerBlock. The model of the controller is shown below.
 
 <br>
 <img src="output/PIDControllerCBD.png">
 
 <h4>Plant</h4>
 
-TODO
-
+The PlantCBD is the largest CBD of all because it entails the four equations that calculate the velocity and displacement of the train and the passenger. In the picture of this CBD you can see the nodes encircled in different colors. These represent the four equations (red is equation 1, green is equation 2, purple is equation 3 and blue is equation 4) and are to clarify which blocks (nodes) are responsible for each equation. This link will show the full PlantCBD (file is quite large so for convenience open in separate tab) <a href="output/PlantCBD.png">PlantCBD.png</a>.
 <br>
-This link will show the full PlantCBD (file is quite large so for convenience open in separate tab) <a href="output/PlantCBD.png">PlantCBD.png</a>.
-
-<h4>Cost Function</h4>
-
-The Cost Function is a special block that will calculate the cost of the current system, based on the current and ideal velocity of the train at a point t, and the displacement of the passenger at that same time t. In the next section, the use of this block will be clear as we will tune the parameters of the PIDController to find the best set of values that produce the lowest cost.
+The following plot shows the results of the execution of the complete train system with K<sub>p</sub> = 200, K<sub>i</sub> = 0 and K<sub>d</sub> = 0. As you can see this is exactly as expected.
+<br>
+<img src="output/bokeh_plot.png">
 
 <h3>Tune</h3>
 
-TODO
+This section tells how we tuned the parameters K<sub>p</sub>, K<sub>i</sub> and K<sub>d</sub> to find the optimal combination of values. In the method <i>tuneCBD()</i> of <a href="controller.py">controller.py</a> you can find this code. Sadly we encountered a problem with the calculation of X_PASSENGER (equation 3) which results in the <i>CostFunctionBlock</i> raising an StopSimulationExpection. We were unable to find and fix this problem.
+<br>
+<br>
 
 </body>
 </html>

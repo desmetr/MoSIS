@@ -3,7 +3,7 @@ digraph graphname
 DELTA [label="InputPortBlock (DELTA)"];
 F_TRACTION [label="OutputPortBlock (F_TRACTION)"];
 Adder1 -> F_TRACTION [label=""];
-Zero [label="ConstantBlock (Zero)\n0"];
+Zero [label="ConstantBlock (Zero)\n0.0"];
 Kp [label="ConstantBlock (Kp)\n200"];
 Ki [label="ConstantBlock (Ki)\n0"];
 Kd [label="ConstantBlock (Kd)\n0"];
