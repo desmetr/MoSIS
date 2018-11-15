@@ -1,0 +1,26 @@
+digraph graphname
+{IN1 [label="InputPortBlock (IN1)"];
+delta_t [label="InputPortBlock (delta_t)"];
+IC [label="InputPortBlock (IC)"];
+OUT1 [label="OutputPortBlock (OUT1)"];
+AdderOut -> OUT1 [label=""];
+Zero [label="ConstantBlock (Zero)\n0"];
+Product [label="ProductBlock (Product)"];
+Delay2 -> Product [label=""];
+delta_t -> Product [label=""];
+Negator [label="NegatorBlock (Negator)"];
+Product -> Negator [label=""];
+Delay1 [label="DelayBlock (Delay1)"];
+AdderIC -> Delay1 [label="IC"];
+AdderOut -> Delay1 [label=""];
+Delay2 [label="DelayBlock (Delay2)"];
+Zero -> Delay2 [label="IC"];
+IN1 -> Delay2 [label=""];
+AdderIC [label="AdderBlock (AdderIC)"];
+IC -> AdderIC [label=""];
+Negator -> AdderIC [label=""];
+AdderOut [label="AdderBlock (AdderOut)"];
+Delay1 -> AdderOut [label=""];
+Product -> AdderOut [label=""];
+
+}
