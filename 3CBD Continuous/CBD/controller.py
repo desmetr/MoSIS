@@ -57,7 +57,7 @@ class PIDControllerCBD(CBD):
     """
     ERROR = DesiredSpeed - ActualSpeed of train
     DELTA = timestep
-    F_TRACTION = F_traction
+    F_TRACTION = forward force on the train
     """
     def __init__(self, block_name):
         CBD.__init__(self, block_name, input_ports=["ERROR","DELTA"], output_ports=["F_TRACTION"])
@@ -103,7 +103,7 @@ class PIDControllerCBD(CBD):
 
 class PlantCBD(CBD):
     """
-    F_TRACTION = acceleration of the train
+    F_TRACTION = forward force on the train
     DELTA = timestep
     V_TRAIN = speed of the train
     X_PASSENGER = displacement of the passenger
@@ -293,17 +293,50 @@ class CompleteTrainSystemCBD(CBD):
         self.addConnection("Lookup", "V_IDEAL", output_port_name="OUT1")
         self.addConnection("Plant", "V_TRAIN", output_port_name="V_TRAIN")
 
+################################################################################
+
+def plot(cbd, signalName, p=None, color="red"):
+    x = []
+    y = []
+
+    for pair in cbd.getSignal(signalName):
+        x.append(pair.time)
+        y.append(pair.value)
+
+    if p is None:
+        p = figure(title=cbd.getBlockName(), x_axis_label='Time', y_axis_label='Value')
+        p.line(x=x, y=y, color=color)
+        return p
+
+################################################################################
+
+########
+# TEST #
+########
+
 def testPlant():
-    cbd = CBD("CBD")
+    cbd = CBD("CBD", output_ports=["vtrain","vpassenger","xtrain","xpassenger"])
     cbd.addBlock(PlantCBD("Plant"))
-    draw(cbd, "output/testPlant.dot")
-    cbd.addBlock(ConstantBlock("F_TRACTION_IN", 10))
+    cbd.addBlock(ConstantBlock("F_TRACTION_IN", 2))
     cbd.addBlock(ConstantBlock("DELTA_IN", 1))
+    # CBD.__init__(self, block_name, input_ports=["F_TRACTION","DELTA"], output_ports=["V_PASSENGER", "V_TRAIN", "X_PASSENGER", "X_TRAIN"])
 
     cbd.addConnection("F_TRACTION_IN", "Plant", input_port_name="F_TRACTION")
     cbd.addConnection("DELTA_IN", "Plant", input_port_name="DELTA")
+    cbd.addConnection("Plant", "vtrain", output_port_name="V_TRAIN")
+    cbd.addConnection("Plant", "xtrain", output_port_name="X_TRAIN")
+    cbd.addConnection("Plant", "vpassenger", output_port_name="V_PASSENGER")
+    cbd.addConnection("Plant", "xpassenger", output_port_name="X_PASSENGER")
 
-    cbd.run(10)
+    cbd.run(20)
+    p = plot(cbd, "vtrain")
+    show(p)
+    p = plot(cbd, "xtrain")
+    show(p)
+    p = plot(cbd, "vpassenger")
+    show(p)
+    p = plot(cbd, "xpassenger")
+    show(p)
 
 def testTimeCBD():
     cbd = TimeCBD("testTimeCBD")
@@ -321,35 +354,22 @@ def testPIDControllerCBD():
 
     cbd.run(10)
 
-def runCBD(cbd, steps):
+################################################################################
+
+def runCBD():
+    steps = 350
+    cbd = CompleteTrainSystemCBD("completeTrainSystem")
     cbd.run(steps)
+    # draw(completeTrainSystem, "output/completeTrainSystem.dot")
 
-    times = []
-    outputIdeal = []
-
-    for timeValuePair in cbd.getSignal("V_IDEAL"):
-        times.append(timeValuePair.time)
-        outputIdeal.append(timeValuePair.value)
-
-    outputTrain = []
-
-    for timeValuePair in cbd.getSignal("V_TRAIN"):
-        outputTrain.append(timeValuePair.value)
-
-    # Plot
-    p = figure(title=cbd.getBlockName(), x_axis_label='time', y_axis_label='N')
-    p.circle(x=times, y=outputIdeal, color="red")
-    p.circle(x=times, y=outputTrain, color="blue")
+    p = plot(cbd, "V_IDEAL")
+    p = plot(cbd, "V_TRAIN", p, "blue")
     show(p)
 
-# testPlant()
+testPlant()
 # print "PlantCBD OK"
 # testTimeCBD()
 # print "TimeCBD OK"
 # testPIDControllerCBD()
 # print "PIDControllerCBD OK"
-
-steps = 350
-completeTrainSystem = CompleteTrainSystemCBD("completeTrainSystem")
-runCBD(completeTrainSystem, steps)
-# draw(completeTrainSystem, "output/completeTrainSystem.dot")
+# runCBD()
