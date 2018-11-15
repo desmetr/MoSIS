@@ -1,7 +1,12 @@
 from CBDMultipleOutput.Source.CBD import *
 from CBDMultipleOutput.Source.CBDDraw import draw
 from TrainCostModelBlock import *
+
+import random
+import copy
 from bokeh.plotting import figure, output_file, show
+
+INFINITY = float("inf")
 
 class ComputerBlock(BaseBlock):
     """
@@ -59,13 +64,13 @@ class PIDControllerCBD(CBD):
     DELTA = timestep
     F_TRACTION = forward force on the train
     """
-    def __init__(self, block_name):
+    def __init__(self, block_name, KP=200.0, KI=0.0, KD=0.0):
         CBD.__init__(self, block_name, input_ports=["ERROR","DELTA"], output_ports=["F_TRACTION"])
         # Constants
         self.addBlock(ConstantBlock("Zero", 0.0))
-        self.addBlock(ConstantBlock("Kp", 200.0))
-        self.addBlock(ConstantBlock("Ki", 0.0))
-        self.addBlock(ConstantBlock("Kd", 0.0))
+        self.addBlock(ConstantBlock("Kp", KP))
+        self.addBlock(ConstantBlock("Ki", KI))
+        self.addBlock(ConstantBlock("Kd", KD))
 
         self.addBlock(AdderBlock("Adder1"))
         self.addBlock(AdderBlock("Adder2"))
@@ -262,16 +267,16 @@ class PlantCBD(CBD):
 class CompleteTrainSystemCBD(CBD):
     """
     """
-    def __init__(self, block_name):
-        CBD.__init__(self, block_name, input_ports=[], output_ports=["V_IDEAL", "V_TRAIN"])
+    def __init__(self, block_name, KP, KI, KD):
+        CBD.__init__(self, block_name, input_ports=[], output_ports=["V_IDEAL", "V_TRAIN", "COST"])
         # Blocks
         self.addBlock(TimeCBD("Time"))
         self.addBlock(ComputerBlock("Lookup"))
         self.addBlock(AdderBlock("Sum"))
         self.addBlock(NegatorBlock("Negator"))
-        self.addBlock(PIDControllerCBD("PIDController"))
+        self.addBlock(PIDControllerCBD("PIDController", KP, KI, KD))
         self.addBlock(PlantCBD("Plant"))
-        # self.addBlock(CostFunctionBlock("CostFunction"))
+        self.addBlock(CostFunctionBlock("CostFunction"))
 
         # Connections
         self.addConnection("Time", "Lookup")
@@ -286,13 +291,14 @@ class CompleteTrainSystemCBD(CBD):
 
         self.addConnection("Plant", "Negator", output_port_name="V_TRAIN")
 
-        # self.addConnection("Lookup", "CostFunction", output_port_name="OUT1", input_port_name="InVi")
-        # self.addConnection("Plant", "CostFunction", output_port_name="V_TRAIN", input_port_name="InVTrain")
-        # self.addConnection("Plant", "CostFunction", output_port_name="X_PASSENGER", input_port_name="InXPerson")
-        # self.addConnection("Time", "CostFunction", output_port_name="DELTA",  input_port_name="InDelta")
+        self.addConnection("Lookup", "CostFunction", output_port_name="OUT1", input_port_name="InVi")
+        self.addConnection("Plant", "CostFunction", output_port_name="V_TRAIN", input_port_name="InVTrain")
+        self.addConnection("Plant", "CostFunction", output_port_name="X_PASSENGER", input_port_name="InXPerson")
+        self.addConnection("Time", "CostFunction", output_port_name="DELTA",  input_port_name="InDelta")
 
         self.addConnection("Lookup", "V_IDEAL", output_port_name="OUT1")
         self.addConnection("Plant", "V_TRAIN", output_port_name="V_TRAIN")
+        self.addConnection("CostFunction", "COST", output_port_name="OutCost")
 
 ################################################################################
 
@@ -308,6 +314,26 @@ def plot(cbd, signalName, p=None, color="red"):
         p = figure(title=cbd.getBlockName(), x_axis_label='Time', y_axis_label='Value')
         p.line(x=x, y=y, color=color)
         return p
+    # draw(completeTrainSystem, "output/completeTrainSystem.dot")
+
+    # p = plot(cbd, "V_IDEAL")
+    # x = []
+    # y = []
+    # y2 = []
+    #
+    # for pair in cbd.getSignal("V_TRAIN"):
+    #     x.append(pair.time)
+    #     y.append(pair.value)
+    #
+    # for pair in cbd.getSignal("V_IDEAL"):
+    #     # x.append(pair.time)
+    #     y2.append(pair.value)
+    #
+    # p = figure(title=cbd.getBlockName(), x_axis_label='Time', y_axis_label='Value')
+    # p.line(x=x, y=y, color="blue")
+    # p.line(x=x, y=y2, color="red")
+    # # plot(cbd, "V_TRAIN", p, "blue")
+    # show(p)
 
 ################################################################################
 
@@ -358,26 +384,104 @@ def testPIDControllerCBD():
 
 ################################################################################
 
-def runCBD():
+def runCBD(triple):
+    KP, KI, KD = triple
     steps = 350
-    cbd = CompleteTrainSystemCBD("completeTrainSystem")
+    cbd = CompleteTrainSystemCBD("completeTrainSystem", KP, KI, KD)
     cbd.run(steps)
-    # draw(completeTrainSystem, "output/completeTrainSystem.dot")
+    cost = cbd.getSignal("V_IDEAL")[-1].value
+    return cost
 
-    # p = plot(cbd, "V_IDEAL")
-    x = []
-    y = []
+################################################################################
 
-    for pair in cbd.getSignal("V_TRAIN"):
-        x.append(pair.time)
-        y.append(pair.value)
+class Score:
+    def __init__(self, triple, cost):
+        self.triple = triple#[KP, KI, KD]
+        self.cost  = cost
 
-    p = figure(title=cbd.getBlockName(), x_axis_label='Time', y_axis_label='Value')
-    p.line(x=x, y=y, color="red")
-    # plot(cbd, "V_TRAIN", p, "blue")
-    show(p)
+    def __str__(self):
+        return "Cost: {0} (KP={1}, KI={2}, KD={3})".format(self.cost, self.triple[0], self.triple[1], self.triple[2])
 
-runCBD()
+    def __repr__(self):
+        return "{} {}".format(self.cost, self.triple)
+
+    def lt(a, b):
+        return a.cost < b.cost
+
+    def le(a, b):
+        return a.cost <= b.cost
+
+    def eq(a, b):
+        return a.cost == b.cost
+
+    def gt(a, b):
+        return a.cost > b.cost
+
+    def ge(a, b):
+        return a.cost >= b.cost
+
+    def sub(a, b):
+        return a.cost - b.cost
+
+def getNeighbours(score, step=1):
+    triple = score.triple
+    scores = []
+    for i in range(len(triple)):
+        triple1 = copy.deepcopy(triple)
+        triple1[i] += 1
+
+        triple2 = copy.deepcopy(triple)
+        triple2[i] -= 1
+
+        for t in [triple1, triple2]:
+            print t
+            try:
+                s = runCBD(t)
+                scores.append(Score(t, s))
+                print "## no exception raised"
+            except StopSimulationException:
+                print "exception"
+                scores.append(Score(t, INFINITY))
+    return scores
+
+def tuneCBD():
+    bestN = Score([-1,-1,-1], INFINITY)
+
+    n = 10000 # nr of iterations
+
+    for i in range(n):
+        #Startpoint
+        KP = float(random.randint(0, 1000))
+        KI = float(random.randint(0, 1000))
+        KD = float(random.randint(0, 1000))
+        triple = [KP, KI, KD]
+        bestScore = None
+        try:
+            s = runCBD(triple)
+            scores.append(Score(triple, s))
+        except StopSimulationException:
+            bestScore = Score(triple, INFINITY)
+        print "New Startpoint {}".format(bestScore)
+
+        while True:
+            newScores = getNeighbours(bestScore)
+            newScore = min(newScores)
+
+            if newScore >= bestScore:
+                print "Best score {}".format(bestScore)
+                if bestScore < bestN:
+                    bestN = bestScore
+                break
+
+            bestScore = newScore
+
+
+    with open("output/best.txt", "a") as f:
+        text = str(bestN) + "\n"
+        f.write(text)
+
+
+tuneCBD()
 # print "PlantCBD OK"
 # testTimeCBD()
 # print "TimeCBD OK"

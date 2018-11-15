@@ -12,7 +12,6 @@ class CostFunctionBlock(BaseBlock):
         displacement_person = self.getInputSignal(curIteration, "InXPerson").value
         velocity_train = self.getInputSignal(curIteration, "InVTrain").value
 
-        print displacement_person, velocity_train
         if abs(displacement_person) > 0.4 or velocity_train<0.0:
             raise StopSimulationException()
 
