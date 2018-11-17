@@ -1,5 +1,0 @@
-digraph graphname
-{vtrain [label="OutputPortBlock (vtrain)"];
-Plant [label="PlantCBD (Plant)",shape=Msquare];
-
-}

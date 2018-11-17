@@ -19,7 +19,6 @@ class ComputerBlock(BaseBlock):
         #OUT1 = the current value
 
     def	compute(self, curIteration):
-        # TO IMPLEMENT
         in1 = self.getInputSignal(curIteration, "IN1").value
 
         result = -1
@@ -263,7 +262,7 @@ class PlantCBD(CBD):
         self.addConnection("_Integrator", "V_TRAIN")
         self.addConnection("_Integrator2", "X_TRAIN")
 
-class CompleteTrainSystemCBD(CBD):
+class CompleteTrainSystemCBDWithCostFunction(CBD):
     """
     """
     def __init__(self, block_name, KP, KI, KD):
@@ -294,10 +293,39 @@ class CompleteTrainSystemCBD(CBD):
         self.addConnection("Plant", "CostFunction", output_port_name="V_TRAIN", input_port_name="InVTrain")
         self.addConnection("Time", "CostFunction", output_port_name="DELTA",  input_port_name="InDelta")
         self.addConnection("Plant", "CostFunction", output_port_name="X_PASSENGER", input_port_name="InXPerson")
+        self.addConnection("CostFunction", "COST", output_port_name="OutCost")
 
         self.addConnection("Lookup", "V_IDEAL", output_port_name="OUT1")
         self.addConnection("Plant", "V_TRAIN", output_port_name="V_TRAIN")
-        self.addConnection("CostFunction", "COST", output_port_name="OutCost")
+
+class CompleteTrainSystemCBDWithoutCostFunction(CBD):
+    """
+    """
+    def __init__(self, block_name, KP, KI, KD):
+        CBD.__init__(self, block_name, input_ports=[], output_ports=["V_IDEAL", "V_TRAIN"])
+        # Blocks
+        self.addBlock(TimeCBD("Time"))
+        self.addBlock(ComputerBlock("Lookup"))
+        self.addBlock(AdderBlock("Sum"))
+        self.addBlock(NegatorBlock("Negator"))
+        self.addBlock(PIDControllerCBD("PIDController", KP, KI, KD))
+        self.addBlock(PlantCBD("Plant"))
+
+        # Connections
+        self.addConnection("Time", "Lookup")
+        self.addConnection("Lookup", "Sum")
+        self.addConnection("Negator", "Sum")
+
+        self.addConnection("Sum","PIDController", input_port_name="ERROR")
+        self.addConnection("Time", "PIDController", output_port_name="DELTA", input_port_name="DELTA")
+
+        self.addConnection("PIDController", "Plant", output_port_name="F_TRACTION", input_port_name="F_TRACTION")
+        self.addConnection("Time", "Plant", output_port_name="DELTA", input_port_name="DELTA")
+
+        self.addConnection("Plant", "Negator", output_port_name="V_TRAIN")
+
+        self.addConnection("Lookup", "V_IDEAL", output_port_name="OUT1")
+        self.addConnection("Plant", "V_TRAIN", output_port_name="V_TRAIN")
 
 ################################################################################
 
@@ -313,26 +341,6 @@ def plot(cbd, signalName, p=None, color="red"):
         p = figure(title=cbd.getBlockName(), x_axis_label='Time', y_axis_label='Value')
         p.line(x=x, y=y, color=color)
         return p
-    # draw(completeTrainSystem, "output/completeTrainSystem.dot")
-
-    # p = plot(cbd, "V_IDEAL")
-    # x = []
-    # y = []
-    # y2 = []
-    #
-    # for pair in cbd.getSignal("V_TRAIN"):
-    #     x.append(pair.time)
-    #     y.append(pair.value)
-    #
-    # for pair in cbd.getSignal("V_IDEAL"):
-    #     # x.append(pair.time)
-    #     y2.append(pair.value)
-    #
-    # p = figure(title=cbd.getBlockName(), x_axis_label='Time', y_axis_label='Value')
-    # p.line(x=x, y=y, color="blue")
-    # p.line(x=x, y=y2, color="red")
-    # # plot(cbd, "V_TRAIN", p, "blue")
-    # show(p)
 
 ################################################################################
 
@@ -345,7 +353,6 @@ def testPlant():
     cbd.addBlock(PlantCBD("Plant"))
     cbd.addBlock(ConstantBlock("F_TRACTION_IN", 2))
     cbd.addBlock(ConstantBlock("DELTA_IN", 1))
-    # CBD.__init__(self, block_name, input_ports=["F_TRACTION","DELTA"], output_ports=["V_PASSENGER", "V_TRAIN", "X_PASSENGER", "X_TRAIN"])
 
     cbd.addConnection("F_TRACTION_IN", "Plant", input_port_name="F_TRACTION")
     cbd.addConnection("DELTA_IN", "Plant", input_port_name="DELTA")
@@ -382,13 +389,20 @@ def testPIDControllerCBD():
 
 ################################################################################
 
-def runCBD(triple):
+def runCBDWithCost(triple):
     KP, KI, KD = triple
     steps = 350
-    cbd = CompleteTrainSystemCBD("completeTrainSystem", KP, KI, KD)
+    cbd = CompleteTrainSystemCBDWithCostFunction("completeTrainSystem", KP, KI, KD)
     cbd.run(steps)
     cost = cbd.getSignal("COST")[-1].value
     return cost
+
+def runCBDWithoutCost(triple):
+    KP, KI, KD = triple
+    steps = 350
+    cbd = CompleteTrainSystemCBDWithoutCostFunction("completeTrainSystem", KP, KI, KD)
+    cbd.run(steps)
+    show(plot(cbd, "V_TRAIN"))
 
 ################################################################################
 
@@ -433,7 +447,7 @@ def getNeighbours(score, step=1):
 
         for t in [triple1, triple2]:
             try:
-                s = runCBD(t)
+                s = runCBDWithCost(t)
                 scores.append(Score(t, s))
             except StopSimulationException:
                 scores.append(Score(t, INFINITY))
@@ -452,7 +466,7 @@ def tuneCBD():
         triple = [KP, KI, KD]
         bestScore = None
         try:
-            s = runCBD(triple)
+            s = runCBDWithCost(triple)
             scores.append(Score(triple, s))
         except StopSimulationException:
             bestScore = Score(triple, INFINITY)
@@ -475,11 +489,12 @@ def tuneCBD():
                 text = str(bestN) + "\n"
                 f.write(text)
 
+# Comment/Uncomment this line to tune the complete CBD.
 # tuneCBD()
-print runCBD([200,0,0])
-# print "PlantCBD OK"
-# testTimeCBD()
-# print "TimeCBD OK"
-# testPIDControllerCBD()
-# print "PIDControllerCBD OK"
-# runCBD()
+
+# Comment/Uncomment the following lines to run the complete CBD with the default parameters with the CostFunctionBlock.
+# costDefault = runCBDWithCost([200,0,0])
+# print costDefault
+
+# Comment/Uncomment the following lines to run the complete CBD with the default parameters without the CostFunctionBlock.
+runCBDWithoutCost([200,0,0])

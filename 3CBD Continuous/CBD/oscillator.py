@@ -152,21 +152,19 @@ def runCBD(cbd, steps):
     show(p)
 
 A = CBD_A("CBD_A")
-# draw(A, "output/CBD_A.dot")
-# runCBD(A, 6000)
+runCBD(A, 6000)
 
 B = CBD_B("CBD_B")
-# draw(B, "output/CBD_B.dot")
-# runCBD(B, 6000)
+runCBD(B, 6000)
 
-# ErrorA1 = ErrorCBD_A("ErrorA1", step_size=0.1)
-# ErrorA2 = ErrorCBD_A("ErrorA2", step_size=0.001)  # VEEL BETERE ERROR PLOT
-# draw(ErrorA1, "output/ErrorA.dot")
-# runCBD(ErrorA1, 1000)
-# runCBD(ErrorA2, 1000)
+ErrorA1 = ErrorCBD_A("ErrorA1", step_size=0.1)
+runCBD(ErrorA1, 1000)
 
-# ErrorB1 = ErrorCBD_B("ErrorB1", step_size=0.1)
-# ErrorB2 = ErrorCBD_B("ErrorB2", step_size=0.001)
-# draw(ErrorB1, "output/ErrorB.dot")
-# runCBD(ErrorB1, 1000)
-# runCBD(ErrorB2, 1000)
+ErrorA2 = ErrorCBD_A("ErrorA2", step_size=0.001)  # Gives the best error.
+runCBD(ErrorA2, 1000)
+
+ErrorB1 = ErrorCBD_B("ErrorB1", step_size=0.1)
+runCBD(ErrorB1, 1000)
+
+ErrorB2 = ErrorCBD_B("ErrorB2", step_size=0.001)
+runCBD(ErrorB2, 1000)

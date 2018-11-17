@@ -1,0 +1,19 @@
+1)	Bouw petri net model
+	*	junction heeft twee ingangen en een uitgang. Per ingang, exact 1 trein
+	*	elke ingang heeft licht (rood of groen)
+	*	zorg ervoor dat treinen niet botsen, maar wel door mogen
+	*	fairness: time cycles, lichten kunnen eens per tijd cyclus veranderen en dan heeft elke trein één kans om te bewegen (moet niet)
+	*	true fairness = order of interleaving events is non-deterministic
+
+2)	Simuleer een aantal steps
+
+3)	Check eigenschappen
+	*	boundedness
+	*	deadlock
+	*	reachability
+	*	liveness
+	*	persistence
+	*	invariants
+	*	kunnen twee treinen crashen?
+
+4)	Verslag

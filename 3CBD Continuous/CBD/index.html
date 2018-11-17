@@ -199,7 +199,8 @@ The following plot shows the results of the execution of the complete train syst
 
 <h3>Tune</h3>
 
-This section tells how we tuned the parameters K<sub>p</sub>, K<sub>i</sub> and K<sub>d</sub> to find the optimal combination of values. In the method <i>tuneCBD()</i> of <a href="controller.py">controller.py</a> you can find this code. Sadly we encountered a problem with the calculation of X_PASSENGER (equation 3) which results in the <i>CostFunctionBlock</i> raising an StopSimulationExpection. We were unable to find and fix this problem.
+This section tells how we tuned the parameters K<sub>p</sub>, K<sub>i</sub> and K<sub>d</sub> to find the optimal combination of values. In the method <i>tuneCBD()</i> of <a href="controller.py">controller.py</a> you can find this code. Sadly we encountered a problem with the calculation of X_PASSENGER (equation 3) which results in the <i>CostFunctionBlock</i> raising an StopSimulationExpection. We were unable to find and fix this problem. <br>
+In the file <a href="controller.py">controller.py</a> you can find two methods, one to run the complete system with the CostFunctionBlock (<i>runCBDWithCost()</i>) and one without the CostFunctionBlock (<i>runCBDWithoutCost()</i>). When you run <i>runCBDWithCost()</i> you will see it raises a StopSimulationException, due to the problem with X_PASSENGER. When you run <i>runCBDWithoutCost()</i> you see that it outputs the V_TRAIN, as expected, without checking for the sum. 
 <br>
 <br>
 
