@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?><pnml>
 <net id="Net-One" type="P/T net">
+<labels x="36" y="374" width="65" height="23" border="true">
+<text>Fairness</text>
+</labels>
 <labels x="385" y="19" width="299" height="52" border="true">
 <text>Hier moet logica komen die kiest welk licht er wordt gezet voor segment 1, op basis van info over inkomende treinen, of er een trein op de junction is</text>
 </labels>
