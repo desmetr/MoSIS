@@ -1,0 +1,26 @@
+Petri Net modelling, simulation and analysis of a rail road junction
+
+You will use the Petri net tool Pipe2 v. 2.5 (don't use the latest Pipe2 version; there are numerous bugs). To start Pipe2, run pipe.bat (Windows) or pipe.sh (Linux/Mac).
+
+The assignment consists of four parts.
+
+1 Build and document a Petri Net model of a rail road junction. You can use places, transitions, tokens, arcs, inhibitor arcs and weights, but not priorities! Give your places and transitions meaningful names, to make your net readable. You can also use comments in your net. The requirements for the rail road junction are as follows (hint: you will have to use around 20 places and around 20 transitions):
+(5 %) A junction has two entrances and one exit. For each entrance, there is exactly one train;
+(5 %) Each entrance has a traffic light that is either red or green. Green means that a train on the associated entrance can go on the junction exit. Red means that a train on the associated entrance has to wait;
+(10 %) Whether a train can continue to the exit is only determined by the traffic lights, i.e., the train/junction is agnostic of whether there is a train on the exit. A traffic light controller however can change lights based on train location and should make sure that trains can pass but can never collide on the junction exit;
+(15 %) Execution is done in a fair way using time cycles: the traffic light controller can change the traffic lights once per time cycle, and then every train has exactly one chance to move per time cycle (but it does not have to); So one time cycle consists of: traffic light controller might change lights once, trains might move once;
+(10 %) Implement "true" fairness: the order of interleaving of events (i.e., of the train moves) within one time slice is nondeterministic;
+
+2 (10 %) Perform an appropriate number of simulation steps of this rail road junction so that its possibilities are illustrated, and comment.
+
+3 Analyse your Petri net for the following properties:
+(5 %) boundedness: if your net is bounded, argue why. If not, argue what can be modified to make it bounded;
+(5 %) deadlock: if your net is deadlock free, argue why. If not argue what can be modified to make it deadlock free, and illustrate in your Petri net;
+(5 %) reachability: which (partial) states are reachable and which are not?
+(5 %) liveness: what is the liveness level for each transition?
+(5 %) persistence: argue for each transition whether it is persistent;
+(5 %) invariants: what are the invariants in the system, and what do each of them mean?
+(5 %) can two trains crash? Argue why (not).
+Note that per the assignment, your Petri net will be non-deterministic and fair. It is assumed that you discuss these properties while you introduce your design.
+
+4 (10 %) Write a report commenting on and illustrating all previous sections.
