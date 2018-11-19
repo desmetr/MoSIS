@@ -83,9 +83,21 @@ Invariant 6 and 7 express that we have a semaphore that can be used to enter one
 	</li>
 </ul>
 
+In order to reduce the size of the reachabilityy graph which we need to analyse the net, we use a simplified version of the net, which you can see below. This version omits the clock and the generators for the train. We do this because these parts are not essential for the analysis. They are important because they allow concurrency and fairness. Later we will discuss fairness.
+
+<img src="simplifiedRailroad.png">
+
+<h1>Reachability</h1>
+
+Before we start with the complete analysis, we need to generate the reachability graph via the PIPE tool. You can see this graph here. Remember that this is the reachability graph of the simplified version.
+<br>
+
+<img src="reachabilitySimplifiedRailRoad.png">
 
 <h1>Boundedness</h1>
 
+In this table you can find the boundedness of every state in the simplified net. The order is the same as used by PIPE to generate the reachability graph.<br>
+<br>
 <table>
 	<tr>
 		<th>Place</th>
@@ -93,113 +105,190 @@ Invariant 6 and 7 express that we have a semaphore that can be used to enter one
 		<th>Boundedness</th>
 	</tr>
 	<tr>
-		<td>Tick</td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>Clock</td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>Pre</td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>Post</td>
-		<td></td>
-		<td></td>
+		<td>SemaphoreClocked</td>
+		<td>0</td>
+		<td>1-bounded = safe</td>
 	</tr>
 	<tr>
 		<td>Semaphore</td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>TrainGenerator1</td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>CapacityConstraint1</td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>Entrance1_segment</td>
-		<td></td>
-		<td></td>
+		<td>1</td>
+		<td>1-bounded = safe</td>
 	</tr>
 	<tr>
 		<td>CriticalSection1</td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>Green1</td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>Red1</td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>TrainGenerator2</td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>CapacityConstraint2</td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>Entrance2_segment</td>
-		<td></td>
-		<td></td>
+		<td>0</td>
+		<td>1-bounded = safe</td>
 	</tr>
 	<tr>
 		<td>CriticalSection2</td>
-		<td></td>
-		<td></td>
+		<td>0</td>
+		<td>1-bounded = safe</td>
 	</tr>
 	<tr>
-		<td>Green2</td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>Red2</td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>SemaphoreClocked</td>
-		<td></td>
-		<td></td>
-	</tr>
-	<tr>
-		<td>CriticalSection3</td>
-		<td></td>
-		<td></td>
+		<td>Entrance2_segment</td>
+		<td>1</td>
+		<td>1-bounded = safe</td>
 	</tr>
 	<tr>
 		<td>exit_segment</td>
-		<td></td>
-		<td></td>
+		<td>0</td>
+		<td><b>2-bounded</b></td>
+	</tr>
+	<tr>
+		<td>Entrance1_segment</td>
+		<td>1</td>
+		<td>1-bounded = safe</td>
+	</tr>
+	<tr>
+		<td>CriticalSection3</td>
+		<td>0</td>
+		<td>1-bounded = safe</td>
+	</tr>
+	<tr>
+		<td>Green1</td>
+		<td>0</td>
+		<td>1-bounded = safe</td>
+	</tr>
+	<tr>
+		<td>Red1</td>
+		<td>0</td>
+		<td>1-bounded = safe</td>
+	</tr>
+	<tr>
+		<td>Green2</td>
+		<td>0</td>
+		<td>1-bounded = safe</td>
+	</tr>
+	<tr>
+		<td>Red2</td>
+		<td>0</td>
+		<td>1-bounded = safe</td>
 	</tr>
 </table>
+<br>
+This shows that the net is 2-bounded but not safe.
 
 <h1>Deadlock</h1>
 
-<h1>Reachability</h1>
+PIPE tells us this net is deadlock free. <b>TODO</b>
 
 <h1>Liveness</h1>
 
+The liveness is computed for every transition. Again, we work with the simplified net and its reachability graph.
+
+<b>TODO check alle L3 nog eens</b>
+<br>
+<br>
+<table>
+	<tr>
+		<th>Transition</th>
+		<th colspan="5">Liveness</th>
+	</tr>
+	<tr>
+		<td>TTickAndSemaphore</td>
+		<td>L0-live: X</td>
+		<td>L1-live: &#10004;</td>
+		<td>L2-live: &#10004; with k = 4</td>
+		<td>L3-live: &#10004; in loop: S0 &rarr; S1 &rarr; S2 &rarr; S5 &rarr; S0</td> 
+		<td>L4-live: X</td>
+	</tr>
+	<tr>
+		<td>TCrit1Pre</td>
+		<td>L0-live: X</td>
+		<td>L1-live: &#10004;</td>
+		<td>L2-live: &#10004; with k = 2</td>
+		<td>L3-live: &#10004; in loop: S1 &rarr; S3 &rarr; S6 &rarr; S0 &rarr; S1</td>
+		<td>L4-live: X</td>
+	</tr>
+	<tr>
+		<td>TCrit2Pre</td>
+		<td>L0-live: X</td>
+		<td>L1-live: &#10004;</td>
+		<td>L2-live: &#10004; with k = 2</td>
+		<td>L3-live: &#10004; in loop: S1 &rarr; S4 &rarr; S7 &rarr; S0 &rarr; S1</td>
+		<td>L4-live: X</td>
+	</tr>
+	<tr>
+		<td>TCrit3Pre</td>
+		<td>L0-live: X</td>
+		<td>L1-live: &#10004;</td>
+		<td>L2-live: &#10004; with k = 4</td>
+		<td>L3-live: &#10004; in loop: S1 &rarr; S2 &rarr; S5 &rarr; S0 &rarr; S1</td>
+		<td>L4-live: X</td>
+	</tr>
+	<tr>
+		<td>TCrit1Post</td>
+		<td>L0-live: X</td>
+		<td>L1-live: &#10004;</td>
+		<td>L2-live: &#10004; with k = 2</td>
+		<td>L3-live: &#10004; in loop: S3 &rarr; S6 &rarr; S0 &rarr; S1 &rarr; S3</td>
+		<td>L4-live: X</td>
+	</tr>
+	<tr>
+		<td>TCrit2Post</td>
+		<td>L0-live: X</td>
+		<td>L1-live: &#10004;</td>
+		<td>L2-live: &#10004; with k = 2</td>
+		<td>L3-live: &#10004; in loop: S4 &rarr; S7 &rarr; S0 &rarr; S1 &rarr; S4</td>
+		<td>L4-live: X</td>
+	</tr>
+	<tr>
+		<td>TCrit3Post</td>
+		<td>L0-live: X</td>
+		<td>L1-live: &#10004;</td>
+		<td>L2-live: &#10004; with k : 4</td>
+		<td>L3-live: &#10004; in loop: S2 &rarr; S5 &rarr; S0 &rarr; S1 &rarr; S2</td>
+		<td>L4-live: X</td>
+	</tr>
+	<tr>
+		<td>Train1DoesNotLeave</td>
+		<td>L0-live: X</td>
+		<td>L1-live: &#10004;</td>
+		<td>L2-live: &#10004; with k = 2</td>
+		<td>L3-live: &#10004; in loop: S6 &rarr; S0 &rarr; S1 &rarr; S3 &rarr; S6</td>
+		<td>L4-live: X</td>
+	</tr>
+	<tr>
+		<td>Train1Leaves</td>
+		<td>L0-live: X</td>
+		<td>L1-live: &#10004;</td>
+		<td>L2-live: &#10004; with k = 2</td>
+		<td>L3-live: X</td>
+		<td>L4-live: X</td>
+	</tr>
+	<tr>
+		<td>TCritical3</td>
+		<td>L0-live: X</td>
+		<td>L1-live: &#10004;</td>
+		<td>L2-live: &#10004; with k = 3</td>
+		<td>L3-live: &#10004; in loop: S5 &rarr; S0 &rarr; S1 &rarr; S2 &rarr; S5</td>
+		<td>L4-live: X</td>
+	</tr>
+	<tr>
+		<td>Train2Leaves</td>
+		<td>L0-live: X</td>
+		<td>L1-live: &#10004;</td>
+		<td>L2-live: &#10004; with k = 2</td>
+		<td>L3-live: X</td>
+		<td>L4-live: X</td>
+	</tr>
+	<tr>
+		<td>Train2DoesNotLeave</td>
+		<td>L0-live: X</td>
+		<td>L1-live: &#10004;</td>
+		<td>L2-live: &#10004; with k = 2</td>
+		<td>L3-live: &#10004; in loop: S7 &rarr; S0 &rarr; S1 &rarr; S4 &rarr; S7 </td>
+		<td>L4-live: X</td>
+	</tr>
+</table>
+<br>
+
+It is clear that there are no dead transitions and every transition is at least L2-live.
+
 <h1>Persistence</h1>
 
+<b>TODO</b>
+
 <h1>Conclusion: Can two trains crash?</h1>
+
+<b>TODO</b>
