@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<style>
+	td, th 
+	{
+	    border: 1px solid #dddddd;
+	    text-align: left;
+	    padding: 8px;
+	}
+
+	.frac 
+	{
+	    display: inline-block;
+	    position: relative;
+	    vertical-align: middle;
+	    letter-spacing: 0.001em;
+	    text-align: center;
+	}
+
+	.frac > span 
+	{
+	    display: block;
+	    padding: 0.1em;
+	}
+
+	.frac span.bottom 
+	{
+    	border-top: thin solid black;
+	}
+
+	.frac span.symbol 
+	{
+	    display: none;
+	} 
+</style>
+<body>
+
+<h1>Assignment 4: Petri Nets</h1>
+<ul>
+	<li>Rafael De Smet - 20131145</li>
+	<li>Beno&#238;t-Philippe Fornoville - 20133299</li>
+</ul>
+
+This report shows the results of assignment 4.
+
+<h1>Complete solution</h1>
+<img src="railroad.png">
+
+<h1>Invariant analysis</h1>
+
+<h2>Invariants:</h2>
+<ol>
+	<li>M(TrainGenerator1) = 1</li>
+	<li>M(TrainGenerator2) = 1</li>
+	<li>M(Pre) + M(Post) + M(Tick) = 1</li>
+	<li>M(CapacityConstraint1) + M(CritialSection1) + M(Entrance1_segment) + M(Green1) = 1</li>
+	<li>M(CriticalSection2) + M(Entrance2_segment) + M(CapacityConstraint2) + M(Green2) = 1</li>
+	<li>M(SemaphoreClocked) + M(Semaphore) + M(CritialSection1) + M(CriticalSection2) + (CriticalSection3) + M(Green1) + M(Red1) = 1</li>
+	<li>M(SemaphoreClocked) + M(Semaphore) + M(CritialSection1) + M(CriticalSection2) + M(CriticalSection3) + M(Green2) + M(Red2) = 1</li>
+</ol>
+
+<h3>Invariant 1 and 2</h3>
+As mentioned in the name TrainGenerator1 is a generator place. It can create an infinite amount of trains for track1.<br>
+Analoguesly TrainGenerator2 can create trains for the second incoming segement. 
+
+<h3>Invariant 3</h3>
+The clock has a clock tick that can be in tree phases: tick, pre or post.
+
+<h3>Invariant 4 and 5</h3>
+The first incoming segment can contain maximum one train. If there is no train CapacityConstraint1 will be 1. When a train enters segment1 Entrance1_segment wil be 1 and CapacityConstraint1 will be 0. Then it waits for the semaphore. When the train receives the semaphore it can enter CriticalSection1, which will lead to a green light (Green1). When the light is green the train can either leave the segment, which will put CapacityConstraint1 back to 1, or it can choose to stay, thus setting Entrance1_segment back to 1.
+Segment2 works analoguesly.
+
+<h3>Invariant 6 and 7</h3>
+Invariant 6 and 7 express that we have a semaphore that can be used to enter one of the 3 critical sections.
+<ul>
+	<li>CriticalSection1</li> will set Green1 to 1 and Red2 to 0.
+	<li>CriticalSection2</li> TODO
+</ul>

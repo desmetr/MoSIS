@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?><pnml>
 <net id="Net-One" type="P/T net">
-<labels x="1225" y="176" width="223" height="45" border="true">
+<labels x="1226" y="177" width="224" height="46" border="true">
 <text>CriticalSection1 = Green1 &amp; Red2
 CriticalSection2 = Red1 &amp; Green2
 CriticalSection3  = Red1 &amp; Red2</text>
@@ -856,7 +856,7 @@ CriticalSection3  = Red1 &amp; Red2</text>
 <tagged>
 <value>false</value>
 </tagged>
-<arcpath id="000" x="685" y="822" curvePoint="false"/>
+<arcpath id="000" x="686" y="822" curvePoint="false"/>
 <arcpath id="001" x="681" y="781" curvePoint="false"/>
 <type value="normal"/>
 </arc>
@@ -869,7 +869,7 @@ CriticalSection3  = Red1 &amp; Red2</text>
 <tagged>
 <value>false</value>
 </tagged>
-<arcpath id="000" x="251" y="401" curvePoint="false"/>
+<arcpath id="000" x="251" y="402" curvePoint="false"/>
 <arcpath id="001" x="322" y="397" curvePoint="false"/>
 <type value="normal"/>
 </arc>
@@ -1116,7 +1116,7 @@ CriticalSection3  = Red1 &amp; Red2</text>
 <tagged>
 <value>false</value>
 </tagged>
-<arcpath id="000" x="1100" y="714" curvePoint="false"/>
+<arcpath id="000" x="1099" y="714" curvePoint="false"/>
 <arcpath id="001" x="1177" y="831" curvePoint="false"/>
 <type value="normal"/>
 </arc>
@@ -1168,7 +1168,7 @@ CriticalSection3  = Red1 &amp; Red2</text>
 <tagged>
 <value>false</value>
 </tagged>
-<arcpath id="000" x="1451" y="429" curvePoint="false"/>
+<arcpath id="000" x="1451" y="432" curvePoint="false"/>
 <arcpath id="001" x="1521" y="432" curvePoint="false"/>
 <type value="normal"/>
 </arc>
@@ -1181,7 +1181,7 @@ CriticalSection3  = Red1 &amp; Red2</text>
 <tagged>
 <value/>
 </tagged>
-<arcpath id="000" x="1423" y="425" curvePoint="false"/>
+<arcpath id="000" x="1423" y="424" curvePoint="false"/>
 <arcpath id="001" x="1246" y="332" curvePoint="false"/>
 <type value="inhibitor"/>
 </arc>
@@ -1195,7 +1195,7 @@ CriticalSection3  = Red1 &amp; Red2</text>
 <value/>
 </tagged>
 <arcpath id="000" x="1425" y="441" curvePoint="false"/>
-<arcpath id="001" x="1246" y="587" curvePoint="false"/>
+<arcpath id="001" x="1247" y="577" curvePoint="false"/>
 <type value="inhibitor"/>
 </arc>
 <arc id="P6 to T2" source="P6" target="T2">
@@ -1220,7 +1220,7 @@ CriticalSection3  = Red1 &amp; Red2</text>
 <tagged>
 <value>false</value>
 </tagged>
-<arcpath id="000" x="700" y="131" curvePoint="false"/>
+<arcpath id="000" x="701" y="131" curvePoint="false"/>
 <arcpath id="001" x="696" y="186" curvePoint="false"/>
 <type value="normal"/>
 </arc>
@@ -1337,7 +1337,7 @@ CriticalSection3  = Red1 &amp; Red2</text>
 <tagged>
 <value>false</value>
 </tagged>
-<arcpath id="000" x="1247" y="577" curvePoint="false"/>
+<arcpath id="000" x="1246" y="587" curvePoint="false"/>
 <arcpath id="001" x="1425" y="441" curvePoint="false"/>
 <type value="normal"/>
 </arc>
@@ -1584,8 +1584,8 @@ CriticalSection3  = Red1 &amp; Red2</text>
 <tagged>
 <value>false</value>
 </tagged>
-<arcpath id="000" x="681" y="771" curvePoint="false"/>
-<arcpath id="001" x="685" y="731" curvePoint="false"/>
+<arcpath id="000" x="686" y="771" curvePoint="false"/>
+<arcpath id="001" x="686" y="731" curvePoint="false"/>
 <type value="normal"/>
 </arc>
 <arc id="T8 to P6" source="T8" target="P6">
