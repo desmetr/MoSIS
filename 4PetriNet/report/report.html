@@ -176,7 +176,6 @@ PIPE tells us this net is deadlock free. <b>TODO</b>
 
 The liveness is computed for every transition. Again, we work with the simplified net and its reachability graph.
 
-<b>TODO check alle L3 nog eens</b>
 <br>
 <br>
 <table>
@@ -287,7 +286,27 @@ It is clear that there are no dead transitions and every transition is at least 
 
 <h1>Persistence</h1>
 
-<b>TODO</b>
+There are several combinations of transitions that are enabled at the same time and which can lead to non-determinism. What follows is a list of these combinations and an explanation of why they are (non-)deterministic.
+
+<ol>
+	<li>
+		The set of transitions {TCrit1Pre, TCrit2Pre, TCrit3Pre} is enabled at the same time. This happens when the semaphoreClocked place has a token. This means that the semaphore tells the net to access a critical section. Which sections this is, is determined by the firig of one of the three transitions. When we fire any of these three transitions, the other two are disabled. This is what we would expect because the semaphore allows only one critical section to be active at a time. So we can say that these transitions are non persistent.
+	</li>
+	<li>
+		The set of transitions {Train1DoesNotLeave, Train1Leaves} is enabled at the same time. This happens when the critical section 1 has been executed (we have seen TCrit1Post). Here the train on segment 1 makes a choice between going on the exit segment (which is now allowed) and staying on segment 1. When we fire either one of these two transitions, the other one is enabled, which is only logical because a train cannot leave its segment and stay on it at the same time. So we can say that these transitions are non persistent. 
+	</li>
+	<li>
+		The set of transitions {Train2DoesNotLeave, Train2Leaves} is enabled at the same time, after the execution of critical section 2. The same logic applies here as in the previous case. So we can say that these transitions are non persistent.
+	</li>
+	<li>
+		When we add the transition TClock2 to the first set of transitions {TCrit1Pre, TCrit2Pre, TCrit3Pre}, we have a new situation. The four transitions are at one point enabled at the same time. When we fire TClock2, the other three transitions are still enabled. But when we fire any of the three others (not TClock2), let's say TCrit3Pre, TCrit1Pre and TCrit2Pre are disabled while TClock2 is still enabled.
+	</li>
+	<li>
+		The same situation is seen in the other two cases (number 2 and 3). When we add TClock2 to {Train1DoesNotLeave, Train1Leaves} we see that the firing of TClock2 does not affect the two other transitions, but the firing of any of these two transitions still affects the other one. When we add TClock2 to {Train2DoesNotLeave, Train2Leaves}, we see the same behaviour.
+	</li>
+</ol>
+
+We can conclude that this net is not persistent.
 
 <h1>Conclusion: Can two trains crash?</h1>
 
