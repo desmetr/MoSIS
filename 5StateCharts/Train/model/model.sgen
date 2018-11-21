@@ -1,0 +1,21 @@
+GeneratorModel for yakindu::java {
+
+	statechart TrainController {
+	 	
+		feature Outlet {
+			targetProject = "Train"
+			targetFolder = "src-gen"
+		}
+
+		feature Naming {
+			basePackage = "train"
+			implementationSuffix =""
+		}
+
+		feature GeneralFeatures {
+			RuntimeService = true
+			TimerService = true			
+			InterfaceObserverSupport = true
+		}
+	}
+}
