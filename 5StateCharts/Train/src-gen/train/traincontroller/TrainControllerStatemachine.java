@@ -217,14 +217,17 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	public enum State {
 		main_default,
 		main_main,
+		main_main_train_Emergency_Brake_Mode,
+		main_main_train_Yellow_Light_Normal,
 		main_main_train_normal,
 		main_main_train_normal_movement_train_Still,
 		main_main_train_normal_movement_train_Driving,
 		main_main_train_normal_movement_train_Cruising,
-		main_main_train_Red_Light,
-		main_main_train_Yellow_Light_Emergency,
-		main_main_train_Yellow_Light_Normal,
-		main_main_parameters_parametersState,
+		main_main_train_In_Station,
+		main_main_train_Doors_Opened,
+		main_main_dead_man_s_button_Normal,
+		main_main_dead_man_s_button_Button_Prompted,
+		main_main_dead_man_s_button_Emergency_Brake_Mode,
 		$NullState$
 	};
 	
@@ -235,7 +238,7 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	
 	private ITimer timer;
 	
-	private final boolean[] timeEvents = new boolean[2];
+	private final boolean[] timeEvents = new boolean[4];
 	private double acceleration;
 	
 	protected void setAcceleration(double value) {
@@ -331,7 +334,11 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 			return stateVector[0] == State.main_default;
 		case main_main:
 			return stateVector[0].ordinal() >= State.
-					main_main.ordinal()&& stateVector[0].ordinal() <= State.main_main_parameters_parametersState.ordinal();
+					main_main.ordinal()&& stateVector[0].ordinal() <= State.main_main_dead_man_s_button_Emergency_Brake_Mode.ordinal();
+		case main_main_train_Emergency_Brake_Mode:
+			return stateVector[0] == State.main_main_train_Emergency_Brake_Mode;
+		case main_main_train_Yellow_Light_Normal:
+			return stateVector[0] == State.main_main_train_Yellow_Light_Normal;
 		case main_main_train_normal:
 			return stateVector[0].ordinal() >= State.
 					main_main_train_normal.ordinal()&& stateVector[0].ordinal() <= State.main_main_train_normal_movement_train_Cruising.ordinal();
@@ -341,14 +348,16 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 			return stateVector[0] == State.main_main_train_normal_movement_train_Driving;
 		case main_main_train_normal_movement_train_Cruising:
 			return stateVector[0] == State.main_main_train_normal_movement_train_Cruising;
-		case main_main_train_Red_Light:
-			return stateVector[0] == State.main_main_train_Red_Light;
-		case main_main_train_Yellow_Light_Emergency:
-			return stateVector[0] == State.main_main_train_Yellow_Light_Emergency;
-		case main_main_train_Yellow_Light_Normal:
-			return stateVector[0] == State.main_main_train_Yellow_Light_Normal;
-		case main_main_parameters_parametersState:
-			return stateVector[1] == State.main_main_parameters_parametersState;
+		case main_main_train_In_Station:
+			return stateVector[0] == State.main_main_train_In_Station;
+		case main_main_train_Doors_Opened:
+			return stateVector[0] == State.main_main_train_Doors_Opened;
+		case main_main_dead_man_s_button_Normal:
+			return stateVector[1] == State.main_main_dead_man_s_button_Normal;
+		case main_main_dead_man_s_button_Button_Prompted:
+			return stateVector[1] == State.main_main_dead_man_s_button_Button_Prompted;
+		case main_main_dead_man_s_button_Emergency_Brake_Mode:
+			return stateVector[1] == State.main_main_dead_man_s_button_Emergency_Brake_Mode;
 		default:
 			return false;
 		}
@@ -464,14 +473,26 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	
 	/* Entry action for statechart 'TrainController'. */
 	private void entryAction() {
-		timer.setTimer(this, 1, 20, true);
+		timer.setTimer(this, 3, 20, true);
+	}
+	
+	/* Entry action for state 'Emergency Brake Mode'. */
+	private void entryAction_main_main_train_Emergency_Brake_Mode() {
+		setAcceleration(-1.0);
+		
+		sCInterface.operationCallback.print("In Emergency Brake Mode, acceleration=-1");
+	}
+	
+	/* Entry action for state 'Yellow Light Normal'. */
+	private void entryAction_main_main_train_Yellow_Light_Normal() {
+		sCInterface.setVelocity(50.0);
+		
+		sCInterface.operationCallback.print("Passed yellow light at good speed. Limiting speed to 50km/h");
 	}
 	
 	/* Entry action for state 'Still'. */
 	private void entryAction_main_main_train_normal_movement_train_Still() {
 		sCInterface.operationCallback.print("still");
-		
-		setAcceleration(0.0);
 		
 		sCInterface.setVelocity(0.0);
 	}
@@ -486,52 +507,75 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		sCInterface.operationCallback.print("cruising");
 	}
 	
-	/* Entry action for state 'Red Light'. */
-	private void entryAction_main_main_train_Red_Light() {
+	/* Entry action for state 'In Station'. */
+	private void entryAction_main_main_train_In_Station() {
+		sCInterface.operationCallback.print("in station");
+	}
+	
+	/* Entry action for state 'Doors Opened'. */
+	private void entryAction_main_main_train_Doors_Opened() {
+		timer.setTimer(this, 0, 5 * 1000, false);
+		
+		sCInterface.raiseOpenDoors();
+	}
+	
+	/* Entry action for state 'Normal'. */
+	private void entryAction_main_main_dead_man_s_button_Normal() {
+		timer.setTimer(this, 1, 30 * 1000, true);
+	}
+	
+	/* Entry action for state 'Button Prompted'. */
+	private void entryAction_main_main_dead_man_s_button_Button_Prompted() {
+		timer.setTimer(this, 2, 5 * 1000, false);
+		
+		sCInterface.raiseWarning("Press the POLL button!");
+	}
+	
+	/* Entry action for state 'Emergency Brake Mode'. */
+	private void entryAction_main_main_dead_man_s_button_Emergency_Brake_Mode() {
 		setAcceleration(-1.0);
 		
-		sCInterface.operationCallback.print("Passed red light, acceleration=-1");
-	}
-	
-	/* Entry action for state 'Yellow Light Emergency'. */
-	private void entryAction_main_main_train_Yellow_Light_Emergency() {
-		setAcceleration(-1.0);
-		
-		sCInterface.operationCallback.print("Passed yellow light at too high speed, acceleration=-1");
-	}
-	
-	/* Entry action for state 'Yellow Light Normal'. */
-	private void entryAction_main_main_train_Yellow_Light_Normal() {
-		sCInterface.setVelocity(50.0);
-		
-		sCInterface.operationCallback.print("Passed yellow light at good speed. Limiting speed to 50km/h");
-	}
-	
-	/* Entry action for state 'parametersState'. */
-	private void entryAction_main_main_parameters_parametersState() {
-		timer.setTimer(this, 0, 20, true);
-		
-		sCInterface.setVelocity(sCInterface.getVelocity() + (acceleration / 2));
-		
-		sCInterface.setVelocity(sCInterface.velocity>0 ? sCInterface.velocity : 0);
-		
-		sCInterface.operationCallback.updateGUI();
+		sCInterface.operationCallback.print("In Emergency Brake Mode, acceleration=-1");
 	}
 	
 	/* Exit action for state 'TrainController'. */
 	private void exitAction() {
+		timer.unsetTimer(this, 3);
+	}
+	
+	/* Exit action for state 'Doors Opened'. */
+	private void exitAction_main_main_train_Doors_Opened() {
+		timer.unsetTimer(this, 0);
+	}
+	
+	/* Exit action for state 'Normal'. */
+	private void exitAction_main_main_dead_man_s_button_Normal() {
 		timer.unsetTimer(this, 1);
 	}
 	
-	/* Exit action for state 'parametersState'. */
-	private void exitAction_main_main_parameters_parametersState() {
-		timer.unsetTimer(this, 0);
+	/* Exit action for state 'Button Prompted'. */
+	private void exitAction_main_main_dead_man_s_button_Button_Prompted() {
+		timer.unsetTimer(this, 2);
 	}
 	
 	/* 'default' enter sequence for state default */
 	private void enterSequence_main_default_default() {
 		nextStateIndex = 0;
 		stateVector[0] = State.main_default;
+	}
+	
+	/* 'default' enter sequence for state Emergency Brake Mode */
+	private void enterSequence_main_main_train_Emergency_Brake_Mode_default() {
+		entryAction_main_main_train_Emergency_Brake_Mode();
+		nextStateIndex = 0;
+		stateVector[0] = State.main_main_train_Emergency_Brake_Mode;
+	}
+	
+	/* 'default' enter sequence for state Yellow Light Normal */
+	private void enterSequence_main_main_train_Yellow_Light_Normal_default() {
+		entryAction_main_main_train_Yellow_Light_Normal();
+		nextStateIndex = 0;
+		stateVector[0] = State.main_main_train_Yellow_Light_Normal;
 	}
 	
 	/* 'default' enter sequence for state normal */
@@ -566,32 +610,39 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		historyVector[0] = stateVector[0];
 	}
 	
-	/* 'default' enter sequence for state Red Light */
-	private void enterSequence_main_main_train_Red_Light_default() {
-		entryAction_main_main_train_Red_Light();
+	/* 'default' enter sequence for state In Station */
+	private void enterSequence_main_main_train_In_Station_default() {
+		entryAction_main_main_train_In_Station();
 		nextStateIndex = 0;
-		stateVector[0] = State.main_main_train_Red_Light;
+		stateVector[0] = State.main_main_train_In_Station;
 	}
 	
-	/* 'default' enter sequence for state Yellow Light Emergency */
-	private void enterSequence_main_main_train_Yellow_Light_Emergency_default() {
-		entryAction_main_main_train_Yellow_Light_Emergency();
+	/* 'default' enter sequence for state Doors Opened */
+	private void enterSequence_main_main_train_Doors_Opened_default() {
+		entryAction_main_main_train_Doors_Opened();
 		nextStateIndex = 0;
-		stateVector[0] = State.main_main_train_Yellow_Light_Emergency;
+		stateVector[0] = State.main_main_train_Doors_Opened;
 	}
 	
-	/* 'default' enter sequence for state Yellow Light Normal */
-	private void enterSequence_main_main_train_Yellow_Light_Normal_default() {
-		entryAction_main_main_train_Yellow_Light_Normal();
-		nextStateIndex = 0;
-		stateVector[0] = State.main_main_train_Yellow_Light_Normal;
-	}
-	
-	/* 'default' enter sequence for state parametersState */
-	private void enterSequence_main_main_parameters_parametersState_default() {
-		entryAction_main_main_parameters_parametersState();
+	/* 'default' enter sequence for state Normal */
+	private void enterSequence_main_main_dead_man_s_button_Normal_default() {
+		entryAction_main_main_dead_man_s_button_Normal();
 		nextStateIndex = 1;
-		stateVector[1] = State.main_main_parameters_parametersState;
+		stateVector[1] = State.main_main_dead_man_s_button_Normal;
+	}
+	
+	/* 'default' enter sequence for state Button Prompted */
+	private void enterSequence_main_main_dead_man_s_button_Button_Prompted_default() {
+		entryAction_main_main_dead_man_s_button_Button_Prompted();
+		nextStateIndex = 1;
+		stateVector[1] = State.main_main_dead_man_s_button_Button_Prompted;
+	}
+	
+	/* 'default' enter sequence for state Emergency Brake Mode */
+	private void enterSequence_main_main_dead_man_s_button_Emergency_Brake_Mode_default() {
+		entryAction_main_main_dead_man_s_button_Emergency_Brake_Mode();
+		nextStateIndex = 1;
+		stateVector[1] = State.main_main_dead_man_s_button_Emergency_Brake_Mode;
 	}
 	
 	/* 'default' enter sequence for region main */
@@ -621,9 +672,9 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		}
 	}
 	
-	/* 'default' enter sequence for region parameters */
-	private void enterSequence_main_main_parameters_default() {
-		react_main_main_parameters__entry_Default();
+	/* 'default' enter sequence for region dead man's button */
+	private void enterSequence_main_main_dead_man_s_button_default() {
+		react_main_main_dead_man_s_button__entry_Default();
 	}
 	
 	/* Default exit sequence for state default */
@@ -635,7 +686,19 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	/* Default exit sequence for state main */
 	private void exitSequence_main_main() {
 		exitSequence_main_main_train();
-		exitSequence_main_main_parameters();
+		exitSequence_main_main_dead_man_s_button();
+	}
+	
+	/* Default exit sequence for state Emergency Brake Mode */
+	private void exitSequence_main_main_train_Emergency_Brake_Mode() {
+		nextStateIndex = 0;
+		stateVector[0] = State.$NullState$;
+	}
+	
+	/* Default exit sequence for state Yellow Light Normal */
+	private void exitSequence_main_main_train_Yellow_Light_Normal() {
+		nextStateIndex = 0;
+		stateVector[0] = State.$NullState$;
 	}
 	
 	/* Default exit sequence for state normal */
@@ -661,30 +724,40 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		stateVector[0] = State.$NullState$;
 	}
 	
-	/* Default exit sequence for state Red Light */
-	private void exitSequence_main_main_train_Red_Light() {
+	/* Default exit sequence for state In Station */
+	private void exitSequence_main_main_train_In_Station() {
 		nextStateIndex = 0;
 		stateVector[0] = State.$NullState$;
 	}
 	
-	/* Default exit sequence for state Yellow Light Emergency */
-	private void exitSequence_main_main_train_Yellow_Light_Emergency() {
+	/* Default exit sequence for state Doors Opened */
+	private void exitSequence_main_main_train_Doors_Opened() {
 		nextStateIndex = 0;
 		stateVector[0] = State.$NullState$;
+		
+		exitAction_main_main_train_Doors_Opened();
 	}
 	
-	/* Default exit sequence for state Yellow Light Normal */
-	private void exitSequence_main_main_train_Yellow_Light_Normal() {
-		nextStateIndex = 0;
-		stateVector[0] = State.$NullState$;
-	}
-	
-	/* Default exit sequence for state parametersState */
-	private void exitSequence_main_main_parameters_parametersState() {
+	/* Default exit sequence for state Normal */
+	private void exitSequence_main_main_dead_man_s_button_Normal() {
 		nextStateIndex = 1;
 		stateVector[1] = State.$NullState$;
 		
-		exitAction_main_main_parameters_parametersState();
+		exitAction_main_main_dead_man_s_button_Normal();
+	}
+	
+	/* Default exit sequence for state Button Prompted */
+	private void exitSequence_main_main_dead_man_s_button_Button_Prompted() {
+		nextStateIndex = 1;
+		stateVector[1] = State.$NullState$;
+		
+		exitAction_main_main_dead_man_s_button_Button_Prompted();
+	}
+	
+	/* Default exit sequence for state Emergency Brake Mode */
+	private void exitSequence_main_main_dead_man_s_button_Emergency_Brake_Mode() {
+		nextStateIndex = 1;
+		stateVector[1] = State.$NullState$;
 	}
 	
 	/* Default exit sequence for region main */
@@ -692,6 +765,12 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		switch (stateVector[0]) {
 		case main_default:
 			exitSequence_main_default();
+			break;
+		case main_main_train_Emergency_Brake_Mode:
+			exitSequence_main_main_train_Emergency_Brake_Mode();
+			break;
+		case main_main_train_Yellow_Light_Normal:
+			exitSequence_main_main_train_Yellow_Light_Normal();
 			break;
 		case main_main_train_normal_movement_train_Still:
 			exitSequence_main_main_train_normal_movement_train_Still();
@@ -702,22 +781,25 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		case main_main_train_normal_movement_train_Cruising:
 			exitSequence_main_main_train_normal_movement_train_Cruising();
 			break;
-		case main_main_train_Red_Light:
-			exitSequence_main_main_train_Red_Light();
+		case main_main_train_In_Station:
+			exitSequence_main_main_train_In_Station();
 			break;
-		case main_main_train_Yellow_Light_Emergency:
-			exitSequence_main_main_train_Yellow_Light_Emergency();
-			break;
-		case main_main_train_Yellow_Light_Normal:
-			exitSequence_main_main_train_Yellow_Light_Normal();
+		case main_main_train_Doors_Opened:
+			exitSequence_main_main_train_Doors_Opened();
 			break;
 		default:
 			break;
 		}
 		
 		switch (stateVector[1]) {
-		case main_main_parameters_parametersState:
-			exitSequence_main_main_parameters_parametersState();
+		case main_main_dead_man_s_button_Normal:
+			exitSequence_main_main_dead_man_s_button_Normal();
+			break;
+		case main_main_dead_man_s_button_Button_Prompted:
+			exitSequence_main_main_dead_man_s_button_Button_Prompted();
+			break;
+		case main_main_dead_man_s_button_Emergency_Brake_Mode:
+			exitSequence_main_main_dead_man_s_button_Emergency_Brake_Mode();
 			break;
 		default:
 			break;
@@ -727,6 +809,12 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	/* Default exit sequence for region train */
 	private void exitSequence_main_main_train() {
 		switch (stateVector[0]) {
+		case main_main_train_Emergency_Brake_Mode:
+			exitSequence_main_main_train_Emergency_Brake_Mode();
+			break;
+		case main_main_train_Yellow_Light_Normal:
+			exitSequence_main_main_train_Yellow_Light_Normal();
+			break;
 		case main_main_train_normal_movement_train_Still:
 			exitSequence_main_main_train_normal_movement_train_Still();
 			break;
@@ -736,14 +824,11 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		case main_main_train_normal_movement_train_Cruising:
 			exitSequence_main_main_train_normal_movement_train_Cruising();
 			break;
-		case main_main_train_Red_Light:
-			exitSequence_main_main_train_Red_Light();
+		case main_main_train_In_Station:
+			exitSequence_main_main_train_In_Station();
 			break;
-		case main_main_train_Yellow_Light_Emergency:
-			exitSequence_main_main_train_Yellow_Light_Emergency();
-			break;
-		case main_main_train_Yellow_Light_Normal:
-			exitSequence_main_main_train_Yellow_Light_Normal();
+		case main_main_train_Doors_Opened:
+			exitSequence_main_main_train_Doors_Opened();
 			break;
 		default:
 			break;
@@ -767,11 +852,17 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		}
 	}
 	
-	/* Default exit sequence for region parameters */
-	private void exitSequence_main_main_parameters() {
+	/* Default exit sequence for region dead man's button */
+	private void exitSequence_main_main_dead_man_s_button() {
 		switch (stateVector[1]) {
-		case main_main_parameters_parametersState:
-			exitSequence_main_main_parameters_parametersState();
+		case main_main_dead_man_s_button_Normal:
+			exitSequence_main_main_dead_man_s_button_Normal();
+			break;
+		case main_main_dead_man_s_button_Button_Prompted:
+			exitSequence_main_main_dead_man_s_button_Button_Prompted();
+			break;
+		case main_main_dead_man_s_button_Emergency_Brake_Mode:
+			exitSequence_main_main_dead_man_s_button_Emergency_Brake_Mode();
 			break;
 		default:
 			break;
@@ -804,12 +895,12 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	}
 	
 	/* Default react sequence for initial entry  */
-	private void react_main_main_parameters__entry_Default() {
-		enterSequence_main_main_parameters_parametersState_default();
+	private void react_main_main_dead_man_s_button__entry_Default() {
+		enterSequence_main_main_dead_man_s_button_Normal_default();
 	}
 	
 	private boolean react(boolean try_transition) {
-		if (timeEvents[1]) {
+		if (timeEvents[3]) {
 			sCInterface.setVelocity(sCInterface.getVelocity() + (acceleration / 2));
 			
 			sCInterface.setVelocity(sCInterface.velocity>0 ? sCInterface.velocity : 0);
@@ -827,7 +918,7 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 				if (sCInterface.continueEvent) {
 					exitSequence_main_default();
 					react_main_main_train_normal_movement_train_hist();
-					enterSequence_main_main_parameters_default();
+					enterSequence_main_main_dead_man_s_button_default();
 				} else {
 					did_transition = false;
 				}
@@ -843,7 +934,43 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		
 		if (try_transition) {
 			if (react(try_transition)==false) {
+				if (sCInterface.pause) {
+					exitSequence_main_main();
+					enterSequence_main_default_default();
+				} else {
+					did_transition = false;
+				}
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_Emergency_Brake_Mode_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (main_main_react(try_transition)==false) {
 				did_transition = false;
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_Yellow_Light_Normal_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (main_main_react(try_transition)==false) {
+				if ((sCInterface.update_acceleration) && (sCInterface.getVelocity()<=50.0)) {
+					exitSequence_main_main_train_Yellow_Light_Normal();
+					react_main_main_train_normal_movement_train_hist();
+				} else {
+					did_transition = false;
+				}
 			}
 		}
 		if (did_transition==false) {
@@ -858,21 +985,31 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 			if (main_main_react(try_transition)==false) {
 				if (sCInterface.red_light) {
 					exitSequence_main_main_train_normal();
-					enterSequence_main_main_train_Red_Light_default();
+					enterSequence_main_main_train_Emergency_Brake_Mode_default();
 				} else {
-					if ((sCInterface.yellow_light) && (sCInterface.getVelocity()>50.0)) {
+					if ((sCInterface.yellow_light) && (sCInterface.getVelocity()<=50.0)) {
 						exitSequence_main_main_train_normal();
-						enterSequence_main_main_train_Yellow_Light_Emergency_default();
+						enterSequence_main_main_train_Yellow_Light_Normal_default();
 					} else {
-						if ((sCInterface.yellow_light) && (sCInterface.getVelocity()<=50.0)) {
+						if (sCInterface.green_light) {
 							exitSequence_main_main_train_normal();
-							enterSequence_main_main_train_Yellow_Light_Normal_default();
+							enterSequence_main_main_train_normal_default();
 						} else {
-							if (sCInterface.green_light) {
+							if (sCInterface.enter) {
 								exitSequence_main_main_train_normal();
-								enterSequence_main_main_train_normal_default();
+								enterSequence_main_main_train_In_Station_default();
 							} else {
-								did_transition = false;
+								if ((sCInterface.yellow_light) && (sCInterface.getVelocity()>50.0)) {
+									exitSequence_main_main_train_normal();
+									enterSequence_main_main_train_Emergency_Brake_Mode_default();
+								} else {
+									if ((sCInterface.enter) && (sCInterface.getVelocity()>20.0)) {
+										exitSequence_main_main_train_normal();
+										enterSequence_main_main_train_Emergency_Brake_Mode_default();
+									} else {
+										did_transition = false;
+									}
+								}
 							}
 						}
 					}
@@ -889,7 +1026,7 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		
 		if (try_transition) {
 			if (main_main_train_normal_react(try_transition)==false) {
-				if (sCInterface.update_acceleration) {
+				if ((sCInterface.update_acceleration) && (getAcceleration()>0.0)) {
 					exitSequence_main_main_train_normal_movement_train_Still();
 					enterSequence_main_main_train_normal_movement_train_Driving_default();
 				} else {
@@ -925,11 +1062,16 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		
 		if (try_transition) {
 			if (main_main_train_normal_react(try_transition)==false) {
-				if ((sCInterface.update_acceleration) && (getAcceleration()==-1.0)) {
+				if ((sCInterface.update_acceleration) && (sCInterface.getVelocity()==-1.0)) {
 					exitSequence_main_main_train_normal_movement_train_Cruising();
 					enterSequence_main_main_train_normal_movement_train_Still_default();
 				} else {
-					did_transition = false;
+					if ((sCInterface.update_acceleration) && (getAcceleration()<0.0)) {
+						exitSequence_main_main_train_normal_movement_train_Cruising();
+						enterSequence_main_main_train_normal_movement_train_Driving_default();
+					} else {
+						did_transition = false;
+					}
 				}
 			}
 		}
@@ -938,14 +1080,14 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		return did_transition;
 	}
 	
-	private boolean main_main_train_Red_Light_react(boolean try_transition) {
+	private boolean main_main_train_In_Station_react(boolean try_transition) {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
 			if (main_main_react(try_transition)==false) {
-				if ((sCInterface.pause) && (sCInterface.getVelocity()==0)) {
-					exitSequence_main_main();
-					enterSequence_main_default_default();
+				if ((sCInterface.open) && (sCInterface.getVelocity()==0.0)) {
+					exitSequence_main_main_train_In_Station();
+					enterSequence_main_main_train_Doors_Opened_default();
 				} else {
 					did_transition = false;
 				}
@@ -956,31 +1098,15 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		return did_transition;
 	}
 	
-	private boolean main_main_train_Yellow_Light_Emergency_react(boolean try_transition) {
+	private boolean main_main_train_Doors_Opened_react(boolean try_transition) {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
 			if (main_main_react(try_transition)==false) {
-				if ((sCInterface.pause) && (sCInterface.getVelocity()==0)) {
-					exitSequence_main_main();
-					enterSequence_main_default_default();
-				} else {
-					did_transition = false;
-				}
-			}
-		}
-		if (did_transition==false) {
-		}
-		return did_transition;
-	}
-	
-	private boolean main_main_train_Yellow_Light_Normal_react(boolean try_transition) {
-		boolean did_transition = try_transition;
-		
-		if (try_transition) {
-			if (main_main_react(try_transition)==false) {
-				if ((sCInterface.update_acceleration) && (sCInterface.getVelocity()<=50.0)) {
-					exitSequence_main_main_train_Yellow_Light_Normal();
+				if (timeEvents[0]) {
+					exitSequence_main_main_train_Doors_Opened();
+					sCInterface.raiseCloseDoors();
+					
 					react_main_main_train_normal_movement_train_hist();
 				} else {
 					did_transition = false;
@@ -992,16 +1118,48 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		return did_transition;
 	}
 	
-	private boolean main_main_parameters_parametersState_react(boolean try_transition) {
+	private boolean main_main_dead_man_s_button_Normal_react(boolean try_transition) {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (timeEvents[0]) {
-				exitSequence_main_main_parameters_parametersState();
-				enterSequence_main_main_parameters_parametersState_default();
+			if (timeEvents[1]) {
+				exitSequence_main_main_dead_man_s_button_Normal();
+				enterSequence_main_main_dead_man_s_button_Button_Prompted_default();
 			} else {
 				did_transition = false;
 			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_dead_man_s_button_Button_Prompted_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (sCInterface.awake) {
+				exitSequence_main_main_dead_man_s_button_Button_Prompted();
+				enterSequence_main_main_dead_man_s_button_Normal_default();
+			} else {
+				if (timeEvents[2]) {
+					exitSequence_main_main_dead_man_s_button_Button_Prompted();
+					enterSequence_main_main_dead_man_s_button_Emergency_Brake_Mode_default();
+				} else {
+					did_transition = false;
+				}
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_dead_man_s_button_Emergency_Brake_Mode_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			did_transition = false;
 		}
 		if (did_transition==false) {
 		}
@@ -1018,6 +1176,12 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 			case main_default:
 				main_default_react(true);
 				break;
+			case main_main_train_Emergency_Brake_Mode:
+				main_main_train_Emergency_Brake_Mode_react(true);
+				break;
+			case main_main_train_Yellow_Light_Normal:
+				main_main_train_Yellow_Light_Normal_react(true);
+				break;
 			case main_main_train_normal_movement_train_Still:
 				main_main_train_normal_movement_train_Still_react(true);
 				break;
@@ -1027,17 +1191,20 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 			case main_main_train_normal_movement_train_Cruising:
 				main_main_train_normal_movement_train_Cruising_react(true);
 				break;
-			case main_main_train_Red_Light:
-				main_main_train_Red_Light_react(true);
+			case main_main_train_In_Station:
+				main_main_train_In_Station_react(true);
 				break;
-			case main_main_train_Yellow_Light_Emergency:
-				main_main_train_Yellow_Light_Emergency_react(true);
+			case main_main_train_Doors_Opened:
+				main_main_train_Doors_Opened_react(true);
 				break;
-			case main_main_train_Yellow_Light_Normal:
-				main_main_train_Yellow_Light_Normal_react(true);
+			case main_main_dead_man_s_button_Normal:
+				main_main_dead_man_s_button_Normal_react(true);
 				break;
-			case main_main_parameters_parametersState:
-				main_main_parameters_parametersState_react(true);
+			case main_main_dead_man_s_button_Button_Prompted:
+				main_main_dead_man_s_button_Button_Prompted_react(true);
+				break;
+			case main_main_dead_man_s_button_Emergency_Brake_Mode:
+				main_main_dead_man_s_button_Emergency_Brake_Mode_react(true);
 				break;
 			default:
 				// $NullState$
