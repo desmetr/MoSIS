@@ -218,27 +218,34 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		main_default,
 		main_main,
 		main_main_train_trainState,
-		main_main_train_trainState_movement_train_Still,
-		main_main_train_trainState_movement_train_Driving,
-		main_main_train_trainState_movement_train_Cruising,
-		main_main_train_trainState_movement_train_Breaking,
-		main_main_train_trainState_movement_train_Cooldown,
-		main_main_train_trainState_Place_train_InStation,
-		main_main_train_trainState_Place_train_OutOfStation,
-		main_main_train_trainState_Doors_station_openingDoors,
-		main_main_train_trainState_Doors_station_ClosedDoors,
-		main_main_train_trainState_Doors_station_openDoors,
-		main_main_train_trainState_Doors_station_ClosingDoors,
-		main_main_train_trainState_Last_light_NotYellow,
-		main_main_train_trainState_Last_light_Yellow,
-		main_main_train_trainState_Last_light_YellowAndBreaking,
+		main_main_train_trainState_Light_LastLight,
+		main_main_train_trainState_Light_LastLight_Mode_Yellow,
+		main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding,
+		main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding,
+		main_main_train_trainState_Light_LastLight_Mode_NotYellow,
+		main_main_train_trainState_place_NotInStation,
+		main_main_train_trainState_place_InStation,
+		main_main_train_trainState_place_InStation_Mode_NotSpeeding,
+		main_main_train_trainState_place_InStation_Mode_Speeding,
+		main_main_train_trainState_doors_OpenDoors,
+		main_main_train_trainState_doors_OpenDoors_Status_NotClosable,
+		main_main_train_trainState_doors_OpenDoors_Status_Closable,
+		main_main_train_trainState_doors_ClosedDoors,
+		main_main_train_trainState_doors_ClosedDoors_status_NotOpenable,
+		main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable,
+		main_main_train_trainState_movement_Still,
+		main_main_train_trainState_movement_Moving,
+		main_main_train_trainState_movement_Moving_NormalMovement_Cruising,
+		main_main_train_trainState_movement_Moving_NormalMovement_Driving,
+		main_main_train_trainState_movement_Breaking,
+		main_main_train_trainState_movement_Cooldown,
 		main_main_dead_man_s_button_Normal,
 		main_main_dead_man_s_button_Button_Prompted,
 		main_main_dead_man_s_button_Emergency_Brake_Mode,
 		$NullState$
 	};
 	
-	private State[] historyVector = new State[5];
+	private State[] historyVector = new State[11];
 	private final State[] stateVector = new State[5];
 	
 	private int nextStateIndex;
@@ -249,7 +256,7 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	
 	private boolean emergency;
 	
-	private boolean toClosedDoors;
+	private boolean toOpenableDoors;
 	private double acceleration;
 	
 	protected void setAcceleration(double value) {
@@ -258,6 +265,26 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	
 	protected double getAcceleration() {
 		return acceleration;
+	}
+	
+	private double storedAcc;
+	
+	protected void setStoredAcc(double value) {
+		storedAcc = value;
+	}
+	
+	protected double getStoredAcc() {
+		return storedAcc;
+	}
+	
+	private double storedVel;
+	
+	protected void setStoredVel(double value) {
+		storedVel = value;
+	}
+	
+	protected double getStoredVel() {
+		return storedVel;
 	}
 	
 	public TrainControllerStatemachine() {
@@ -276,7 +303,7 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		for (int i = 0; i < 5; i++) {
 			stateVector[i] = State.$NullState$;
 		}
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 11; i++) {
 			historyVector[i] = State.$NullState$;
 		}
 		clearEvents();
@@ -284,6 +311,10 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		sCInterface.setVelocity(0.0);
 		
 		setAcceleration(0.0);
+		
+		setStoredAcc(0.0);
+		
+		setStoredVel(0.0);
 	}
 	
 	public void enter() {
@@ -324,7 +355,7 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	protected void clearEvents() {
 		sCInterface.clearEvents();
 		emergency = false;
-		toClosedDoors = false;
+		toOpenableDoors = false;
 		for (int i=0; i<timeEvents.length; i++) {
 			timeEvents[i] = false;
 		}
@@ -350,35 +381,55 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 					main_main.ordinal()&& stateVector[0].ordinal() <= State.main_main_dead_man_s_button_Emergency_Brake_Mode.ordinal();
 		case main_main_train_trainState:
 			return stateVector[0].ordinal() >= State.
-					main_main_train_trainState.ordinal()&& stateVector[0].ordinal() <= State.main_main_train_trainState_Last_light_YellowAndBreaking.ordinal();
-		case main_main_train_trainState_movement_train_Still:
-			return stateVector[0] == State.main_main_train_trainState_movement_train_Still;
-		case main_main_train_trainState_movement_train_Driving:
-			return stateVector[0] == State.main_main_train_trainState_movement_train_Driving;
-		case main_main_train_trainState_movement_train_Cruising:
-			return stateVector[0] == State.main_main_train_trainState_movement_train_Cruising;
-		case main_main_train_trainState_movement_train_Breaking:
-			return stateVector[0] == State.main_main_train_trainState_movement_train_Breaking;
-		case main_main_train_trainState_movement_train_Cooldown:
-			return stateVector[0] == State.main_main_train_trainState_movement_train_Cooldown;
-		case main_main_train_trainState_Place_train_InStation:
-			return stateVector[1] == State.main_main_train_trainState_Place_train_InStation;
-		case main_main_train_trainState_Place_train_OutOfStation:
-			return stateVector[1] == State.main_main_train_trainState_Place_train_OutOfStation;
-		case main_main_train_trainState_Doors_station_openingDoors:
-			return stateVector[2] == State.main_main_train_trainState_Doors_station_openingDoors;
-		case main_main_train_trainState_Doors_station_ClosedDoors:
-			return stateVector[2] == State.main_main_train_trainState_Doors_station_ClosedDoors;
-		case main_main_train_trainState_Doors_station_openDoors:
-			return stateVector[2] == State.main_main_train_trainState_Doors_station_openDoors;
-		case main_main_train_trainState_Doors_station_ClosingDoors:
-			return stateVector[2] == State.main_main_train_trainState_Doors_station_ClosingDoors;
-		case main_main_train_trainState_Last_light_NotYellow:
-			return stateVector[3] == State.main_main_train_trainState_Last_light_NotYellow;
-		case main_main_train_trainState_Last_light_Yellow:
-			return stateVector[3] == State.main_main_train_trainState_Last_light_Yellow;
-		case main_main_train_trainState_Last_light_YellowAndBreaking:
-			return stateVector[3] == State.main_main_train_trainState_Last_light_YellowAndBreaking;
+					main_main_train_trainState.ordinal()&& stateVector[0].ordinal() <= State.main_main_train_trainState_movement_Cooldown.ordinal();
+		case main_main_train_trainState_Light_LastLight:
+			return stateVector[0].ordinal() >= State.
+					main_main_train_trainState_Light_LastLight.ordinal()&& stateVector[0].ordinal() <= State.main_main_train_trainState_Light_LastLight_Mode_NotYellow.ordinal();
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow:
+			return stateVector[0].ordinal() >= State.
+					main_main_train_trainState_Light_LastLight_Mode_Yellow.ordinal()&& stateVector[0].ordinal() <= State.main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding.ordinal();
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding:
+			return stateVector[0] == State.main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding;
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding:
+			return stateVector[0] == State.main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding;
+		case main_main_train_trainState_Light_LastLight_Mode_NotYellow:
+			return stateVector[0] == State.main_main_train_trainState_Light_LastLight_Mode_NotYellow;
+		case main_main_train_trainState_place_NotInStation:
+			return stateVector[1] == State.main_main_train_trainState_place_NotInStation;
+		case main_main_train_trainState_place_InStation:
+			return stateVector[1].ordinal() >= State.
+					main_main_train_trainState_place_InStation.ordinal()&& stateVector[1].ordinal() <= State.main_main_train_trainState_place_InStation_Mode_Speeding.ordinal();
+		case main_main_train_trainState_place_InStation_Mode_NotSpeeding:
+			return stateVector[1] == State.main_main_train_trainState_place_InStation_Mode_NotSpeeding;
+		case main_main_train_trainState_place_InStation_Mode_Speeding:
+			return stateVector[1] == State.main_main_train_trainState_place_InStation_Mode_Speeding;
+		case main_main_train_trainState_doors_OpenDoors:
+			return stateVector[2].ordinal() >= State.
+					main_main_train_trainState_doors_OpenDoors.ordinal()&& stateVector[2].ordinal() <= State.main_main_train_trainState_doors_OpenDoors_Status_Closable.ordinal();
+		case main_main_train_trainState_doors_OpenDoors_Status_NotClosable:
+			return stateVector[2] == State.main_main_train_trainState_doors_OpenDoors_Status_NotClosable;
+		case main_main_train_trainState_doors_OpenDoors_Status_Closable:
+			return stateVector[2] == State.main_main_train_trainState_doors_OpenDoors_Status_Closable;
+		case main_main_train_trainState_doors_ClosedDoors:
+			return stateVector[2].ordinal() >= State.
+					main_main_train_trainState_doors_ClosedDoors.ordinal()&& stateVector[2].ordinal() <= State.main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable.ordinal();
+		case main_main_train_trainState_doors_ClosedDoors_status_NotOpenable:
+			return stateVector[2] == State.main_main_train_trainState_doors_ClosedDoors_status_NotOpenable;
+		case main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable:
+			return stateVector[2] == State.main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable;
+		case main_main_train_trainState_movement_Still:
+			return stateVector[3] == State.main_main_train_trainState_movement_Still;
+		case main_main_train_trainState_movement_Moving:
+			return stateVector[3].ordinal() >= State.
+					main_main_train_trainState_movement_Moving.ordinal()&& stateVector[3].ordinal() <= State.main_main_train_trainState_movement_Moving_NormalMovement_Driving.ordinal();
+		case main_main_train_trainState_movement_Moving_NormalMovement_Cruising:
+			return stateVector[3] == State.main_main_train_trainState_movement_Moving_NormalMovement_Cruising;
+		case main_main_train_trainState_movement_Moving_NormalMovement_Driving:
+			return stateVector[3] == State.main_main_train_trainState_movement_Moving_NormalMovement_Driving;
+		case main_main_train_trainState_movement_Breaking:
+			return stateVector[3] == State.main_main_train_trainState_movement_Breaking;
+		case main_main_train_trainState_movement_Cooldown:
+			return stateVector[3] == State.main_main_train_trainState_movement_Cooldown;
 		case main_main_dead_man_s_button_Normal:
 			return stateVector[4] == State.main_main_dead_man_s_button_Normal;
 		case main_main_dead_man_s_button_Button_Prompted:
@@ -423,8 +474,8 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	}
 	
 	
-	private void raiseToClosedDoors() {
-		toClosedDoors = true;
+	private void raiseToOpenableDoors() {
+		toOpenableDoors = true;
 	}
 	
 	
@@ -516,10 +567,51 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	/* Entry action for state 'default'. */
 	private void entryAction_main_default() {
 		sCInterface.operationCallback.updateGUI();
+		
+		sCInterface.setVelocity(0);
+		
+		setAcceleration(0);
+	}
+	
+	/* Entry action for state 'NotInStation'. */
+	private void entryAction_main_main_train_trainState_place_NotInStation() {
+		sCInterface.operationCallback.print("NotInStaion");
+	}
+	
+	/* Entry action for state 'InStation'. */
+	private void entryAction_main_main_train_trainState_place_InStation() {
+		sCInterface.operationCallback.print("InStation");
+	}
+	
+	/* Entry action for state 'Speeding'. */
+	private void entryAction_main_main_train_trainState_place_InStation_Mode_Speeding() {
+		sCInterface.operationCallback.print("Speeding");
+	}
+	
+	/* Entry action for state 'NotClosable'. */
+	private void entryAction_main_main_train_trainState_doors_OpenDoors_Status_NotClosable() {
+		timer.setTimer(this, 0, 5 * 1000, false);
+		
+		sCInterface.operationCallback.print("OpenDoors");
+	}
+	
+	/* Entry action for state 'Closable'. */
+	private void entryAction_main_main_train_trainState_doors_OpenDoors_Status_Closable() {
+		sCInterface.operationCallback.print("DoorsClosable");
+	}
+	
+	/* Entry action for state 'NotOpenable'. */
+	private void entryAction_main_main_train_trainState_doors_ClosedDoors_status_NotOpenable() {
+		sCInterface.operationCallback.print("ClosedDoors");
+	}
+	
+	/* Entry action for state 'DoorsOpenable'. */
+	private void entryAction_main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable() {
+		sCInterface.operationCallback.print("DoorsOpenable");
 	}
 	
 	/* Entry action for state 'Still'. */
-	private void entryAction_main_main_train_trainState_movement_train_Still() {
+	private void entryAction_main_main_train_trainState_movement_Still() {
 		sCInterface.operationCallback.print("still");
 		
 		sCInterface.setVelocity(0.0);
@@ -527,15 +619,14 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		setAcceleration(0.0);
 	}
 	
-	/* Entry action for state 'Driving'. */
-	private void entryAction_main_main_train_trainState_movement_train_Driving() {
-		sCInterface.operationCallback.print("driving");
-		
-		setAcceleration(sCInterface.getUpdate_accelerationValue());
-	}
-	
 	/* Entry action for state 'Cruising'. */
-	private void entryAction_main_main_train_trainState_movement_train_Cruising() {
+	private void entryAction_main_main_train_trainState_movement_Moving_NormalMovement_Cruising() {
+		sCInterface.operationCallback.print("cruising");
+		
+		sCInterface.setVelocity(100);
+		
+		setAcceleration(0);
+		
 		sCInterface.operationCallback.print("cruising");
 		
 		sCInterface.setVelocity(100);
@@ -543,66 +634,23 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		setAcceleration(0);
 	}
 	
+	/* Entry action for state 'Driving'. */
+	private void entryAction_main_main_train_trainState_movement_Moving_NormalMovement_Driving() {
+		sCInterface.operationCallback.print("driving");
+	}
+	
 	/* Entry action for state 'Breaking'. */
-	private void entryAction_main_main_train_trainState_movement_train_Breaking() {
+	private void entryAction_main_main_train_trainState_movement_Breaking() {
 		sCInterface.operationCallback.print("Breaking");
 		
 		setAcceleration(-1.0);
-		
-		sCInterface.operationCallback.updateGUI();
 	}
 	
 	/* Entry action for state 'Cooldown'. */
-	private void entryAction_main_main_train_trainState_movement_train_Cooldown() {
-		timer.setTimer(this, 0, 5 * 1000, false);
-		
-		sCInterface.operationCallback.print("Cooldown");
-	}
-	
-	/* Entry action for state 'InStation'. */
-	private void entryAction_main_main_train_trainState_Place_train_InStation() {
-		sCInterface.operationCallback.print("Entered station");
-	}
-	
-	/* Entry action for state 'OutOfStation'. */
-	private void entryAction_main_main_train_trainState_Place_train_OutOfStation() {
-		sCInterface.operationCallback.print("Left station");
-	}
-	
-	/* Entry action for state 'openingDoors'. */
-	private void entryAction_main_main_train_trainState_Doors_station_openingDoors() {
+	private void entryAction_main_main_train_trainState_movement_Cooldown() {
 		timer.setTimer(this, 1, 5 * 1000, false);
 		
-		sCInterface.operationCallback.print("openingDoors");
-		
-		sCInterface.raiseOpenDoors();
-	}
-	
-	/* Entry action for state 'ClosedDoors'. */
-	private void entryAction_main_main_train_trainState_Doors_station_ClosedDoors() {
-		sCInterface.operationCallback.print("ClosedDoors");
-	}
-	
-	/* Entry action for state 'openDoors'. */
-	private void entryAction_main_main_train_trainState_Doors_station_openDoors() {
-		sCInterface.operationCallback.print("Doors closable");
-	}
-	
-	/* Entry action for state 'ClosingDoors'. */
-	private void entryAction_main_main_train_trainState_Doors_station_ClosingDoors() {
-		sCInterface.operationCallback.print("Closing doors");
-		
-		sCInterface.raiseCloseDoors();
-	}
-	
-	/* Entry action for state 'NotYellow'. */
-	private void entryAction_main_main_train_trainState_Last_light_NotYellow() {
-		sCInterface.operationCallback.print("NotYellow");
-	}
-	
-	/* Entry action for state 'Yellow'. */
-	private void entryAction_main_main_train_trainState_Last_light_Yellow() {
-		sCInterface.operationCallback.print("Yellow");
+		sCInterface.operationCallback.print("Cooldown");
 	}
 	
 	/* Entry action for state 'Normal'. */
@@ -635,13 +683,20 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		timer.unsetTimer(this, 5);
 	}
 	
-	/* Exit action for state 'Cooldown'. */
-	private void exitAction_main_main_train_trainState_movement_train_Cooldown() {
+	/* Exit action for state 'NotClosable'. */
+	private void exitAction_main_main_train_trainState_doors_OpenDoors_Status_NotClosable() {
 		timer.unsetTimer(this, 0);
 	}
 	
-	/* Exit action for state 'openingDoors'. */
-	private void exitAction_main_main_train_trainState_Doors_station_openingDoors() {
+	/* Exit action for state 'Driving'. */
+	private void exitAction_main_main_train_trainState_movement_Moving_NormalMovement_Driving() {
+		setStoredAcc(acceleration);
+		
+		setStoredVel(sCInterface.velocity);
+	}
+	
+	/* Exit action for state 'Cooldown'. */
+	private void exitAction_main_main_train_trainState_movement_Cooldown() {
 		timer.unsetTimer(this, 1);
 	}
 	
@@ -669,136 +724,166 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	
 	/* 'default' enter sequence for state trainState */
 	private void enterSequence_main_main_train_trainState_default() {
-		enterSequence_main_main_train_trainState_movement_train_default();
-		enterSequence_main_main_train_trainState_Place_train_default();
-		enterSequence_main_main_train_trainState_Doors_station_default();
-		enterSequence_main_main_train_trainState_Last_light_default();
+		enterSequence_main_main_train_trainState_Light_default();
+		enterSequence_main_main_train_trainState_place_default();
+		enterSequence_main_main_train_trainState_doors_default();
+		enterSequence_main_main_train_trainState_movement_default();
 		historyVector[0] = stateVector[0];
 	}
 	
-	/* 'default' enter sequence for state Still */
-	private void enterSequence_main_main_train_trainState_movement_train_Still_default() {
-		entryAction_main_main_train_trainState_movement_train_Still();
-		nextStateIndex = 0;
-		stateVector[0] = State.main_main_train_trainState_movement_train_Still;
-		
+	/* 'default' enter sequence for state LastLight */
+	private void enterSequence_main_main_train_trainState_Light_LastLight_default() {
+		enterSequence_main_main_train_trainState_Light_LastLight_Mode_default();
 		historyVector[1] = stateVector[0];
-	}
-	
-	/* 'default' enter sequence for state Driving */
-	private void enterSequence_main_main_train_trainState_movement_train_Driving_default() {
-		entryAction_main_main_train_trainState_movement_train_Driving();
-		nextStateIndex = 0;
-		stateVector[0] = State.main_main_train_trainState_movement_train_Driving;
-		
-		historyVector[1] = stateVector[0];
-	}
-	
-	/* 'default' enter sequence for state Cruising */
-	private void enterSequence_main_main_train_trainState_movement_train_Cruising_default() {
-		entryAction_main_main_train_trainState_movement_train_Cruising();
-		nextStateIndex = 0;
-		stateVector[0] = State.main_main_train_trainState_movement_train_Cruising;
-		
-		historyVector[1] = stateVector[0];
-	}
-	
-	/* 'default' enter sequence for state Breaking */
-	private void enterSequence_main_main_train_trainState_movement_train_Breaking_default() {
-		entryAction_main_main_train_trainState_movement_train_Breaking();
-		nextStateIndex = 0;
-		stateVector[0] = State.main_main_train_trainState_movement_train_Breaking;
-		
-		historyVector[1] = stateVector[0];
-	}
-	
-	/* 'default' enter sequence for state Cooldown */
-	private void enterSequence_main_main_train_trainState_movement_train_Cooldown_default() {
-		entryAction_main_main_train_trainState_movement_train_Cooldown();
-		nextStateIndex = 0;
-		stateVector[0] = State.main_main_train_trainState_movement_train_Cooldown;
-		
-		historyVector[1] = stateVector[0];
-	}
-	
-	/* 'default' enter sequence for state InStation */
-	private void enterSequence_main_main_train_trainState_Place_train_InStation_default() {
-		entryAction_main_main_train_trainState_Place_train_InStation();
-		nextStateIndex = 1;
-		stateVector[1] = State.main_main_train_trainState_Place_train_InStation;
-		
-		historyVector[2] = stateVector[1];
-	}
-	
-	/* 'default' enter sequence for state OutOfStation */
-	private void enterSequence_main_main_train_trainState_Place_train_OutOfStation_default() {
-		entryAction_main_main_train_trainState_Place_train_OutOfStation();
-		nextStateIndex = 1;
-		stateVector[1] = State.main_main_train_trainState_Place_train_OutOfStation;
-		
-		historyVector[2] = stateVector[1];
-	}
-	
-	/* 'default' enter sequence for state openingDoors */
-	private void enterSequence_main_main_train_trainState_Doors_station_openingDoors_default() {
-		entryAction_main_main_train_trainState_Doors_station_openingDoors();
-		nextStateIndex = 2;
-		stateVector[2] = State.main_main_train_trainState_Doors_station_openingDoors;
-		
-		historyVector[3] = stateVector[2];
-	}
-	
-	/* 'default' enter sequence for state ClosedDoors */
-	private void enterSequence_main_main_train_trainState_Doors_station_ClosedDoors_default() {
-		entryAction_main_main_train_trainState_Doors_station_ClosedDoors();
-		nextStateIndex = 2;
-		stateVector[2] = State.main_main_train_trainState_Doors_station_ClosedDoors;
-		
-		historyVector[3] = stateVector[2];
-	}
-	
-	/* 'default' enter sequence for state openDoors */
-	private void enterSequence_main_main_train_trainState_Doors_station_openDoors_default() {
-		entryAction_main_main_train_trainState_Doors_station_openDoors();
-		nextStateIndex = 2;
-		stateVector[2] = State.main_main_train_trainState_Doors_station_openDoors;
-		
-		historyVector[3] = stateVector[2];
-	}
-	
-	/* 'default' enter sequence for state ClosingDoors */
-	private void enterSequence_main_main_train_trainState_Doors_station_ClosingDoors_default() {
-		entryAction_main_main_train_trainState_Doors_station_ClosingDoors();
-		nextStateIndex = 2;
-		stateVector[2] = State.main_main_train_trainState_Doors_station_ClosingDoors;
-		
-		historyVector[3] = stateVector[2];
-	}
-	
-	/* 'default' enter sequence for state NotYellow */
-	private void enterSequence_main_main_train_trainState_Last_light_NotYellow_default() {
-		entryAction_main_main_train_trainState_Last_light_NotYellow();
-		nextStateIndex = 3;
-		stateVector[3] = State.main_main_train_trainState_Last_light_NotYellow;
-		
-		historyVector[4] = stateVector[3];
 	}
 	
 	/* 'default' enter sequence for state Yellow */
-	private void enterSequence_main_main_train_trainState_Last_light_Yellow_default() {
-		entryAction_main_main_train_trainState_Last_light_Yellow();
-		nextStateIndex = 3;
-		stateVector[3] = State.main_main_train_trainState_Last_light_Yellow;
-		
-		historyVector[4] = stateVector[3];
+	private void enterSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_default() {
+		enterSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_default();
+		historyVector[2] = stateVector[0];
 	}
 	
-	/* 'default' enter sequence for state YellowAndBreaking */
-	private void enterSequence_main_main_train_trainState_Last_light_YellowAndBreaking_default() {
-		nextStateIndex = 3;
-		stateVector[3] = State.main_main_train_trainState_Last_light_YellowAndBreaking;
+	/* 'default' enter sequence for state NotSpeeding */
+	private void enterSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding_default() {
+		nextStateIndex = 0;
+		stateVector[0] = State.main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding;
 		
-		historyVector[4] = stateVector[3];
+		historyVector[3] = stateVector[0];
+	}
+	
+	/* 'default' enter sequence for state Speeding */
+	private void enterSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding_default() {
+		nextStateIndex = 0;
+		stateVector[0] = State.main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding;
+		
+		historyVector[3] = stateVector[0];
+	}
+	
+	/* 'default' enter sequence for state NotYellow */
+	private void enterSequence_main_main_train_trainState_Light_LastLight_Mode_NotYellow_default() {
+		nextStateIndex = 0;
+		stateVector[0] = State.main_main_train_trainState_Light_LastLight_Mode_NotYellow;
+		
+		historyVector[2] = stateVector[0];
+	}
+	
+	/* 'default' enter sequence for state NotInStation */
+	private void enterSequence_main_main_train_trainState_place_NotInStation_default() {
+		entryAction_main_main_train_trainState_place_NotInStation();
+		nextStateIndex = 1;
+		stateVector[1] = State.main_main_train_trainState_place_NotInStation;
+		
+		historyVector[4] = stateVector[1];
+	}
+	
+	/* 'default' enter sequence for state NotSpeeding */
+	private void enterSequence_main_main_train_trainState_place_InStation_Mode_NotSpeeding_default() {
+		nextStateIndex = 1;
+		stateVector[1] = State.main_main_train_trainState_place_InStation_Mode_NotSpeeding;
+		
+		historyVector[5] = stateVector[1];
+	}
+	
+	/* 'default' enter sequence for state Speeding */
+	private void enterSequence_main_main_train_trainState_place_InStation_Mode_Speeding_default() {
+		entryAction_main_main_train_trainState_place_InStation_Mode_Speeding();
+		nextStateIndex = 1;
+		stateVector[1] = State.main_main_train_trainState_place_InStation_Mode_Speeding;
+		
+		historyVector[5] = stateVector[1];
+	}
+	
+	/* 'default' enter sequence for state NotClosable */
+	private void enterSequence_main_main_train_trainState_doors_OpenDoors_Status_NotClosable_default() {
+		entryAction_main_main_train_trainState_doors_OpenDoors_Status_NotClosable();
+		nextStateIndex = 2;
+		stateVector[2] = State.main_main_train_trainState_doors_OpenDoors_Status_NotClosable;
+		
+		historyVector[7] = stateVector[2];
+	}
+	
+	/* 'default' enter sequence for state Closable */
+	private void enterSequence_main_main_train_trainState_doors_OpenDoors_Status_Closable_default() {
+		entryAction_main_main_train_trainState_doors_OpenDoors_Status_Closable();
+		nextStateIndex = 2;
+		stateVector[2] = State.main_main_train_trainState_doors_OpenDoors_Status_Closable;
+		
+		historyVector[7] = stateVector[2];
+	}
+	
+	/* 'default' enter sequence for state ClosedDoors */
+	private void enterSequence_main_main_train_trainState_doors_ClosedDoors_default() {
+		enterSequence_main_main_train_trainState_doors_ClosedDoors_status_default();
+		historyVector[6] = stateVector[2];
+	}
+	
+	/* 'default' enter sequence for state NotOpenable */
+	private void enterSequence_main_main_train_trainState_doors_ClosedDoors_status_NotOpenable_default() {
+		entryAction_main_main_train_trainState_doors_ClosedDoors_status_NotOpenable();
+		nextStateIndex = 2;
+		stateVector[2] = State.main_main_train_trainState_doors_ClosedDoors_status_NotOpenable;
+		
+		historyVector[8] = stateVector[2];
+	}
+	
+	/* 'default' enter sequence for state DoorsOpenable */
+	private void enterSequence_main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable_default() {
+		entryAction_main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable();
+		nextStateIndex = 2;
+		stateVector[2] = State.main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable;
+		
+		historyVector[8] = stateVector[2];
+	}
+	
+	/* 'default' enter sequence for state Still */
+	private void enterSequence_main_main_train_trainState_movement_Still_default() {
+		entryAction_main_main_train_trainState_movement_Still();
+		nextStateIndex = 3;
+		stateVector[3] = State.main_main_train_trainState_movement_Still;
+		
+		historyVector[9] = stateVector[3];
+	}
+	
+	/* 'default' enter sequence for state Moving */
+	private void enterSequence_main_main_train_trainState_movement_Moving_default() {
+		enterSequence_main_main_train_trainState_movement_Moving_NormalMovement_default();
+		historyVector[9] = stateVector[3];
+	}
+	
+	/* 'default' enter sequence for state Cruising */
+	private void enterSequence_main_main_train_trainState_movement_Moving_NormalMovement_Cruising_default() {
+		entryAction_main_main_train_trainState_movement_Moving_NormalMovement_Cruising();
+		nextStateIndex = 3;
+		stateVector[3] = State.main_main_train_trainState_movement_Moving_NormalMovement_Cruising;
+		
+		historyVector[10] = stateVector[3];
+	}
+	
+	/* 'default' enter sequence for state Driving */
+	private void enterSequence_main_main_train_trainState_movement_Moving_NormalMovement_Driving_default() {
+		entryAction_main_main_train_trainState_movement_Moving_NormalMovement_Driving();
+		nextStateIndex = 3;
+		stateVector[3] = State.main_main_train_trainState_movement_Moving_NormalMovement_Driving;
+		
+		historyVector[10] = stateVector[3];
+	}
+	
+	/* 'default' enter sequence for state Breaking */
+	private void enterSequence_main_main_train_trainState_movement_Breaking_default() {
+		entryAction_main_main_train_trainState_movement_Breaking();
+		nextStateIndex = 3;
+		stateVector[3] = State.main_main_train_trainState_movement_Breaking;
+		
+		historyVector[9] = stateVector[3];
+	}
+	
+	/* 'default' enter sequence for state Cooldown */
+	private void enterSequence_main_main_train_trainState_movement_Cooldown_default() {
+		entryAction_main_main_train_trainState_movement_Cooldown();
+		nextStateIndex = 3;
+		stateVector[3] = State.main_main_train_trainState_movement_Cooldown;
+		
+		historyVector[9] = stateVector[3];
 	}
 	
 	/* 'default' enter sequence for state Normal */
@@ -830,129 +915,229 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	/* deep enterSequence with history in child train */
 	private void deepEnterSequence_main_main_train() {
 		switch (historyVector[0]) {
-		case main_main_train_trainState_movement_train_Still:
-			deepEnterSequence_main_main_train_trainState_movement_train();
-			deepEnterSequence_main_main_train_trainState_Place_train();
-			deepEnterSequence_main_main_train_trainState_Doors_station();
-			deepEnterSequence_main_main_train_trainState_Last_light();
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding:
+			deepEnterSequence_main_main_train_trainState_Light();
+			deepEnterSequence_main_main_train_trainState_place();
+			deepEnterSequence_main_main_train_trainState_doors();
+			deepEnterSequence_main_main_train_trainState_movement();
 			break;
-		case main_main_train_trainState_movement_train_Driving:
-			deepEnterSequence_main_main_train_trainState_movement_train();
-			deepEnterSequence_main_main_train_trainState_Place_train();
-			deepEnterSequence_main_main_train_trainState_Doors_station();
-			deepEnterSequence_main_main_train_trainState_Last_light();
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding:
+			deepEnterSequence_main_main_train_trainState_Light();
+			deepEnterSequence_main_main_train_trainState_place();
+			deepEnterSequence_main_main_train_trainState_doors();
+			deepEnterSequence_main_main_train_trainState_movement();
 			break;
-		case main_main_train_trainState_movement_train_Cruising:
-			deepEnterSequence_main_main_train_trainState_movement_train();
-			deepEnterSequence_main_main_train_trainState_Place_train();
-			deepEnterSequence_main_main_train_trainState_Doors_station();
-			deepEnterSequence_main_main_train_trainState_Last_light();
-			break;
-		case main_main_train_trainState_movement_train_Breaking:
-			deepEnterSequence_main_main_train_trainState_movement_train();
-			deepEnterSequence_main_main_train_trainState_Place_train();
-			deepEnterSequence_main_main_train_trainState_Doors_station();
-			deepEnterSequence_main_main_train_trainState_Last_light();
-			break;
-		case main_main_train_trainState_movement_train_Cooldown:
-			deepEnterSequence_main_main_train_trainState_movement_train();
-			deepEnterSequence_main_main_train_trainState_Place_train();
-			deepEnterSequence_main_main_train_trainState_Doors_station();
-			deepEnterSequence_main_main_train_trainState_Last_light();
+		case main_main_train_trainState_Light_LastLight_Mode_NotYellow:
+			deepEnterSequence_main_main_train_trainState_Light();
+			deepEnterSequence_main_main_train_trainState_place();
+			deepEnterSequence_main_main_train_trainState_doors();
+			deepEnterSequence_main_main_train_trainState_movement();
 			break;
 		default:
 			break;
 		}
 	}
 	
-	/* 'default' enter sequence for region movement_train */
-	private void enterSequence_main_main_train_trainState_movement_train_default() {
-		react_main_main_train_trainState_movement_train__entry_Default();
+	/* 'default' enter sequence for region Light */
+	private void enterSequence_main_main_train_trainState_Light_default() {
+		react_main_main_train_trainState_Light__entry_Default();
 	}
 	
-	/* deep enterSequence with history in child movement_train */
-	private void deepEnterSequence_main_main_train_trainState_movement_train() {
+	/* deep enterSequence with history in child Light */
+	private void deepEnterSequence_main_main_train_trainState_Light() {
 		switch (historyVector[1]) {
-		case main_main_train_trainState_movement_train_Still:
-			enterSequence_main_main_train_trainState_movement_train_Still_default();
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding:
+			deepEnterSequence_main_main_train_trainState_Light_LastLight_Mode();
 			break;
-		case main_main_train_trainState_movement_train_Driving:
-			enterSequence_main_main_train_trainState_movement_train_Driving_default();
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding:
+			deepEnterSequence_main_main_train_trainState_Light_LastLight_Mode();
 			break;
-		case main_main_train_trainState_movement_train_Cruising:
-			enterSequence_main_main_train_trainState_movement_train_Cruising_default();
-			break;
-		case main_main_train_trainState_movement_train_Breaking:
-			enterSequence_main_main_train_trainState_movement_train_Breaking_default();
-			break;
-		case main_main_train_trainState_movement_train_Cooldown:
-			enterSequence_main_main_train_trainState_movement_train_Cooldown_default();
+		case main_main_train_trainState_Light_LastLight_Mode_NotYellow:
+			deepEnterSequence_main_main_train_trainState_Light_LastLight_Mode();
 			break;
 		default:
 			break;
 		}
 	}
 	
-	/* 'default' enter sequence for region Place_train */
-	private void enterSequence_main_main_train_trainState_Place_train_default() {
-		react_main_main_train_trainState_Place_train__entry_Default();
+	/* 'default' enter sequence for region Mode */
+	private void enterSequence_main_main_train_trainState_Light_LastLight_Mode_default() {
+		react_main_main_train_trainState_Light_LastLight_Mode__entry_Default();
 	}
 	
-	/* deep enterSequence with history in child Place_train */
-	private void deepEnterSequence_main_main_train_trainState_Place_train() {
+	/* deep enterSequence with history in child Mode */
+	private void deepEnterSequence_main_main_train_trainState_Light_LastLight_Mode() {
 		switch (historyVector[2]) {
-		case main_main_train_trainState_Place_train_InStation:
-			enterSequence_main_main_train_trainState_Place_train_InStation_default();
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding:
+			deepEnterSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode();
 			break;
-		case main_main_train_trainState_Place_train_OutOfStation:
-			enterSequence_main_main_train_trainState_Place_train_OutOfStation_default();
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding:
+			deepEnterSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode();
+			break;
+		case main_main_train_trainState_Light_LastLight_Mode_NotYellow:
+			enterSequence_main_main_train_trainState_Light_LastLight_Mode_NotYellow_default();
 			break;
 		default:
 			break;
 		}
 	}
 	
-	/* 'default' enter sequence for region Doors_station */
-	private void enterSequence_main_main_train_trainState_Doors_station_default() {
-		react_main_main_train_trainState_Doors_station__entry_Default();
+	/* 'default' enter sequence for region Mode */
+	private void enterSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_default() {
+		react_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode__entry_Default();
 	}
 	
-	/* deep enterSequence with history in child Doors_station */
-	private void deepEnterSequence_main_main_train_trainState_Doors_station() {
+	/* deep enterSequence with history in child Mode */
+	private void deepEnterSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode() {
 		switch (historyVector[3]) {
-		case main_main_train_trainState_Doors_station_openingDoors:
-			enterSequence_main_main_train_trainState_Doors_station_openingDoors_default();
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding:
+			enterSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding_default();
 			break;
-		case main_main_train_trainState_Doors_station_ClosedDoors:
-			enterSequence_main_main_train_trainState_Doors_station_ClosedDoors_default();
-			break;
-		case main_main_train_trainState_Doors_station_openDoors:
-			enterSequence_main_main_train_trainState_Doors_station_openDoors_default();
-			break;
-		case main_main_train_trainState_Doors_station_ClosingDoors:
-			enterSequence_main_main_train_trainState_Doors_station_ClosingDoors_default();
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding:
+			enterSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding_default();
 			break;
 		default:
 			break;
 		}
 	}
 	
-	/* 'default' enter sequence for region Last_light */
-	private void enterSequence_main_main_train_trainState_Last_light_default() {
-		react_main_main_train_trainState_Last_light__entry_Default();
+	/* 'default' enter sequence for region place */
+	private void enterSequence_main_main_train_trainState_place_default() {
+		react_main_main_train_trainState_place__entry_Default();
 	}
 	
-	/* deep enterSequence with history in child Last_light */
-	private void deepEnterSequence_main_main_train_trainState_Last_light() {
+	/* deep enterSequence with history in child place */
+	private void deepEnterSequence_main_main_train_trainState_place() {
 		switch (historyVector[4]) {
-		case main_main_train_trainState_Last_light_NotYellow:
-			enterSequence_main_main_train_trainState_Last_light_NotYellow_default();
+		case main_main_train_trainState_place_NotInStation:
+			enterSequence_main_main_train_trainState_place_NotInStation_default();
 			break;
-		case main_main_train_trainState_Last_light_Yellow:
-			enterSequence_main_main_train_trainState_Last_light_Yellow_default();
+		case main_main_train_trainState_place_InStation_Mode_NotSpeeding:
+			entryAction_main_main_train_trainState_place_InStation();
+			deepEnterSequence_main_main_train_trainState_place_InStation_Mode();
 			break;
-		case main_main_train_trainState_Last_light_YellowAndBreaking:
-			enterSequence_main_main_train_trainState_Last_light_YellowAndBreaking_default();
+		case main_main_train_trainState_place_InStation_Mode_Speeding:
+			entryAction_main_main_train_trainState_place_InStation();
+			deepEnterSequence_main_main_train_trainState_place_InStation_Mode();
+			break;
+		default:
+			break;
+		}
+	}
+	
+	/* deep enterSequence with history in child Mode */
+	private void deepEnterSequence_main_main_train_trainState_place_InStation_Mode() {
+		switch (historyVector[5]) {
+		case main_main_train_trainState_place_InStation_Mode_NotSpeeding:
+			enterSequence_main_main_train_trainState_place_InStation_Mode_NotSpeeding_default();
+			break;
+		case main_main_train_trainState_place_InStation_Mode_Speeding:
+			enterSequence_main_main_train_trainState_place_InStation_Mode_Speeding_default();
+			break;
+		default:
+			break;
+		}
+	}
+	
+	/* 'default' enter sequence for region doors */
+	private void enterSequence_main_main_train_trainState_doors_default() {
+		react_main_main_train_trainState_doors__entry_Default();
+	}
+	
+	/* deep enterSequence with history in child doors */
+	private void deepEnterSequence_main_main_train_trainState_doors() {
+		switch (historyVector[6]) {
+		case main_main_train_trainState_doors_OpenDoors_Status_NotClosable:
+			deepEnterSequence_main_main_train_trainState_doors_OpenDoors_Status();
+			break;
+		case main_main_train_trainState_doors_OpenDoors_Status_Closable:
+			deepEnterSequence_main_main_train_trainState_doors_OpenDoors_Status();
+			break;
+		case main_main_train_trainState_doors_ClosedDoors_status_NotOpenable:
+			deepEnterSequence_main_main_train_trainState_doors_ClosedDoors_status();
+			break;
+		case main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable:
+			deepEnterSequence_main_main_train_trainState_doors_ClosedDoors_status();
+			break;
+		default:
+			break;
+		}
+	}
+	
+	/* deep enterSequence with history in child Status */
+	private void deepEnterSequence_main_main_train_trainState_doors_OpenDoors_Status() {
+		switch (historyVector[7]) {
+		case main_main_train_trainState_doors_OpenDoors_Status_NotClosable:
+			enterSequence_main_main_train_trainState_doors_OpenDoors_Status_NotClosable_default();
+			break;
+		case main_main_train_trainState_doors_OpenDoors_Status_Closable:
+			enterSequence_main_main_train_trainState_doors_OpenDoors_Status_Closable_default();
+			break;
+		default:
+			break;
+		}
+	}
+	
+	/* 'default' enter sequence for region status */
+	private void enterSequence_main_main_train_trainState_doors_ClosedDoors_status_default() {
+		react_main_main_train_trainState_doors_ClosedDoors_status__entry_Default();
+	}
+	
+	/* deep enterSequence with history in child status */
+	private void deepEnterSequence_main_main_train_trainState_doors_ClosedDoors_status() {
+		switch (historyVector[8]) {
+		case main_main_train_trainState_doors_ClosedDoors_status_NotOpenable:
+			enterSequence_main_main_train_trainState_doors_ClosedDoors_status_NotOpenable_default();
+			break;
+		case main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable:
+			enterSequence_main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable_default();
+			break;
+		default:
+			break;
+		}
+	}
+	
+	/* 'default' enter sequence for region movement */
+	private void enterSequence_main_main_train_trainState_movement_default() {
+		react_main_main_train_trainState_movement__entry_Default();
+	}
+	
+	/* deep enterSequence with history in child movement */
+	private void deepEnterSequence_main_main_train_trainState_movement() {
+		switch (historyVector[9]) {
+		case main_main_train_trainState_movement_Still:
+			enterSequence_main_main_train_trainState_movement_Still_default();
+			break;
+		case main_main_train_trainState_movement_Moving_NormalMovement_Cruising:
+			deepEnterSequence_main_main_train_trainState_movement_Moving_NormalMovement();
+			break;
+		case main_main_train_trainState_movement_Moving_NormalMovement_Driving:
+			deepEnterSequence_main_main_train_trainState_movement_Moving_NormalMovement();
+			break;
+		case main_main_train_trainState_movement_Breaking:
+			enterSequence_main_main_train_trainState_movement_Breaking_default();
+			break;
+		case main_main_train_trainState_movement_Cooldown:
+			enterSequence_main_main_train_trainState_movement_Cooldown_default();
+			break;
+		default:
+			break;
+		}
+	}
+	
+	/* 'default' enter sequence for region NormalMovement */
+	private void enterSequence_main_main_train_trainState_movement_Moving_NormalMovement_default() {
+		react_main_main_train_trainState_movement_Moving_NormalMovement__entry_Default();
+	}
+	
+	/* deep enterSequence with history in child NormalMovement */
+	private void deepEnterSequence_main_main_train_trainState_movement_Moving_NormalMovement() {
+		switch (historyVector[10]) {
+		case main_main_train_trainState_movement_Moving_NormalMovement_Cruising:
+			enterSequence_main_main_train_trainState_movement_Moving_NormalMovement_Cruising_default();
+			break;
+		case main_main_train_trainState_movement_Moving_NormalMovement_Driving:
+			enterSequence_main_main_train_trainState_movement_Moving_NormalMovement_Driving_default();
 			break;
 		default:
 			break;
@@ -976,100 +1161,125 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		exitSequence_main_main_dead_man_s_button();
 	}
 	
-	/* Default exit sequence for state trainState */
-	private void exitSequence_main_main_train_trainState() {
-		exitSequence_main_main_train_trainState_movement_train();
-		exitSequence_main_main_train_trainState_Place_train();
-		exitSequence_main_main_train_trainState_Doors_station();
-		exitSequence_main_main_train_trainState_Last_light();
+	/* Default exit sequence for state LastLight */
+	private void exitSequence_main_main_train_trainState_Light_LastLight() {
+		exitSequence_main_main_train_trainState_Light_LastLight_Mode();
 	}
 	
-	/* Default exit sequence for state Still */
-	private void exitSequence_main_main_train_trainState_movement_train_Still() {
+	/* Default exit sequence for state NotSpeeding */
+	private void exitSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding() {
 		nextStateIndex = 0;
 		stateVector[0] = State.$NullState$;
 	}
 	
-	/* Default exit sequence for state Driving */
-	private void exitSequence_main_main_train_trainState_movement_train_Driving() {
+	/* Default exit sequence for state Speeding */
+	private void exitSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding() {
 		nextStateIndex = 0;
 		stateVector[0] = State.$NullState$;
-	}
-	
-	/* Default exit sequence for state Cruising */
-	private void exitSequence_main_main_train_trainState_movement_train_Cruising() {
-		nextStateIndex = 0;
-		stateVector[0] = State.$NullState$;
-	}
-	
-	/* Default exit sequence for state Breaking */
-	private void exitSequence_main_main_train_trainState_movement_train_Breaking() {
-		nextStateIndex = 0;
-		stateVector[0] = State.$NullState$;
-	}
-	
-	/* Default exit sequence for state Cooldown */
-	private void exitSequence_main_main_train_trainState_movement_train_Cooldown() {
-		nextStateIndex = 0;
-		stateVector[0] = State.$NullState$;
-		
-		exitAction_main_main_train_trainState_movement_train_Cooldown();
-	}
-	
-	/* Default exit sequence for state InStation */
-	private void exitSequence_main_main_train_trainState_Place_train_InStation() {
-		nextStateIndex = 1;
-		stateVector[1] = State.$NullState$;
-	}
-	
-	/* Default exit sequence for state OutOfStation */
-	private void exitSequence_main_main_train_trainState_Place_train_OutOfStation() {
-		nextStateIndex = 1;
-		stateVector[1] = State.$NullState$;
-	}
-	
-	/* Default exit sequence for state openingDoors */
-	private void exitSequence_main_main_train_trainState_Doors_station_openingDoors() {
-		nextStateIndex = 2;
-		stateVector[2] = State.$NullState$;
-		
-		exitAction_main_main_train_trainState_Doors_station_openingDoors();
-	}
-	
-	/* Default exit sequence for state ClosedDoors */
-	private void exitSequence_main_main_train_trainState_Doors_station_ClosedDoors() {
-		nextStateIndex = 2;
-		stateVector[2] = State.$NullState$;
-	}
-	
-	/* Default exit sequence for state openDoors */
-	private void exitSequence_main_main_train_trainState_Doors_station_openDoors() {
-		nextStateIndex = 2;
-		stateVector[2] = State.$NullState$;
-	}
-	
-	/* Default exit sequence for state ClosingDoors */
-	private void exitSequence_main_main_train_trainState_Doors_station_ClosingDoors() {
-		nextStateIndex = 2;
-		stateVector[2] = State.$NullState$;
 	}
 	
 	/* Default exit sequence for state NotYellow */
-	private void exitSequence_main_main_train_trainState_Last_light_NotYellow() {
+	private void exitSequence_main_main_train_trainState_Light_LastLight_Mode_NotYellow() {
+		nextStateIndex = 0;
+		stateVector[0] = State.$NullState$;
+	}
+	
+	/* Default exit sequence for state NotInStation */
+	private void exitSequence_main_main_train_trainState_place_NotInStation() {
+		nextStateIndex = 1;
+		stateVector[1] = State.$NullState$;
+	}
+	
+	/* Default exit sequence for state InStation */
+	private void exitSequence_main_main_train_trainState_place_InStation() {
+		exitSequence_main_main_train_trainState_place_InStation_Mode();
+	}
+	
+	/* Default exit sequence for state NotSpeeding */
+	private void exitSequence_main_main_train_trainState_place_InStation_Mode_NotSpeeding() {
+		nextStateIndex = 1;
+		stateVector[1] = State.$NullState$;
+	}
+	
+	/* Default exit sequence for state Speeding */
+	private void exitSequence_main_main_train_trainState_place_InStation_Mode_Speeding() {
+		nextStateIndex = 1;
+		stateVector[1] = State.$NullState$;
+	}
+	
+	/* Default exit sequence for state OpenDoors */
+	private void exitSequence_main_main_train_trainState_doors_OpenDoors() {
+		exitSequence_main_main_train_trainState_doors_OpenDoors_Status();
+	}
+	
+	/* Default exit sequence for state NotClosable */
+	private void exitSequence_main_main_train_trainState_doors_OpenDoors_Status_NotClosable() {
+		nextStateIndex = 2;
+		stateVector[2] = State.$NullState$;
+		
+		exitAction_main_main_train_trainState_doors_OpenDoors_Status_NotClosable();
+	}
+	
+	/* Default exit sequence for state Closable */
+	private void exitSequence_main_main_train_trainState_doors_OpenDoors_Status_Closable() {
+		nextStateIndex = 2;
+		stateVector[2] = State.$NullState$;
+	}
+	
+	/* Default exit sequence for state ClosedDoors */
+	private void exitSequence_main_main_train_trainState_doors_ClosedDoors() {
+		exitSequence_main_main_train_trainState_doors_ClosedDoors_status();
+	}
+	
+	/* Default exit sequence for state NotOpenable */
+	private void exitSequence_main_main_train_trainState_doors_ClosedDoors_status_NotOpenable() {
+		nextStateIndex = 2;
+		stateVector[2] = State.$NullState$;
+	}
+	
+	/* Default exit sequence for state DoorsOpenable */
+	private void exitSequence_main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable() {
+		nextStateIndex = 2;
+		stateVector[2] = State.$NullState$;
+	}
+	
+	/* Default exit sequence for state Still */
+	private void exitSequence_main_main_train_trainState_movement_Still() {
 		nextStateIndex = 3;
 		stateVector[3] = State.$NullState$;
 	}
 	
-	/* Default exit sequence for state Yellow */
-	private void exitSequence_main_main_train_trainState_Last_light_Yellow() {
+	/* Default exit sequence for state Moving */
+	private void exitSequence_main_main_train_trainState_movement_Moving() {
+		exitSequence_main_main_train_trainState_movement_Moving_NormalMovement();
+	}
+	
+	/* Default exit sequence for state Cruising */
+	private void exitSequence_main_main_train_trainState_movement_Moving_NormalMovement_Cruising() {
 		nextStateIndex = 3;
 		stateVector[3] = State.$NullState$;
 	}
 	
-	/* Default exit sequence for state YellowAndBreaking */
-	private void exitSequence_main_main_train_trainState_Last_light_YellowAndBreaking() {
+	/* Default exit sequence for state Driving */
+	private void exitSequence_main_main_train_trainState_movement_Moving_NormalMovement_Driving() {
 		nextStateIndex = 3;
 		stateVector[3] = State.$NullState$;
+		
+		exitAction_main_main_train_trainState_movement_Moving_NormalMovement_Driving();
+	}
+	
+	/* Default exit sequence for state Breaking */
+	private void exitSequence_main_main_train_trainState_movement_Breaking() {
+		nextStateIndex = 3;
+		stateVector[3] = State.$NullState$;
+	}
+	
+	/* Default exit sequence for state Cooldown */
+	private void exitSequence_main_main_train_trainState_movement_Cooldown() {
+		nextStateIndex = 3;
+		stateVector[3] = State.$NullState$;
+		
+		exitAction_main_main_train_trainState_movement_Cooldown();
 	}
 	
 	/* Default exit sequence for state Normal */
@@ -1102,62 +1312,65 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		case main_default:
 			exitSequence_main_default();
 			break;
-		case main_main_train_trainState_movement_train_Still:
-			exitSequence_main_main_train_trainState_movement_train_Still();
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding:
+			exitSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding();
 			break;
-		case main_main_train_trainState_movement_train_Driving:
-			exitSequence_main_main_train_trainState_movement_train_Driving();
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding:
+			exitSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding();
 			break;
-		case main_main_train_trainState_movement_train_Cruising:
-			exitSequence_main_main_train_trainState_movement_train_Cruising();
-			break;
-		case main_main_train_trainState_movement_train_Breaking:
-			exitSequence_main_main_train_trainState_movement_train_Breaking();
-			break;
-		case main_main_train_trainState_movement_train_Cooldown:
-			exitSequence_main_main_train_trainState_movement_train_Cooldown();
+		case main_main_train_trainState_Light_LastLight_Mode_NotYellow:
+			exitSequence_main_main_train_trainState_Light_LastLight_Mode_NotYellow();
 			break;
 		default:
 			break;
 		}
 		
 		switch (stateVector[1]) {
-		case main_main_train_trainState_Place_train_InStation:
-			exitSequence_main_main_train_trainState_Place_train_InStation();
+		case main_main_train_trainState_place_NotInStation:
+			exitSequence_main_main_train_trainState_place_NotInStation();
 			break;
-		case main_main_train_trainState_Place_train_OutOfStation:
-			exitSequence_main_main_train_trainState_Place_train_OutOfStation();
+		case main_main_train_trainState_place_InStation_Mode_NotSpeeding:
+			exitSequence_main_main_train_trainState_place_InStation_Mode_NotSpeeding();
+			break;
+		case main_main_train_trainState_place_InStation_Mode_Speeding:
+			exitSequence_main_main_train_trainState_place_InStation_Mode_Speeding();
 			break;
 		default:
 			break;
 		}
 		
 		switch (stateVector[2]) {
-		case main_main_train_trainState_Doors_station_openingDoors:
-			exitSequence_main_main_train_trainState_Doors_station_openingDoors();
+		case main_main_train_trainState_doors_OpenDoors_Status_NotClosable:
+			exitSequence_main_main_train_trainState_doors_OpenDoors_Status_NotClosable();
 			break;
-		case main_main_train_trainState_Doors_station_ClosedDoors:
-			exitSequence_main_main_train_trainState_Doors_station_ClosedDoors();
+		case main_main_train_trainState_doors_OpenDoors_Status_Closable:
+			exitSequence_main_main_train_trainState_doors_OpenDoors_Status_Closable();
 			break;
-		case main_main_train_trainState_Doors_station_openDoors:
-			exitSequence_main_main_train_trainState_Doors_station_openDoors();
+		case main_main_train_trainState_doors_ClosedDoors_status_NotOpenable:
+			exitSequence_main_main_train_trainState_doors_ClosedDoors_status_NotOpenable();
 			break;
-		case main_main_train_trainState_Doors_station_ClosingDoors:
-			exitSequence_main_main_train_trainState_Doors_station_ClosingDoors();
+		case main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable:
+			exitSequence_main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable();
 			break;
 		default:
 			break;
 		}
 		
 		switch (stateVector[3]) {
-		case main_main_train_trainState_Last_light_NotYellow:
-			exitSequence_main_main_train_trainState_Last_light_NotYellow();
+		case main_main_train_trainState_movement_Still:
+			exitSequence_main_main_train_trainState_movement_Still();
 			break;
-		case main_main_train_trainState_Last_light_Yellow:
-			exitSequence_main_main_train_trainState_Last_light_Yellow();
+		case main_main_train_trainState_movement_Moving_NormalMovement_Cruising:
+			exitSequence_main_main_train_trainState_movement_Moving_NormalMovement_Cruising();
 			break;
-		case main_main_train_trainState_Last_light_YellowAndBreaking:
-			exitSequence_main_main_train_trainState_Last_light_YellowAndBreaking();
+		case main_main_train_trainState_movement_Moving_NormalMovement_Driving:
+			exitSequence_main_main_train_trainState_movement_Moving_NormalMovement_Driving();
+			break;
+		case main_main_train_trainState_movement_Breaking:
+			exitSequence_main_main_train_trainState_movement_Breaking();
+			break;
+		case main_main_train_trainState_movement_Cooldown:
+			exitSequence_main_main_train_trainState_movement_Cooldown();
 			break;
 		default:
 			break;
@@ -1181,136 +1394,229 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	/* Default exit sequence for region train */
 	private void exitSequence_main_main_train() {
 		switch (stateVector[0]) {
-		case main_main_train_trainState_movement_train_Still:
-			exitSequence_main_main_train_trainState_movement_train_Still();
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding:
+			exitSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding();
 			break;
-		case main_main_train_trainState_movement_train_Driving:
-			exitSequence_main_main_train_trainState_movement_train_Driving();
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding:
+			exitSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding();
 			break;
-		case main_main_train_trainState_movement_train_Cruising:
-			exitSequence_main_main_train_trainState_movement_train_Cruising();
-			break;
-		case main_main_train_trainState_movement_train_Breaking:
-			exitSequence_main_main_train_trainState_movement_train_Breaking();
-			break;
-		case main_main_train_trainState_movement_train_Cooldown:
-			exitSequence_main_main_train_trainState_movement_train_Cooldown();
+		case main_main_train_trainState_Light_LastLight_Mode_NotYellow:
+			exitSequence_main_main_train_trainState_Light_LastLight_Mode_NotYellow();
 			break;
 		default:
 			break;
 		}
 		
 		switch (stateVector[1]) {
-		case main_main_train_trainState_Place_train_InStation:
-			exitSequence_main_main_train_trainState_Place_train_InStation();
+		case main_main_train_trainState_place_NotInStation:
+			exitSequence_main_main_train_trainState_place_NotInStation();
 			break;
-		case main_main_train_trainState_Place_train_OutOfStation:
-			exitSequence_main_main_train_trainState_Place_train_OutOfStation();
+		case main_main_train_trainState_place_InStation_Mode_NotSpeeding:
+			exitSequence_main_main_train_trainState_place_InStation_Mode_NotSpeeding();
+			break;
+		case main_main_train_trainState_place_InStation_Mode_Speeding:
+			exitSequence_main_main_train_trainState_place_InStation_Mode_Speeding();
 			break;
 		default:
 			break;
 		}
 		
 		switch (stateVector[2]) {
-		case main_main_train_trainState_Doors_station_openingDoors:
-			exitSequence_main_main_train_trainState_Doors_station_openingDoors();
+		case main_main_train_trainState_doors_OpenDoors_Status_NotClosable:
+			exitSequence_main_main_train_trainState_doors_OpenDoors_Status_NotClosable();
 			break;
-		case main_main_train_trainState_Doors_station_ClosedDoors:
-			exitSequence_main_main_train_trainState_Doors_station_ClosedDoors();
+		case main_main_train_trainState_doors_OpenDoors_Status_Closable:
+			exitSequence_main_main_train_trainState_doors_OpenDoors_Status_Closable();
 			break;
-		case main_main_train_trainState_Doors_station_openDoors:
-			exitSequence_main_main_train_trainState_Doors_station_openDoors();
+		case main_main_train_trainState_doors_ClosedDoors_status_NotOpenable:
+			exitSequence_main_main_train_trainState_doors_ClosedDoors_status_NotOpenable();
 			break;
-		case main_main_train_trainState_Doors_station_ClosingDoors:
-			exitSequence_main_main_train_trainState_Doors_station_ClosingDoors();
+		case main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable:
+			exitSequence_main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable();
 			break;
 		default:
 			break;
 		}
 		
 		switch (stateVector[3]) {
-		case main_main_train_trainState_Last_light_NotYellow:
-			exitSequence_main_main_train_trainState_Last_light_NotYellow();
+		case main_main_train_trainState_movement_Still:
+			exitSequence_main_main_train_trainState_movement_Still();
 			break;
-		case main_main_train_trainState_Last_light_Yellow:
-			exitSequence_main_main_train_trainState_Last_light_Yellow();
+		case main_main_train_trainState_movement_Moving_NormalMovement_Cruising:
+			exitSequence_main_main_train_trainState_movement_Moving_NormalMovement_Cruising();
 			break;
-		case main_main_train_trainState_Last_light_YellowAndBreaking:
-			exitSequence_main_main_train_trainState_Last_light_YellowAndBreaking();
+		case main_main_train_trainState_movement_Moving_NormalMovement_Driving:
+			exitSequence_main_main_train_trainState_movement_Moving_NormalMovement_Driving();
+			break;
+		case main_main_train_trainState_movement_Breaking:
+			exitSequence_main_main_train_trainState_movement_Breaking();
+			break;
+		case main_main_train_trainState_movement_Cooldown:
+			exitSequence_main_main_train_trainState_movement_Cooldown();
 			break;
 		default:
 			break;
 		}
 	}
 	
-	/* Default exit sequence for region movement_train */
-	private void exitSequence_main_main_train_trainState_movement_train() {
+	/* Default exit sequence for region Light */
+	private void exitSequence_main_main_train_trainState_Light() {
 		switch (stateVector[0]) {
-		case main_main_train_trainState_movement_train_Still:
-			exitSequence_main_main_train_trainState_movement_train_Still();
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding:
+			exitSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding();
 			break;
-		case main_main_train_trainState_movement_train_Driving:
-			exitSequence_main_main_train_trainState_movement_train_Driving();
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding:
+			exitSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding();
 			break;
-		case main_main_train_trainState_movement_train_Cruising:
-			exitSequence_main_main_train_trainState_movement_train_Cruising();
-			break;
-		case main_main_train_trainState_movement_train_Breaking:
-			exitSequence_main_main_train_trainState_movement_train_Breaking();
-			break;
-		case main_main_train_trainState_movement_train_Cooldown:
-			exitSequence_main_main_train_trainState_movement_train_Cooldown();
+		case main_main_train_trainState_Light_LastLight_Mode_NotYellow:
+			exitSequence_main_main_train_trainState_Light_LastLight_Mode_NotYellow();
 			break;
 		default:
 			break;
 		}
 	}
 	
-	/* Default exit sequence for region Place_train */
-	private void exitSequence_main_main_train_trainState_Place_train() {
+	/* Default exit sequence for region Mode */
+	private void exitSequence_main_main_train_trainState_Light_LastLight_Mode() {
+		switch (stateVector[0]) {
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding:
+			exitSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding();
+			break;
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding:
+			exitSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding();
+			break;
+		case main_main_train_trainState_Light_LastLight_Mode_NotYellow:
+			exitSequence_main_main_train_trainState_Light_LastLight_Mode_NotYellow();
+			break;
+		default:
+			break;
+		}
+	}
+	
+	/* Default exit sequence for region Mode */
+	private void exitSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode() {
+		switch (stateVector[0]) {
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding:
+			exitSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding();
+			break;
+		case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding:
+			exitSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding();
+			break;
+		default:
+			break;
+		}
+	}
+	
+	/* Default exit sequence for region place */
+	private void exitSequence_main_main_train_trainState_place() {
 		switch (stateVector[1]) {
-		case main_main_train_trainState_Place_train_InStation:
-			exitSequence_main_main_train_trainState_Place_train_InStation();
+		case main_main_train_trainState_place_NotInStation:
+			exitSequence_main_main_train_trainState_place_NotInStation();
 			break;
-		case main_main_train_trainState_Place_train_OutOfStation:
-			exitSequence_main_main_train_trainState_Place_train_OutOfStation();
+		case main_main_train_trainState_place_InStation_Mode_NotSpeeding:
+			exitSequence_main_main_train_trainState_place_InStation_Mode_NotSpeeding();
+			break;
+		case main_main_train_trainState_place_InStation_Mode_Speeding:
+			exitSequence_main_main_train_trainState_place_InStation_Mode_Speeding();
 			break;
 		default:
 			break;
 		}
 	}
 	
-	/* Default exit sequence for region Doors_station */
-	private void exitSequence_main_main_train_trainState_Doors_station() {
+	/* Default exit sequence for region Mode */
+	private void exitSequence_main_main_train_trainState_place_InStation_Mode() {
+		switch (stateVector[1]) {
+		case main_main_train_trainState_place_InStation_Mode_NotSpeeding:
+			exitSequence_main_main_train_trainState_place_InStation_Mode_NotSpeeding();
+			break;
+		case main_main_train_trainState_place_InStation_Mode_Speeding:
+			exitSequence_main_main_train_trainState_place_InStation_Mode_Speeding();
+			break;
+		default:
+			break;
+		}
+	}
+	
+	/* Default exit sequence for region doors */
+	private void exitSequence_main_main_train_trainState_doors() {
 		switch (stateVector[2]) {
-		case main_main_train_trainState_Doors_station_openingDoors:
-			exitSequence_main_main_train_trainState_Doors_station_openingDoors();
+		case main_main_train_trainState_doors_OpenDoors_Status_NotClosable:
+			exitSequence_main_main_train_trainState_doors_OpenDoors_Status_NotClosable();
 			break;
-		case main_main_train_trainState_Doors_station_ClosedDoors:
-			exitSequence_main_main_train_trainState_Doors_station_ClosedDoors();
+		case main_main_train_trainState_doors_OpenDoors_Status_Closable:
+			exitSequence_main_main_train_trainState_doors_OpenDoors_Status_Closable();
 			break;
-		case main_main_train_trainState_Doors_station_openDoors:
-			exitSequence_main_main_train_trainState_Doors_station_openDoors();
+		case main_main_train_trainState_doors_ClosedDoors_status_NotOpenable:
+			exitSequence_main_main_train_trainState_doors_ClosedDoors_status_NotOpenable();
 			break;
-		case main_main_train_trainState_Doors_station_ClosingDoors:
-			exitSequence_main_main_train_trainState_Doors_station_ClosingDoors();
+		case main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable:
+			exitSequence_main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable();
 			break;
 		default:
 			break;
 		}
 	}
 	
-	/* Default exit sequence for region Last_light */
-	private void exitSequence_main_main_train_trainState_Last_light() {
+	/* Default exit sequence for region Status */
+	private void exitSequence_main_main_train_trainState_doors_OpenDoors_Status() {
+		switch (stateVector[2]) {
+		case main_main_train_trainState_doors_OpenDoors_Status_NotClosable:
+			exitSequence_main_main_train_trainState_doors_OpenDoors_Status_NotClosable();
+			break;
+		case main_main_train_trainState_doors_OpenDoors_Status_Closable:
+			exitSequence_main_main_train_trainState_doors_OpenDoors_Status_Closable();
+			break;
+		default:
+			break;
+		}
+	}
+	
+	/* Default exit sequence for region status */
+	private void exitSequence_main_main_train_trainState_doors_ClosedDoors_status() {
+		switch (stateVector[2]) {
+		case main_main_train_trainState_doors_ClosedDoors_status_NotOpenable:
+			exitSequence_main_main_train_trainState_doors_ClosedDoors_status_NotOpenable();
+			break;
+		case main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable:
+			exitSequence_main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable();
+			break;
+		default:
+			break;
+		}
+	}
+	
+	/* Default exit sequence for region movement */
+	private void exitSequence_main_main_train_trainState_movement() {
 		switch (stateVector[3]) {
-		case main_main_train_trainState_Last_light_NotYellow:
-			exitSequence_main_main_train_trainState_Last_light_NotYellow();
+		case main_main_train_trainState_movement_Still:
+			exitSequence_main_main_train_trainState_movement_Still();
 			break;
-		case main_main_train_trainState_Last_light_Yellow:
-			exitSequence_main_main_train_trainState_Last_light_Yellow();
+		case main_main_train_trainState_movement_Moving_NormalMovement_Cruising:
+			exitSequence_main_main_train_trainState_movement_Moving_NormalMovement_Cruising();
 			break;
-		case main_main_train_trainState_Last_light_YellowAndBreaking:
-			exitSequence_main_main_train_trainState_Last_light_YellowAndBreaking();
+		case main_main_train_trainState_movement_Moving_NormalMovement_Driving:
+			exitSequence_main_main_train_trainState_movement_Moving_NormalMovement_Driving();
+			break;
+		case main_main_train_trainState_movement_Breaking:
+			exitSequence_main_main_train_trainState_movement_Breaking();
+			break;
+		case main_main_train_trainState_movement_Cooldown:
+			exitSequence_main_main_train_trainState_movement_Cooldown();
+			break;
+		default:
+			break;
+		}
+	}
+	
+	/* Default exit sequence for region NormalMovement */
+	private void exitSequence_main_main_train_trainState_movement_Moving_NormalMovement() {
+		switch (stateVector[3]) {
+		case main_main_train_trainState_movement_Moving_NormalMovement_Cruising:
+			exitSequence_main_main_train_trainState_movement_Moving_NormalMovement_Cruising();
+			break;
+		case main_main_train_trainState_movement_Moving_NormalMovement_Driving:
+			exitSequence_main_main_train_trainState_movement_Moving_NormalMovement_Driving();
 			break;
 		default:
 			break;
@@ -1336,27 +1642,51 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	
 	/* Default react sequence for initial entry  */
 	private void react_main__entry_Default() {
+		setStoredAcc(0);
+		
+		setStoredVel(0);
+		
 		enterSequence_main_default_default();
 	}
 	
 	/* Default react sequence for initial entry  */
-	private void react_main_main_train_trainState_movement_train__entry_Default() {
-		enterSequence_main_main_train_trainState_movement_train_Still_default();
+	private void react_main_main_train_trainState_Light__entry_Default() {
+		enterSequence_main_main_train_trainState_Light_LastLight_default();
 	}
 	
 	/* Default react sequence for initial entry  */
-	private void react_main_main_train_trainState_Place_train__entry_Default() {
-		enterSequence_main_main_train_trainState_Place_train_OutOfStation_default();
+	private void react_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode__entry_Default() {
+		enterSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding_default();
 	}
 	
 	/* Default react sequence for initial entry  */
-	private void react_main_main_train_trainState_Doors_station__entry_Default() {
-		enterSequence_main_main_train_trainState_Doors_station_ClosedDoors_default();
+	private void react_main_main_train_trainState_Light_LastLight_Mode__entry_Default() {
+		enterSequence_main_main_train_trainState_Light_LastLight_Mode_NotYellow_default();
 	}
 	
 	/* Default react sequence for initial entry  */
-	private void react_main_main_train_trainState_Last_light__entry_Default() {
-		enterSequence_main_main_train_trainState_Last_light_NotYellow_default();
+	private void react_main_main_train_trainState_place__entry_Default() {
+		enterSequence_main_main_train_trainState_place_NotInStation_default();
+	}
+	
+	/* Default react sequence for initial entry  */
+	private void react_main_main_train_trainState_doors__entry_Default() {
+		enterSequence_main_main_train_trainState_doors_ClosedDoors_default();
+	}
+	
+	/* Default react sequence for initial entry  */
+	private void react_main_main_train_trainState_doors_ClosedDoors_status__entry_Default() {
+		enterSequence_main_main_train_trainState_doors_ClosedDoors_status_NotOpenable_default();
+	}
+	
+	/* Default react sequence for initial entry  */
+	private void react_main_main_train_trainState_movement_Moving_NormalMovement__entry_Default() {
+		enterSequence_main_main_train_trainState_movement_Moving_NormalMovement_Driving_default();
+	}
+	
+	/* Default react sequence for initial entry  */
+	private void react_main_main_train_trainState_movement__entry_Default() {
+		enterSequence_main_main_train_trainState_movement_Still_default();
 	}
 	
 	/* Default react sequence for initial entry  */
@@ -1397,6 +1727,12 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 			if (react(try_transition)==false) {
 				if (sCInterface.continueEvent) {
 					exitSequence_main_default();
+					sCInterface.operationCallback.print("Continue");
+					
+					setAcceleration(storedAcc);
+					
+					sCInterface.setVelocity(storedVel);
+					
 					react_main_main_train_hist();
 					enterSequence_main_main_dead_man_s_button_default();
 				} else {
@@ -1416,6 +1752,8 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 			if (react(try_transition)==false) {
 				if (sCInterface.pause) {
 					exitSequence_main_main();
+					sCInterface.operationCallback.print("Pause");
+					
 					enterSequence_main_default_default();
 				} else {
 					did_transition = false;
@@ -1432,16 +1770,7 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		
 		if (try_transition) {
 			if (main_main_react(try_transition)==false) {
-				if (sCInterface.red_light) {
-					exitSequence_main_main_train_trainState();
-					raiseEmergency();
-					
-					sCInterface.operationCallback.print("Red light");
-					
-					enterSequence_main_main_train_trainState_default();
-				} else {
-					did_transition = false;
-				}
+				did_transition = false;
 			}
 		}
 		if (did_transition==false) {
@@ -1449,69 +1778,22 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		return did_transition;
 	}
 	
-	private boolean main_main_train_trainState_movement_train_Still_react(boolean try_transition) {
+	private boolean main_main_train_trainState_Light_LastLight_react(boolean try_transition) {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
 			if (main_main_train_trainState_react(try_transition)==false) {
-				if ((sCInterface.update_acceleration) && (sCInterface.getUpdate_accelerationValue()>0.0 && isStateActive(State.main_main_train_trainState_Doors_station_ClosedDoors))) {
-					exitSequence_main_main_train_trainState_movement_train_Still();
-					enterSequence_main_main_train_trainState_movement_train_Driving_default();
+				if (sCInterface.green_light) {
+					exitSequence_main_main_train_trainState_Light_LastLight();
+					enterSequence_main_main_train_trainState_Light_LastLight_default();
 				} else {
-					did_transition = false;
-				}
-			}
-		}
-		if (did_transition==false) {
-		}
-		return did_transition;
-	}
-	
-	private boolean main_main_train_trainState_movement_train_Driving_react(boolean try_transition) {
-		boolean did_transition = try_transition;
-		
-		if (try_transition) {
-			if (main_main_train_trainState_react(try_transition)==false) {
-				if (sCInterface.getVelocity()>=100.0) {
-					exitSequence_main_main_train_trainState_movement_train_Driving();
-					enterSequence_main_main_train_trainState_movement_train_Cruising_default();
-				} else {
-					if (sCInterface.getVelocity()<=0) {
-						exitSequence_main_main_train_trainState_movement_train_Driving();
-						enterSequence_main_main_train_trainState_movement_train_Still_default();
-					} else {
-						if (sCInterface.update_acceleration) {
-							exitSequence_main_main_train_trainState_movement_train_Driving();
-							enterSequence_main_main_train_trainState_movement_train_Driving_default();
-						} else {
-							if (emergency) {
-								exitSequence_main_main_train_trainState_movement_train_Driving();
-								enterSequence_main_main_train_trainState_movement_train_Breaking_default();
-							} else {
-								did_transition = false;
-							}
-						}
-					}
-				}
-			}
-		}
-		if (did_transition==false) {
-		}
-		return did_transition;
-	}
-	
-	private boolean main_main_train_trainState_movement_train_Cruising_react(boolean try_transition) {
-		boolean did_transition = try_transition;
-		
-		if (try_transition) {
-			if (main_main_train_trainState_react(try_transition)==false) {
-				if ((sCInterface.update_acceleration) && (sCInterface.getUpdate_accelerationValue()<0.0)) {
-					exitSequence_main_main_train_trainState_movement_train_Cruising();
-					enterSequence_main_main_train_trainState_movement_train_Driving_default();
-				} else {
-					if (emergency) {
-						exitSequence_main_main_train_trainState_movement_train_Cruising();
-						enterSequence_main_main_train_trainState_movement_train_Breaking_default();
+					if (sCInterface.red_light) {
+						exitSequence_main_main_train_trainState_Light_LastLight();
+						raiseEmergency();
+						
+						sCInterface.operationCallback.print("Red_light");
+						
+						enterSequence_main_main_train_trainState_Light_LastLight_default();
 					} else {
 						did_transition = false;
 					}
@@ -1523,17 +1805,12 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		return did_transition;
 	}
 	
-	private boolean main_main_train_trainState_movement_train_Breaking_react(boolean try_transition) {
+	private boolean main_main_train_trainState_Light_LastLight_Mode_Yellow_react(boolean try_transition) {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (main_main_train_trainState_react(try_transition)==false) {
-				if (sCInterface.getVelocity()<=0) {
-					exitSequence_main_main_train_trainState_movement_train_Breaking();
-					enterSequence_main_main_train_trainState_movement_train_Cooldown_default();
-				} else {
-					did_transition = false;
-				}
+			if (main_main_train_trainState_Light_LastLight_react(try_transition)==false) {
+				did_transition = false;
 			}
 		}
 		if (did_transition==false) {
@@ -1541,41 +1818,18 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		return did_transition;
 	}
 	
-	private boolean main_main_train_trainState_movement_train_Cooldown_react(boolean try_transition) {
+	private boolean main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding_react(boolean try_transition) {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (main_main_train_trainState_react(try_transition)==false) {
-				if (timeEvents[0]) {
-					exitSequence_main_main_train_trainState_movement_train_Cooldown();
-					enterSequence_main_main_train_trainState_movement_train_Still_default();
-				} else {
-					did_transition = false;
-				}
-			}
-		}
-		if (did_transition==false) {
-		}
-		return did_transition;
-	}
-	
-	private boolean main_main_train_trainState_Place_train_InStation_react(boolean try_transition) {
-		boolean did_transition = try_transition;
-		
-		if (try_transition) {
-			if (sCInterface.leave) {
-				exitSequence_main_main_train_trainState_Place_train_InStation();
-				raiseToClosedDoors();
-				
-				enterSequence_main_main_train_trainState_Place_train_OutOfStation_default();
-			} else {
-				if (sCInterface.getVelocity()>20.0) {
-					exitSequence_main_main_train_trainState_Place_train_InStation();
+			if (main_main_train_trainState_Light_LastLight_Mode_Yellow_react(try_transition)==false) {
+				if (sCInterface.getVelocity()>50) {
+					exitSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding();
 					raiseEmergency();
 					
-					sCInterface.operationCallback.print("Velocity > 20 in station");
+					sCInterface.operationCallback.print("speeding");
 					
-					enterSequence_main_main_train_trainState_Place_train_InStation_default();
+					enterSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding_default();
 				} else {
 					did_transition = false;
 				}
@@ -1586,117 +1840,88 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		return did_transition;
 	}
 	
-	private boolean main_main_train_trainState_Place_train_OutOfStation_react(boolean try_transition) {
+	private boolean main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (main_main_train_trainState_Light_LastLight_Mode_Yellow_react(try_transition)==false) {
+				if (sCInterface.getVelocity()<50) {
+					exitSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding();
+					enterSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding_default();
+				} else {
+					did_transition = false;
+				}
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_trainState_Light_LastLight_Mode_NotYellow_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (main_main_train_trainState_Light_LastLight_react(try_transition)==false) {
+				if (sCInterface.yellow_light) {
+					exitSequence_main_main_train_trainState_Light_LastLight_Mode_NotYellow();
+					enterSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_default();
+				} else {
+					did_transition = false;
+				}
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_trainState_place_NotInStation_react(boolean try_transition) {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
 			if (sCInterface.enter) {
-				exitSequence_main_main_train_trainState_Place_train_OutOfStation();
-				enterSequence_main_main_train_trainState_Place_train_InStation_default();
-			} else {
-				did_transition = false;
-			}
-		}
-		if (did_transition==false) {
-		}
-		return did_transition;
-	}
-	
-	private boolean main_main_train_trainState_Doors_station_openingDoors_react(boolean try_transition) {
-		boolean did_transition = try_transition;
-		
-		if (try_transition) {
-			if (timeEvents[1]) {
-				exitSequence_main_main_train_trainState_Doors_station_openingDoors();
-				enterSequence_main_main_train_trainState_Doors_station_openDoors_default();
-			} else {
-				did_transition = false;
-			}
-		}
-		if (did_transition==false) {
-		}
-		return did_transition;
-	}
-	
-	private boolean main_main_train_trainState_Doors_station_ClosedDoors_react(boolean try_transition) {
-		boolean did_transition = try_transition;
-		
-		if (try_transition) {
-			if ((sCInterface.open) && (isStateActive(State.main_main_train_trainState_movement_train_Still) && isStateActive(State.main_main_train_trainState_Place_train_InStation))) {
-				exitSequence_main_main_train_trainState_Doors_station_ClosedDoors();
-				enterSequence_main_main_train_trainState_Doors_station_openingDoors_default();
-			} else {
-				did_transition = false;
-			}
-		}
-		if (did_transition==false) {
-		}
-		return did_transition;
-	}
-	
-	private boolean main_main_train_trainState_Doors_station_openDoors_react(boolean try_transition) {
-		boolean did_transition = try_transition;
-		
-		if (try_transition) {
-			if (sCInterface.close) {
-				exitSequence_main_main_train_trainState_Doors_station_openDoors();
-				enterSequence_main_main_train_trainState_Doors_station_ClosingDoors_default();
-			} else {
-				did_transition = false;
-			}
-		}
-		if (did_transition==false) {
-		}
-		return did_transition;
-	}
-	
-	private boolean main_main_train_trainState_Doors_station_ClosingDoors_react(boolean try_transition) {
-		boolean did_transition = try_transition;
-		
-		if (try_transition) {
-			if (toClosedDoors) {
-				exitSequence_main_main_train_trainState_Doors_station_ClosingDoors();
-				enterSequence_main_main_train_trainState_Doors_station_ClosedDoors_default();
-			} else {
-				did_transition = false;
-			}
-		}
-		if (did_transition==false) {
-		}
-		return did_transition;
-	}
-	
-	private boolean main_main_train_trainState_Last_light_NotYellow_react(boolean try_transition) {
-		boolean did_transition = try_transition;
-		
-		if (try_transition) {
-			if (sCInterface.yellow_light) {
-				exitSequence_main_main_train_trainState_Last_light_NotYellow();
-				enterSequence_main_main_train_trainState_Last_light_Yellow_default();
-			} else {
-				did_transition = false;
-			}
-		}
-		if (did_transition==false) {
-		}
-		return did_transition;
-	}
-	
-	private boolean main_main_train_trainState_Last_light_Yellow_react(boolean try_transition) {
-		boolean did_transition = try_transition;
-		
-		if (try_transition) {
-			if (sCInterface.getVelocity()>50.0) {
-				exitSequence_main_main_train_trainState_Last_light_Yellow();
-				raiseEmergency();
+				exitSequence_main_main_train_trainState_place_NotInStation();
+				raiseToOpenableDoors();
 				
-				sCInterface.operationCallback.print("Yellow && speed>50");
-				
-				enterSequence_main_main_train_trainState_Last_light_YellowAndBreaking_default();
+				entryAction_main_main_train_trainState_place_InStation();
+				enterSequence_main_main_train_trainState_place_InStation_Mode_NotSpeeding_default();
+				historyVector[4] = stateVector[1];
 			} else {
-				if (sCInterface.green_light) {
-					exitSequence_main_main_train_trainState_Last_light_Yellow();
-					enterSequence_main_main_train_trainState_Last_light_NotYellow_default();
+				did_transition = false;
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_trainState_place_InStation_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (sCInterface.leave) {
+				exitSequence_main_main_train_trainState_place_InStation();
+				enterSequence_main_main_train_trainState_place_NotInStation_default();
+			} else {
+				did_transition = false;
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_trainState_place_InStation_Mode_NotSpeeding_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (main_main_train_trainState_place_InStation_react(try_transition)==false) {
+				if (sCInterface.getVelocity()>20) {
+					exitSequence_main_main_train_trainState_place_InStation_Mode_NotSpeeding();
+					raiseEmergency();
+					
+					enterSequence_main_main_train_trainState_place_InStation_Mode_Speeding_default();
 				} else {
 					did_transition = false;
 				}
@@ -1707,13 +1932,230 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 		return did_transition;
 	}
 	
-	private boolean main_main_train_trainState_Last_light_YellowAndBreaking_react(boolean try_transition) {
+	private boolean main_main_train_trainState_place_InStation_Mode_Speeding_react(boolean try_transition) {
 		boolean did_transition = try_transition;
 		
 		if (try_transition) {
-			if (sCInterface.green_light) {
-				exitSequence_main_main_train_trainState_Last_light_YellowAndBreaking();
-				enterSequence_main_main_train_trainState_Last_light_NotYellow_default();
+			if (main_main_train_trainState_place_InStation_react(try_transition)==false) {
+				did_transition = false;
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_trainState_doors_OpenDoors_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			did_transition = false;
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_trainState_doors_OpenDoors_Status_NotClosable_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (main_main_train_trainState_doors_OpenDoors_react(try_transition)==false) {
+				if (timeEvents[0]) {
+					exitSequence_main_main_train_trainState_doors_OpenDoors_Status_NotClosable();
+					enterSequence_main_main_train_trainState_doors_OpenDoors_Status_Closable_default();
+				} else {
+					did_transition = false;
+				}
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_trainState_doors_OpenDoors_Status_Closable_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (main_main_train_trainState_doors_OpenDoors_react(try_transition)==false) {
+				if (sCInterface.close) {
+					exitSequence_main_main_train_trainState_doors_OpenDoors();
+					sCInterface.raiseCloseDoors();
+					
+					enterSequence_main_main_train_trainState_doors_ClosedDoors_status_NotOpenable_default();
+					historyVector[6] = stateVector[2];
+				} else {
+					did_transition = false;
+				}
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_trainState_doors_ClosedDoors_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			did_transition = false;
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_trainState_doors_ClosedDoors_status_NotOpenable_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (main_main_train_trainState_doors_ClosedDoors_react(try_transition)==false) {
+				if (sCInterface.enter) {
+					exitSequence_main_main_train_trainState_doors_ClosedDoors_status_NotOpenable();
+					enterSequence_main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable_default();
+				} else {
+					did_transition = false;
+				}
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (main_main_train_trainState_doors_ClosedDoors_react(try_transition)==false) {
+				if ((sCInterface.open) && (isStateActive(State.main_main_train_trainState_place_InStation) && isStateActive(State.main_main_train_trainState_movement_Still))) {
+					exitSequence_main_main_train_trainState_doors_ClosedDoors();
+					sCInterface.raiseOpenDoors();
+					
+					enterSequence_main_main_train_trainState_doors_OpenDoors_Status_NotClosable_default();
+					historyVector[6] = stateVector[2];
+				} else {
+					did_transition = false;
+				}
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_trainState_movement_Still_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if ((sCInterface.update_acceleration) && (sCInterface.getUpdate_accelerationValue()>0.0 && isStateActive(State.main_main_train_trainState_doors_ClosedDoors))) {
+				exitSequence_main_main_train_trainState_movement_Still();
+				sCInterface.setVelocity(0.001);
+				
+				setAcceleration(sCInterface.getUpdate_accelerationValue());
+				
+				enterSequence_main_main_train_trainState_movement_Moving_default();
+			} else {
+				did_transition = false;
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_trainState_movement_Moving_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (sCInterface.getVelocity()<=0) {
+				exitSequence_main_main_train_trainState_movement_Moving();
+				enterSequence_main_main_train_trainState_movement_Still_default();
+			} else {
+				if (emergency) {
+					exitSequence_main_main_train_trainState_movement_Moving();
+					sCInterface.operationCallback.print("Event:Emergency");
+					
+					enterSequence_main_main_train_trainState_movement_Breaking_default();
+				} else {
+					did_transition = false;
+				}
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_trainState_movement_Moving_NormalMovement_Cruising_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (main_main_train_trainState_movement_Moving_react(try_transition)==false) {
+				if ((sCInterface.update_acceleration) && (sCInterface.getUpdate_accelerationValue()<0.0)) {
+					exitSequence_main_main_train_trainState_movement_Moving_NormalMovement_Cruising();
+					setAcceleration(sCInterface.getUpdate_accelerationValue());
+					
+					enterSequence_main_main_train_trainState_movement_Moving_NormalMovement_Driving_default();
+				} else {
+					did_transition = false;
+				}
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_trainState_movement_Moving_NormalMovement_Driving_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (main_main_train_trainState_movement_Moving_react(try_transition)==false) {
+				if (sCInterface.update_acceleration) {
+					exitSequence_main_main_train_trainState_movement_Moving_NormalMovement_Driving();
+					setAcceleration(sCInterface.getUpdate_accelerationValue());
+					
+					enterSequence_main_main_train_trainState_movement_Moving_NormalMovement_Driving_default();
+				} else {
+					if (sCInterface.getVelocity()>=100.0) {
+						exitSequence_main_main_train_trainState_movement_Moving_NormalMovement_Driving();
+						enterSequence_main_main_train_trainState_movement_Moving_NormalMovement_Cruising_default();
+					} else {
+						did_transition = false;
+					}
+				}
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_trainState_movement_Breaking_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (sCInterface.getVelocity()<=0) {
+				exitSequence_main_main_train_trainState_movement_Breaking();
+				enterSequence_main_main_train_trainState_movement_Cooldown_default();
+			} else {
+				did_transition = false;
+			}
+		}
+		if (did_transition==false) {
+		}
+		return did_transition;
+	}
+	
+	private boolean main_main_train_trainState_movement_Cooldown_react(boolean try_transition) {
+		boolean did_transition = try_transition;
+		
+		if (try_transition) {
+			if (timeEvents[1]) {
+				exitSequence_main_main_train_trainState_movement_Cooldown();
+				enterSequence_main_main_train_trainState_movement_Still_default();
 			} else {
 				did_transition = false;
 			}
@@ -1788,47 +2230,50 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 			case main_default:
 				main_default_react(true);
 				break;
-			case main_main_train_trainState_movement_train_Still:
-				main_main_train_trainState_movement_train_Still_react(true);
+			case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding:
+				main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding_react(true);
 				break;
-			case main_main_train_trainState_movement_train_Driving:
-				main_main_train_trainState_movement_train_Driving_react(true);
+			case main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding:
+				main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding_react(true);
 				break;
-			case main_main_train_trainState_movement_train_Cruising:
-				main_main_train_trainState_movement_train_Cruising_react(true);
+			case main_main_train_trainState_Light_LastLight_Mode_NotYellow:
+				main_main_train_trainState_Light_LastLight_Mode_NotYellow_react(true);
 				break;
-			case main_main_train_trainState_movement_train_Breaking:
-				main_main_train_trainState_movement_train_Breaking_react(true);
+			case main_main_train_trainState_place_NotInStation:
+				main_main_train_trainState_place_NotInStation_react(true);
 				break;
-			case main_main_train_trainState_movement_train_Cooldown:
-				main_main_train_trainState_movement_train_Cooldown_react(true);
+			case main_main_train_trainState_place_InStation_Mode_NotSpeeding:
+				main_main_train_trainState_place_InStation_Mode_NotSpeeding_react(true);
 				break;
-			case main_main_train_trainState_Place_train_InStation:
-				main_main_train_trainState_Place_train_InStation_react(true);
+			case main_main_train_trainState_place_InStation_Mode_Speeding:
+				main_main_train_trainState_place_InStation_Mode_Speeding_react(true);
 				break;
-			case main_main_train_trainState_Place_train_OutOfStation:
-				main_main_train_trainState_Place_train_OutOfStation_react(true);
+			case main_main_train_trainState_doors_OpenDoors_Status_NotClosable:
+				main_main_train_trainState_doors_OpenDoors_Status_NotClosable_react(true);
 				break;
-			case main_main_train_trainState_Doors_station_openingDoors:
-				main_main_train_trainState_Doors_station_openingDoors_react(true);
+			case main_main_train_trainState_doors_OpenDoors_Status_Closable:
+				main_main_train_trainState_doors_OpenDoors_Status_Closable_react(true);
 				break;
-			case main_main_train_trainState_Doors_station_ClosedDoors:
-				main_main_train_trainState_Doors_station_ClosedDoors_react(true);
+			case main_main_train_trainState_doors_ClosedDoors_status_NotOpenable:
+				main_main_train_trainState_doors_ClosedDoors_status_NotOpenable_react(true);
 				break;
-			case main_main_train_trainState_Doors_station_openDoors:
-				main_main_train_trainState_Doors_station_openDoors_react(true);
+			case main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable:
+				main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable_react(true);
 				break;
-			case main_main_train_trainState_Doors_station_ClosingDoors:
-				main_main_train_trainState_Doors_station_ClosingDoors_react(true);
+			case main_main_train_trainState_movement_Still:
+				main_main_train_trainState_movement_Still_react(true);
 				break;
-			case main_main_train_trainState_Last_light_NotYellow:
-				main_main_train_trainState_Last_light_NotYellow_react(true);
+			case main_main_train_trainState_movement_Moving_NormalMovement_Cruising:
+				main_main_train_trainState_movement_Moving_NormalMovement_Cruising_react(true);
 				break;
-			case main_main_train_trainState_Last_light_Yellow:
-				main_main_train_trainState_Last_light_Yellow_react(true);
+			case main_main_train_trainState_movement_Moving_NormalMovement_Driving:
+				main_main_train_trainState_movement_Moving_NormalMovement_Driving_react(true);
 				break;
-			case main_main_train_trainState_Last_light_YellowAndBreaking:
-				main_main_train_trainState_Last_light_YellowAndBreaking_react(true);
+			case main_main_train_trainState_movement_Breaking:
+				main_main_train_trainState_movement_Breaking_react(true);
+				break;
+			case main_main_train_trainState_movement_Cooldown:
+				main_main_train_trainState_movement_Cooldown_react(true);
 				break;
 			case main_main_dead_man_s_button_Normal:
 				main_main_dead_man_s_button_Normal_react(true);
