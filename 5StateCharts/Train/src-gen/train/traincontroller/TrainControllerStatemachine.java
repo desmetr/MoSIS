@@ -600,12 +600,12 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	
 	/* Entry action for state 'NotInStation'. */
 	private void entryAction_main_main_train_trainState_place_NotInStation() {
-		sCInterface.operationCallback.print("NotInStation");
+		sCInterface.operationCallback.print("Not In Station");
 	}
 	
 	/* Entry action for state 'InStation'. */
 	private void entryAction_main_main_train_trainState_place_InStation() {
-		sCInterface.operationCallback.print("InStation");
+		sCInterface.operationCallback.print("In Station");
 	}
 	
 	/* Entry action for state 'Speeding'. */
@@ -617,27 +617,27 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	private void entryAction_main_main_train_trainState_doors_OpenDoors_Status_NotClosable() {
 		timer.setTimer(this, 3, 5 * 1000, false);
 		
-		sCInterface.operationCallback.print("OpenDoors");
+		sCInterface.operationCallback.print("Open Doors");
 	}
 	
 	/* Entry action for state 'Closable'. */
 	private void entryAction_main_main_train_trainState_doors_OpenDoors_Status_Closable() {
-		sCInterface.operationCallback.print("DoorsClosable");
+		sCInterface.operationCallback.print("Doors Closable");
 	}
 	
 	/* Entry action for state 'NotOpenable'. */
 	private void entryAction_main_main_train_trainState_doors_ClosedDoors_status_NotOpenable() {
-		sCInterface.operationCallback.print("ClosedDoors");
+		sCInterface.operationCallback.print("Closed Doors");
 	}
 	
 	/* Entry action for state 'DoorsOpenable'. */
 	private void entryAction_main_main_train_trainState_doors_ClosedDoors_status_DoorsOpenable() {
-		sCInterface.operationCallback.print("DoorsOpenable");
+		sCInterface.operationCallback.print("Doors Openable");
 	}
 	
 	/* Entry action for state 'Still'. */
 	private void entryAction_main_main_train_trainState_movement_Still() {
-		sCInterface.operationCallback.print("still");
+		sCInterface.operationCallback.print("Still");
 		
 		sCInterface.setVelocity(0.0);
 		
@@ -646,7 +646,7 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	
 	/* Entry action for state 'Cruising'. */
 	private void entryAction_main_main_train_trainState_movement_Moving_NormalMovement_Cruising() {
-		sCInterface.operationCallback.print("cruising");
+		sCInterface.operationCallback.print("Cruising");
 		
 		sCInterface.setVelocity(100);
 		
@@ -655,7 +655,7 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 	
 	/* Entry action for state 'Driving'. */
 	private void entryAction_main_main_train_trainState_movement_Moving_NormalMovement_Driving() {
-		sCInterface.operationCallback.print("driving");
+		sCInterface.operationCallback.print("Driving");
 	}
 	
 	/* Entry action for state 'Breaking'. */
@@ -1893,7 +1893,7 @@ public class TrainControllerStatemachine implements ITrainControllerStatemachine
 					exitSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_NotSpeeding();
 					raiseEmergency();
 					
-					sCInterface.operationCallback.print("speeding");
+					sCInterface.operationCallback.print("Speeding");
 					
 					enterSequence_main_main_train_trainState_Light_LastLight_Mode_Yellow_Mode_Speeding_default();
 				} else {
