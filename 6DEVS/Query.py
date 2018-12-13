@@ -4,6 +4,6 @@ class Query:
 		self.query = query
 		
 class QueryAck:
-	def __init__(self, queryAck):
-		self.queryAck = queryAck
+	def __init__(self, light):
+		self.light = light
 		

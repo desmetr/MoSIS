@@ -1,10 +1,16 @@
 from pypdevs.DEVS import *
 
+class CollectorState:
+	def __init__(self):
+		self.trains = []
+		self.currentTime = 0.0		
+
 class Collector(AtomicDEVS):
 	def __init__(self):
 		AtomicDEVS.__init__(self, "Collector")
+		self.state = CollectorState()
 		
-		self.collectorIn = self.addInPort("input")
+		self.inport = self.addInPort("input")
 
 	def intTransition(self):
 		pass
@@ -16,4 +22,8 @@ class Collector(AtomicDEVS):
 		pass
 
 	def extTransition(self):
-		pass
+		# Update simulation time
+		self.state.current_time += self.elapsed
+		# Calulate time in queue
+		train = inputs[self.inport]
+		

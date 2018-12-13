@@ -3,15 +3,19 @@ from pypdevs.infinity import INFINITY
 from Train import *
 import random
 
-class Generator(AtomicDEVS):
-	def __init__(self, IAT_min, IAT_max, a_min, a_max):
-		AtomicDEVS.__init__(self, "Generator")
-		self.state = True
+class GeneratorState:
+	def __init__(self):
+		self.current_time = 0.0
 
-		self.IAT_min = IAT_min
-		self.IAT_max = IAT_max
-		self.a_min = a_min
-		self.a_max = a_max
+class Generator(AtomicDEVS):
+	def __init__(self, IATMin, IATMax, aMin, aMax):
+		AtomicDEVS.__init__(self, "Generator")
+		self.state = GeneratorState()
+
+		self.IATMin = IATMin
+		self.IATMax = IATMax
+		self.aMin = aMin
+		self.aMax = aMax
 
 		# One output port to generate the train. No input ports.
 		self.outport = self.addOutPort("output")
@@ -35,7 +39,8 @@ class Generator(AtomicDEVS):
 		newIAT = random.randint(self.IAT_min, self.IAT_max - 1)
 		newA = random.randint(self.a_min, self.a_max - 1)
 		newID = self.numberOfTrainsOutput + 1
+		creationTime = self.state.current_time # TODO moet er nog iets bij?
 		self.numberOfTrainsOutput = newID
-		newTrain = Train(newID, newA, newIAT)
-
+		
+		newTrain = Train(newID, newA, newIAT, creationTime)
 		return {self.outport: newTrain}

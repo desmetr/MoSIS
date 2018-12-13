@@ -3,6 +3,9 @@ from pypdevs.DEVS import *
 class RailwaySegment(AtomicDEVS):
 	def __init__(self):
 		AtomicDEVS.__init__(self, "RailwaySegment")
+		self.L = 0
+		self.currentTrain = None
+		self.currentQuery = None
 
 	def intTransition(self):
 		pass
