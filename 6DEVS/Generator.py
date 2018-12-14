@@ -16,9 +16,10 @@ class Generator(AtomicDEVS):
 		self.IATMax = IATMax
 		self.aMin = aMin
 		self.aMax = aMax
-
-		# One output port to generate the train. No input ports.
-		self.outport = self.addOutPort("output")
+		
+		self.qRack = self.addInPort("qRack")
+		self.qSend = self.addOutPort("qSend")
+		self.trainOut = self.addOutPort("trainOut")
 
 		self.numberOfTrainsOutput = 0
 	
@@ -43,4 +44,4 @@ class Generator(AtomicDEVS):
 		self.numberOfTrainsOutput = newID
 		
 		newTrain = Train(newID, newA, newIAT, creationTime)
-		return {self.outport: newTrain}
+		return {self.trainOut: newTrain}

@@ -10,7 +10,9 @@ class Collector(AtomicDEVS):
 		AtomicDEVS.__init__(self, "Collector")
 		self.state = CollectorState()
 		
-		self.inport = self.addInPort("input")
+		self.qRecv = self.addInPort("qRecv")
+		self.trainIn = self.addInPort("trainIn")
+		self.qSack = self.addOutPort("qSack")
 
 	def intTransition(self):
 		pass
@@ -25,5 +27,5 @@ class Collector(AtomicDEVS):
 		# Update simulation time
 		self.state.current_time += self.elapsed
 		# Calulate time in queue
-		train = inputs[self.inport]
+		train = inputs[self.trainIn]
 		
