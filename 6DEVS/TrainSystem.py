@@ -2,18 +2,21 @@ from pypdevs.DEVS import *
 from pypdevs.simulator import Simulator
 from Generator import *
 from Queue import *
+from RailwaySegment import *
 
 ### Model
 class TrainTrafficSystem(CoupledDEVS):
 	def __init__(self):
 		CoupledDEVS.__init__(self, "system")
-		self.generator = self.addSubModel(Generator(IAT_min=1, IAT_max=10, a_min=1, a_max=10))
-		self.queue = self.addSubModel(Queue())
-		self.connectPorts(self.generator.outport, self.queue.inport)
+		self.generator = self.addSubModel(Generator(IATMin=1, IATMax=10, aMin=1, aMax=10))
+		self.railwaysegment = self.addSubModel(RailwaySegment())
+		self.connectPorts(self.generator.qSend, self.railwaysegment.qRecv)
+		self.connectPorts(self.railwaysegment.qSack, self.generator.qRack)
+		self.connectPorts(self.generator.trainOut, self.railwaysegment.trainIn)
 		
 ### Experiment
 sim = Simulator(TrainTrafficSystem())
 sim.setVerbose()
-sim.setTerminationTime(5)
+sim.setTerminationTime(5.0)
 sim.setClassicDEVS()
 sim.simulate()

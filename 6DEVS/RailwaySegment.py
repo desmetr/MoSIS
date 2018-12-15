@@ -27,10 +27,11 @@ class RailwaySegment(AtomicDEVS):
 
 	def timeAdvance(self):
 		# TODO
-		return {"trainLeaves": self.tSolve}[0]
+		# return {"trainLeaves": self.tSolve}[0]
+		return 1.0
 
 	def outputFnc(self):
-		return {self.qSend: Query("query"), 
+		return {self.qSend: Query("queryToEnter"), 
 				self.qSack: QueryAck(self.light)}
 
 	def extTransition(self):
