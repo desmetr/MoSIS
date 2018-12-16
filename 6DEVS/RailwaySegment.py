@@ -1,16 +1,16 @@
 from pypdevs.DEVS import *
 from Query import *
-import formulas
 
 class RailwaySegment(AtomicDEVS):
-	def __init__(self):
+	def __init__(self, L):
 		AtomicDEVS.__init__(self, "RailwaySegment")
-		self.L = 0
+		self.state = "noTrain"
+		self.L = L
 		self.currentTrain = None
 		self.currentQuery = None
 		self.currentQueryAck = None
 		self.tSolve = 0
-		self.light = "red"
+		self.light = "green"
 
 		self.qRecv = self.addInPort("qRecv")
 		self.qSack = self.addOutPort("qSack")
@@ -21,29 +21,46 @@ class RailwaySegment(AtomicDEVS):
 
 	def intTransition(self):
 		# TODO
-		state = self.state
 		return {"noTrain": "hasTrain",
-				"hasTrain": "noTrain"}[state]
+				"hasTrain": "noTrain"}[self.state]
 
 	def timeAdvance(self):
 		# TODO
-		# return {"trainLeaves": self.tSolve}[0]
-		return 1.0
+		return {"noTrain": self.tSolve,
+				"hasTrain": 1.0}[self.state]
 
 	def outputFnc(self):
-		return {self.qSend: Query("queryToEnter"), 
+		return {self.qSend: Query("queryToEnter"),
 				self.qSack: QueryAck(self.light)}
 
-	def extTransition(self):
-		self.currentTrain = inputs[self.trainIn]
-		self.currentQuery = inputs[self.qRecv]
-		self.currentQueryAck = inputs[self.qRack]
+	def extTransition(self, inputs):
+		print inputs
+		# state = "noTrain"
+		state = self.state
 
-		# TODO: t_poll? self.L?
-		if self.currentQueryAck.light == "green":
-			# accelerate as fast as possible
-			(v, self.tSolve) = acceleration_formula(self.currentTrain.v, 100, self.L, self.currentTrain.aMax)
-		elif self.currentQueryAck.light == "red":
-			# gradually brake
-			(newV, xTravelled) = brake_formula(self.currentTrain.v, 1, self.L)
+		if self.trainIn in inputs:
+			# print "A"
+			if not inputs[self.trainIn] is None: 
+				self.currentTrain = inputs[self.trainIn]
+				print self.currentTrain
+			state = "hasTrain"
+		
+		if self.qRecv in inputs: 
+			# print "B"
+			self.currentQuery = inputs[self.qRecv]
+			if not self.currentTrain is None:
+				self.light = "red"
+			else:
+				self.light = "green"
 
+		if self.qRack in inputs:
+			# print "C"
+			self.currentQueryAck = inputs[self.qRack]
+			if not self.currentTrain is None:
+				if self.currentQueryAck.light == "red":
+					self.currentTrain.brake()
+				elif self.currentQueryAck.light == "green":
+						self.tSolve = self.currentTrain.accelerate()[1]
+						print self.tSolve
+
+		return state

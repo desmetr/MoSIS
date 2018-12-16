@@ -1,0 +1,35 @@
+* huidige configuratie: generator <-> railwaysegment <-> collector
+
+Generator -- wat lukt:
+* generator maakt trein aan met unieke ID en random aMax en IAT
+* er wordt elke keer naar het licht van queryAck gekeken (in extTransition), en op de juiste manier gehandeld (in outputFnc) = in queue of niet
+
+Railwaysegment -- wat lukt:
+* krijg van collector een qAck, die altijd groen licht geeft (in extTransition)
+* krijg van generator of wel een nieuwe trein, ofwel None (in extTransition)
+* krijg van generator een nieuwe query die triggert om te kijken of er een trein op de track is (zo ja, licht rood, anders groen) (in extTransition)
+
+Collector -- wat lukt:
+* stuur een qAck naar de railwaysegment met groen licht
+
+Train -- wat lukt:
+* de twee formules worden gecalled
+
+----
+
+Generator -- wat niet in orde is:
+* extTransition wordt maar 1 keer gecalled, in het begin en daarna nooit meer, wat dus betekent dat de qAck nooit meer wordt gelezen en dus het licht niet juist is
+
+Railwaysegment -- wat niet in orde is:
+* de twee inputs van de generator komen tegelijk met de input van de collector -> is dit OK?
+* om een of andere reden wordt er geen nieuwe qAck naar de generator gestuurd, waardoor de extTransition van de generator niet meer wordt gecalled
+
+Collector -- wat niet in orde is:
+* nog geen performance metrics berekend, maar kan later
+
+Train -- wat niet in orde is:
+* worden de resultaten van de formules goed gebruikt?
+
+-----
+
+Ik denk dat het grootste issue nu is dat de extTransition van Generator maar 1 keer wordt gecalled en dat de state van Railwaysegment niet helemaal top is. Mss kan je proberen iets met een RailwayState klasse te doen, die info over de state en het licht heeft.
