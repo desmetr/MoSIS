@@ -58,7 +58,7 @@ sim = Simulator(system1)
 # sim = Simulator(system2)
 
 sim.setVerbose()
-sim.setTerminationTime(80)
+sim.setTerminationTime(2)
 sim.setClassicDEVS()
 sim.simulate()
 

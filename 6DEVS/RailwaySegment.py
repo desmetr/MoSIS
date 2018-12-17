@@ -36,8 +36,9 @@ class RailwaySegment(AtomicDEVS):
 
 	def outputFnc(self):
 		trainToOutput = None
-		if self.state == "emptyAndRed":
+		if self.state == "hasTrainAndGreen":
 			trainToOutput = self.currentTrain
+			self.currentTrain = None
 
 		return {self.qSend: Query("queryToEnter"),
 				self.qSack: QueryAck(self.light),
@@ -70,6 +71,7 @@ class RailwaySegment(AtomicDEVS):
 					state = "hasTrainAndRed"
 				elif self.currentQueryAck.light == "green":
 					self.tSolve = self.currentTrain.accelerate(self.L)
-					state = "emptyAndRed"
+					state = "hasTrainAndGreen"
+					self.light = "red"	# nodig?
 
 		return state

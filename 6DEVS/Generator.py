@@ -22,7 +22,7 @@ class Generator(AtomicDEVS):
 		self.qSend = self.addOutPort("qSend")
 		self.trainOut = self.addOutPort("trainOut")
 
-		self.numberOfTrainsOutput = 0
+		self.currentTrainID = 0
 
 		self.queue = []
 		self.currentLight = "green"
@@ -36,6 +36,7 @@ class Generator(AtomicDEVS):
 	def timeAdvance(self):
 		# TODO: correcte timeAdvance?
 		# self.currentTime += 1	# TODO
+
 		if self.state == "sending":
 			return 1
 		elif self.state == "waiting":
@@ -46,12 +47,11 @@ class Generator(AtomicDEVS):
 	def outputFnc(self):
 		newIAT = random.randint(self.IATMin, self.IATMax - 1)
 		newA = random.randint(self.aMin, self.aMax - 1)
-		newID = self.numberOfTrainsOutput
-		creationTime = self.currentTime # TODO moet er nog iets bij?
-		self.numberOfTrainsOutput = newID
+		newID = self.currentTrainID
+		self.currentTrainID += 1
+		creationTime = self.currentTime # TODO moet er nog iets bij?		
 		
 		newTrain = Train(newID, newA, newIAT, creationTime)
-		self.numberOfTrainsOutput += 1
 
 		trainToOutput = None
 		print "queue generator: ", self.queue
