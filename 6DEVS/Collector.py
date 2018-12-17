@@ -4,7 +4,7 @@ from Query import *
 class Collector(AtomicDEVS):
 	def __init__(self):
 		AtomicDEVS.__init__(self, "Collector")
-		self.state = True
+		self.state = "emptyAndGreen"
 		
 		self.qRecv = self.addInPort("qRecv")
 		self.trainIn = self.addInPort("trainIn")
@@ -16,8 +16,8 @@ class Collector(AtomicDEVS):
 		pass
 
 	def timeAdvance(self):
-		print "in collector: ", self.trainsCollected
-		return 1.0
+		print "queue collector: ", self.trainsCollected
+		return 1
 
 	def outputFnc(self):
 		return {self.qSack: QueryAck("green")}
@@ -26,5 +26,5 @@ class Collector(AtomicDEVS):
 		train = inputs[self.trainIn]
 		
 		# hier komt performance metrics
-
-		self.trainsCollected.append(train)		
+		if not train is None:
+			self.trainsCollected.append(train)		

@@ -21,9 +21,9 @@ class Train:
 	def accelerate(self, currentLength):
 		# accelerate as fast as possible
 		# 100km/h = 27m/s
-		(v, t) = acceleration_formula(self.v, 27, currentLength - self.remainingX, self.aMax)
+		(v, t) = acceleration_formula(self.v, 27, self.remainingX, self.aMax)
 		self.v = v
-		return t
+		return int(t)
 
 	def brake(self, currentLength):
 		# gradually brake
