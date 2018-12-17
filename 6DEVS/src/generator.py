@@ -1,7 +1,6 @@
 from pypdevs.DEVS import *
 from pypdevs.infinity import INFINITY
-from Train import *
-from Query import *
+from train import Train
 import random
 
 class GeneratorSubmodel(AtomicDEVS):
@@ -15,12 +14,16 @@ class GeneratorSubmodel(AtomicDEVS):
 		self.IATMax = IATMax
 		self.aMin = aMin
 		self.aMax = aMax
+		self.vMax = vMax
 		self.ID = 0
 		self.creationTime = 0
+
+		random.seed(1234)
 
 	def timeAdvance(self):
 	    # Random interarrival time
 		newIAT = random.randint(self.IATMin, self.IATMax - 1)
+		print("###", newIAT)
 		self.creationTime += newIAT
 		return newIAT
 
@@ -31,7 +34,7 @@ class GeneratorSubmodel(AtomicDEVS):
 		newA = random.randint(self.aMin, self.aMax - 1)
 		newID = self.ID
 		creationTime = self.creationTime
-		return {self.outport: Train(newID, newA, vmax, creationTime)}
+		return {self.outport: Train(newID, newA, self.vMax, creationTime)}
 
 	def intTransition(self):
 		return True
@@ -65,7 +68,7 @@ class Queue(AtomicDEVS):
 		if self.state == "WAITING":
 			return {self.qSend: "queryToEnter"}
 		elif self.state == "SENDING":
-			train = q.pop(0)
+			train = self.q.pop(0)
 			return {self.trainOut: train}
 
 	def intTransition(self):
@@ -73,9 +76,9 @@ class Queue(AtomicDEVS):
 			return "WAITING"
 		elif self.state == "SENDING":
 			if len(self.q) > 0:
-				return self.state = "WAITING"
+				return "WAITING"
 			else:
-				return self.state = "EMPTY"
+				return "EMPTY"
 		else:
 			raise DEVSException("invalid state {} in Queue intTransition".format(self.state))
 
@@ -85,7 +88,7 @@ class Queue(AtomicDEVS):
 		# if incoming train
 		if inTrain is not None:
 			self.q.append(inTrain)
-			return "WAITING"
+			return "SENDING"
 		# if incoming ack
 		if inAck is not None:
 			if inAck == "GREEN":
@@ -94,13 +97,13 @@ class Queue(AtomicDEVS):
 				return "WAITING"
 		raise DEVSException("invalid state {} in Queue extTransition".format(self.state))
 
-
-
+"""
 class Generator(CoupledDEVS):
-	def __init__(self):
+	def __init__(self, IATMin, IATMax, aMin, aMax, vMax):
 		CoupledDEVS.__init__(self, "Generator")
 
-		self.gen = self.addSubModel(GeneratorSubmodel())
+		self.gen = self.addSubModel(GeneratorSubmodel(IATMin, IATMax, aMin, aMax, vMax))
 		self.q   = self.addSubModel(Queue())
 
 		self.connectPorts(self.gen.outport, self.q.inport)
+"""

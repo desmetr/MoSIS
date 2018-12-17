@@ -7,38 +7,37 @@ class Collector(AtomicDEVS):
 		self.state = "WAITING"#WAITING or RESPONDING
 
 		self.qRecv = self.addInPort("qRecv")
-        self.qSack = self.addOutPort("qSack")
+		self.qSack = self.addOutPort("qSack")
 		self.trainIn = self.addInPort("trainIn")
 
 		self.trainsCollected = []
 
-
 	def timeAdvance(self):
-        if self.state == "WAITING":
-            return INFINITY
-        elif self.state == "RESPONDING"
-            return 0
-        else:
-            raise DEVSException("invalid state {} in Collector timeAdvance".format(self.state))
+		if self.state == "WAITING":
+		    return INFINITY
+		elif self.state == "RESPONDING":
+		    return 0
+		else:
+		    raise DEVSException("invalid state {} in Collector timeAdvance".format(self.state))
 
 	def outputFnc(self):
-        if self.state == "RESPONDING"
-            return {self.qSack: "GREEN"}
+		if self.state == "RESPONDING":
+		    return {self.qSack: "GREEN"}
 
-    def intTransition(self):
-        if self.state == "RESPONDING":
-            return "WAITING"
-        else:
-            raise DEVSException("invalid state {} in Collector intTransition".format(self.state))
+	def intTransition(self):
+	    if self.state == "RESPONDING":
+	        return "WAITING"
+	    else:
+	        raise DEVSException("invalid state {} in Collector intTransition".format(self.state))
 
 	def extTransition(self, inputs):
-        qRecv = inputs.get(self.qRecv)
-        trainIn = inputs.get(self.trainIn)
+		qRecv = inputs.get(self.qRecv)
+		trainIn = inputs.get(self.trainIn)
 
-        if qRecv is not None:
-            return "RESPONDING"
-        if trainIn is not None:
-            # TODO calculate travel time and use it for statistics
-            # time = currentTime - trainIn.creationTime
-            self.trainsCollected.append(trainIn)
-            return "WAITING"
+		if qRecv is not None:
+		    return "RESPONDING"
+		if trainIn is not None:
+		    # TODO calculate travel time and use it for statistics
+		    # time = currentTime - trainIn.creationTime
+		    self.trainsCollected.append(trainIn)
+		    return "WAITING"
