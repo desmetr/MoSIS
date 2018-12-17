@@ -3,12 +3,13 @@ from pypdevs.simulator import Simulator
 
 from generator import Generator
 from railwaySegment import RailwaySegment
+from collector import Collector
 
 ### Model
 class TrainTrafficSystem(CoupledDEVS):
 	def __init__(self):
 		CoupledDEVS.__init__(self, "system")
-		generator = self.addSubModel(Generator(IATMin=1, IATMax=10, aMin=1, aMax=10))
+		generator = self.addSubModel(Generator(IATMin=1, IATMax=10, aMin=1, aMax=10, vMAx=100/3.6))
 		railwaySegment = self.addSubModel(RailwaySegment(L=2000))
 		collector = self.addSubModel(Collector())
 
@@ -22,7 +23,6 @@ class TrainTrafficSystem(CoupledDEVS):
 		self.connectPorts(collector.qSack, railwaySegment.qRack)
 		self.connectPorts(railwaySegment.trainOut, collector.trainIn)
 
-		self.collector = collector
 
 ### Experiment
 system = TrainTrafficSystem()
