@@ -26,15 +26,25 @@ class RailwaySegment(AtomicDEVS):
 
 	def timeAdvance(self):
 		# TODO
-		return {"noTrain": self.tSolve,
-				"hasTrain": 1.0}[self.state]
+		return {"noTrain": 1.0,
+				"hasTrain": self.tSolve}[self.state]
 
 	def outputFnc(self):
+		if not self.currentTrain is None:
+				self.light = "red"
+		else:
+			self.light = "green" 
+
+		trainToOutput = None
+		if self.state == "hasTrain":
+			trainToOutput = self.currentTrain
+
 		return {self.qSend: Query("queryToEnter"),
-				self.qSack: QueryAck(self.light)}
+				self.qSack: QueryAck(self.light),
+				self.trainOut: trainToOutput}
 
 	def extTransition(self, inputs):
-		print inputs
+		# print inputs
 		# state = "noTrain"
 		state = self.state
 
@@ -42,7 +52,7 @@ class RailwaySegment(AtomicDEVS):
 			# print "A"
 			if not inputs[self.trainIn] is None: 
 				self.currentTrain = inputs[self.trainIn]
-				print self.currentTrain
+				# print self.currentTrain
 			state = "hasTrain"
 		
 		if self.qRecv in inputs: 
@@ -58,9 +68,9 @@ class RailwaySegment(AtomicDEVS):
 			self.currentQueryAck = inputs[self.qRack]
 			if not self.currentTrain is None:
 				if self.currentQueryAck.light == "red":
-					self.currentTrain.brake()
+					self.currentTrain.brake(self.L)
 				elif self.currentQueryAck.light == "green":
-						self.tSolve = self.currentTrain.accelerate()[1]
-						print self.tSolve
+					self.tSolve = self.currentTrain.accelerate(self.L)
+					print self.tSolve
 
 		return state

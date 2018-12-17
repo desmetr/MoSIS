@@ -50,11 +50,11 @@ class Generator(AtomicDEVS):
 		newTrain = Train(newID, newA, newIAT, creationTime)
 
 		trainToOutput = None
-		print self.queue
-		print self.state
+		print "in generator: ", self.queue
+		# print self.state
 
 		if self.state == "noOutputAllowed":
-			print "in noOutputAllowed"
+			# print "in noOutputAllowed"
 			self.queue.append(newTrain)
 
 		elif self.state == "outputAllowed":
@@ -67,7 +67,7 @@ class Generator(AtomicDEVS):
 		return {self.trainOut: trainToOutput, self.qSend: Query("queryToEnter")}
 
 	def extTransition(self, inputs):
-		print "A: ", inputs
+		print "AAAAA"
 		queryAck = inputs[self.qRack]
 		self.currentLight = queryAck.light
 

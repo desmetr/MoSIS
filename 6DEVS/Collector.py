@@ -16,15 +16,15 @@ class Collector(AtomicDEVS):
 		pass
 
 	def timeAdvance(self):
+		print "in collector: ", self.trainsCollected
 		return 1.0
 
 	def outputFnc(self):
 		return {self.qSack: QueryAck("green")}
 
 	def extTransition(self, inputs):
-		pass
-		# # Update simulation time
-		# self.state.current_time += self.elapsed
-		# # Calulate time in queue
-		# train = inputs[self.trainIn]
+		train = inputs[self.trainIn]
 		
+		# hier komt performance metrics
+
+		self.trainsCollected.append(train)		
