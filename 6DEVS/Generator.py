@@ -11,7 +11,7 @@ class GeneratorState:
 class Generator(AtomicDEVS):
 	def __init__(self, IATMin, IATMax, aMin, aMax):
 		AtomicDEVS.__init__(self, "Generator")
-		self.state = "outputAllowed"
+		self.state = "sending"
 
 		self.IATMin = IATMin
 		self.IATMax = IATMax
@@ -22,7 +22,7 @@ class Generator(AtomicDEVS):
 		self.qSend = self.addOutPort("qSend")
 		self.trainOut = self.addOutPort("trainOut")
 
-		self.numberOfTrainsOutput = 0
+		self.currentTrainID = 0
 
 		self.queue = []
 		self.currentLight = "green"
@@ -30,36 +30,37 @@ class Generator(AtomicDEVS):
 		self.currentTime = 0
 	
 	def intTransition(self):
-		if self.currentLight == "red":
-			return "noOutputAllowed"
-		elif self.currentLight == "green":
-			return "outputAllowed"
+		return {"sending": "waiting",
+				"waiting": "sending"}[self.state]
 
 	def timeAdvance(self):
 		# TODO: correcte timeAdvance?
-		self.currentTime += 1
-		return 1.0
+		# self.currentTime += 1	# TODO
+
+		if self.state == "sending":
+			return 1
+		elif self.state == "waiting":
+			return 0
+		elif len(self.queue) == 0:
+			return INFINITY
 
 	def outputFnc(self):
 		newIAT = random.randint(self.IATMin, self.IATMax - 1)
 		newA = random.randint(self.aMin, self.aMax - 1)
-		newID = self.numberOfTrainsOutput + 1
-		creationTime = self.currentTime # TODO moet er nog iets bij?
-		self.numberOfTrainsOutput = newID
+		newID = self.currentTrainID
+		self.currentTrainID += 1
+		creationTime = self.currentTime # TODO moet er nog iets bij?		
 		
 		newTrain = Train(newID, newA, newIAT, creationTime)
 
 		trainToOutput = None
-		print self.queue
-		print self.state
+		print "queue generator: ", self.queue
 
-		if self.state == "noOutputAllowed":
-			print "in noOutputAllowed"
+		if self.state == "waiting":
 			self.queue.append(newTrain)
 
-		elif self.state == "outputAllowed":
-			# print "in outputAllowed"
-			if len(self.queue) != 0:
+		elif self.state == "sending":
+			if len(self.queue) > 1:
 				trainToOutput = self.queue.pop(0)
 			elif trainToOutput == None:
 				trainToOutput = newTrain
@@ -67,11 +68,10 @@ class Generator(AtomicDEVS):
 		return {self.trainOut: trainToOutput, self.qSend: Query("queryToEnter")}
 
 	def extTransition(self, inputs):
-		print "A: ", inputs
 		queryAck = inputs[self.qRack]
 		self.currentLight = queryAck.light
 
 		if queryAck.light == "red":
-			return "noOutputAllowed"
+			return "waiting"
 		elif queryAck.light == "green":
-			return "outputAllowed"
+			return "sending"
