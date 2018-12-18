@@ -9,14 +9,19 @@ class Train:
 		self.v = 0	# Current speed
 		self.xRemaining = 0
 
-		self.creationTime = creationTime
-		# self.departureTime
+		self.creationTime  = creationTime
+		self.departureTime = -1
+		self.arrivalTime   = -1
 
 	def __str__(self):
 		return "Train: ID = " + str(self.ID) + ", max acceleration = " + str(self.aMax)+"  v = " + str(self.v) + ", remaining x = " + str(self.xRemaining)
 
+	def __repr__(self):
+		return "Train: ID = {}".format(self.ID)
+
 	def accelerate(self, leaving=False):
         # acceleration_formula(v_0, v_max, x_remaining, a)
+        # TODO klopt niet
 		distance = -1
 		time = -1
 		if leaving:
@@ -28,7 +33,7 @@ class Train:
 			self.v, time = formulas.acceleration_formula(self.v, self.vMax, self.xRemaining, self.aMax)
 			self.xRemaining = 1000
 
-		return time
+		return int(time)
 
 	def brake(self, t_poll):
 		# brake_formula(v_0, t_poll, x_remaining)
@@ -37,3 +42,9 @@ class Train:
 
 	def resetXRemaining(self, x):
 		self.xRemaining = x
+
+	def setDepartureTime(self, t):
+		self.departureTime = t
+
+	def setArrivalTime(self, t):
+		self.setArrivalTime = t

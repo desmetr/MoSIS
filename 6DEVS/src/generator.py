@@ -16,15 +16,12 @@ class GeneratorSubmodel(AtomicDEVS):
 		self.aMax = aMax
 		self.vMax = vMax
 		self.ID = 0
-		self.creationTime = 0
 
 		random.seed(1234)
 
 	def timeAdvance(self):
 	    # Random interarrival time
 		newIAT = random.randint(self.IATMin, self.IATMax - 1)
-		print("###", newIAT)
-		self.creationTime += newIAT
 		return newIAT
 
 	def outputFnc(self):
@@ -33,7 +30,7 @@ class GeneratorSubmodel(AtomicDEVS):
 
 		newA = random.randint(self.aMin, self.aMax - 1)
 		newID = self.ID
-		creationTime = self.creationTime
+		creationTime = self.time_last[0] #+ self.elapsed
 		return {self.outport: Train(newID, newA, self.vMax, creationTime)}
 
 	def intTransition(self):
@@ -42,7 +39,7 @@ class GeneratorSubmodel(AtomicDEVS):
 class Queue(AtomicDEVS):
 	def __init__(self):
 		AtomicDEVS.__init__(self, "Queue")
-		self.state = "EMPTY"#EMPTY, WAITING or SENDING
+		self.state = "EMPTY"#EMPTY, QUERYING, WAITING, SENDING, SNOOZING
 
 		self.inport = self.addInPort("input")
 
@@ -53,32 +50,40 @@ class Queue(AtomicDEVS):
 		self.q = []
 
 	def timeAdvance(self):
-		if self.state == "EMPTY":
+		if self.state in ["EMPTY", "WAITING"]:
 			return INFINITY
-	  	elif self.state == "WAITING":
+		elif self.state == "SNOOZING":
 			return 1#send a query every 1 sec
-		elif self.state == "SENDING":
-			return 0
+		elif self.state in ["QUERYING", "SENDING"]:
+			return 0#send output immediatly
 		else:
 			raise DEVSException("unknown state {} in Queue timeAdvance".format(self.state))
 
 	def outputFnc(self):
 		# BEWARE: ouput is based on the OLD state
         # and is produced BEFORE making the transition.
-		if self.state == "WAITING":
+		if self.state == "QUERYING":
 			return {self.qSend: "queryToEnter"}
 		elif self.state == "SENDING":
 			train = self.q.pop(0)
+			currentTime = self.time_last[0] + self.elapsed
+			train.setDepartureTime(currentTime)
 			return {self.trainOut: train}
+		elif self.state in ["EMPTY", "WAITING", "SNOOZING"]:
+			return #Nothing
+		else:
+			raise DEVSException("unknown state {} in Queue outputFnc".format(self.state))
 
 	def intTransition(self):
-		if self.state == "WAITING":
+		if self.state == "QUERYING":
 			return "WAITING"
 		elif self.state == "SENDING":
 			if len(self.q) > 0:
-				return "WAITING"
+				return "SNOOZING"
 			else:
 				return "EMPTY"
+		elif self.state == "SNOOZING":
+			return "QUERYING"
 		else:
 			raise DEVSException("invalid state {} in Queue intTransition".format(self.state))
 
@@ -88,13 +93,13 @@ class Queue(AtomicDEVS):
 		# if incoming train
 		if inTrain is not None:
 			self.q.append(inTrain)
-			return "SENDING"
+			return "QUERYING"
 		# if incoming ack
 		if inAck is not None:
 			if inAck == "GREEN":
 				return "SENDING"
 			else:#RED
-				return "WAITING"
+				return "SNOOZING"
 		raise DEVSException("invalid state {} in Queue extTransition".format(self.state))
 
 """

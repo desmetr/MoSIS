@@ -26,8 +26,11 @@ class RailwaySegment(AtomicDEVS):
         if self.state in ["EMPTY", "QUERYING"]:
             return INFINITY
         elif self.state == "ACCELERATING":
-            time = self.currentTrain.accelerate()
-            return time
+            if self.L < 1000:
+                return 0
+            else:
+                time = self.currentTrain.accelerate()
+                return time
         elif self.state == "BRAKING":
             tPoll = 1#send query every 1 sec
             self.currentTrain.brake(tPoll)

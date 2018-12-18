@@ -37,7 +37,8 @@ class Collector(AtomicDEVS):
 		if qRecv is not None:
 		    return "RESPONDING"
 		if trainIn is not None:
-		    # TODO calculate travel time and use it for statistics
-		    # time = currentTime - trainIn.creationTime
-		    self.trainsCollected.append(trainIn)
-		    return "WAITING"
+			currentTime = self.time_last[0] + self.elapsed
+			trainIn.setArrivalTime(currentTime)
+			self.trainsCollected.append(trainIn)
+			print "## {} arrived at time {}".format(repr(trainIn), currentTime)
+			return "WAITING"

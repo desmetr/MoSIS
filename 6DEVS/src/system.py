@@ -8,9 +8,9 @@ from collector import Collector
 class TrainTrafficSystem(CoupledDEVS):
 	def __init__(self):
 		CoupledDEVS.__init__(self, "system")
-		generator = self.addSubModel(GeneratorSubmodel(IATMin=1, IATMax=10, aMin=1, aMax=10, vMax=100/3.6))
+		generator = self.addSubModel(GeneratorSubmodel(IATMin=1, IATMax=2, aMin=1, aMax=10, vMax=400/3.6))
 		queue = self.addSubModel(Queue())
-		railwaySegment = self.addSubModel(RailwaySegment(L=2000))
+		railwaySegment = self.addSubModel(RailwaySegment(L=100))
 		collector = self.addSubModel(Collector())
 
 		#Generator to Queue
@@ -31,7 +31,7 @@ class TrainTrafficSystem(CoupledDEVS):
 system = TrainTrafficSystem()
 sim = Simulator(system)
 sim.setVerbose()
-sim.setTerminationTime(30.0)
+sim.setTerminationTime(10.0)
 sim.setClassicDEVS()
 sim.simulate()
 
