@@ -45,4 +45,7 @@ class Train:
 		self.departureTime = t
 
 	def setArrivalTime(self, t):
-		self.setArrivalTime = t
+		self.arrivalTime = t
+
+	def getPerformance(self):
+		return self.arrivalTime - self.creationTime

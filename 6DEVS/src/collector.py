@@ -37,8 +37,11 @@ class Collector(AtomicDEVS):
 		if qRecv is not None:
 		    return "RESPONDING"
 		if trainIn is not None:
-			currentTime = self.time_last[0] + self.elapsed
+			currentTime = self.time_last[0]
 			trainIn.setArrivalTime(currentTime)
 			self.trainsCollected.append(trainIn)
-			print "## {} arrived at time {}".format(repr(trainIn), currentTime)
+			# print "## {} arrived at time {}".format(repr(trainIn), currentTime)
 			return "WAITING"
+
+	def getTrains(self):
+		return self.trainsCollected

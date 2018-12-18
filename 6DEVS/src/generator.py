@@ -3,9 +3,9 @@ from pypdevs.infinity import INFINITY
 from train import Train
 import random
 
-class GeneratorSubmodel(AtomicDEVS):
+class Generator(AtomicDEVS):
 	def __init__(self, IATMin, IATMax, aMin, aMax, vMax):
-		AtomicDEVS.__init__(self, "GeneratorSubmodel")
+		AtomicDEVS.__init__(self, "Generator")
 		self.state = True
 
 		self.outport = self.addOutPort("outport")
@@ -30,7 +30,7 @@ class GeneratorSubmodel(AtomicDEVS):
 
 		newA = random.randint(self.aMin, self.aMax - 1)
 		newID = self.ID
-		creationTime = self.time_last[0] #+ self.elapsed
+		creationTime = self.time_last[0]
 		return {self.outport: Train(newID, newA, self.vMax, creationTime)}
 
 	def intTransition(self):
@@ -66,7 +66,7 @@ class Queue(AtomicDEVS):
 			return {self.qSend: "queryToEnter"}
 		elif self.state == "SENDING":
 			train = self.q.pop(0)
-			currentTime = self.time_last[0] + self.elapsed
+			currentTime = self.time_last[0]
 			train.setDepartureTime(currentTime)
 			return {self.trainOut: train}
 		elif self.state in ["EMPTY", "WAITING", "SNOOZING"]:
@@ -101,14 +101,3 @@ class Queue(AtomicDEVS):
 			else:#RED
 				return "SNOOZING"
 		raise DEVSException("invalid state {} in Queue extTransition".format(self.state))
-
-"""
-class Generator(CoupledDEVS):
-	def __init__(self, IATMin, IATMax, aMin, aMax, vMax):
-		CoupledDEVS.__init__(self, "Generator")
-
-		self.gen = self.addSubModel(GeneratorSubmodel(IATMin, IATMax, aMin, aMax, vMax))
-		self.q   = self.addSubModel(Queue())
-
-		self.connectPorts(self.gen.outport, self.q.inport)
-"""
