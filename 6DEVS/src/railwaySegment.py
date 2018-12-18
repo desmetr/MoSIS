@@ -57,6 +57,7 @@ class RailwaySegment(AtomicDEVS):
             return {self.trainOut: self.currentTrain}
 
     def intTransition(self):
+        print self.state, self.time_last, self.time_next
         if self.state == "RESPONDING":
             temp =  self.previousState
             self.previousState = None

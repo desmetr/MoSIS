@@ -21,7 +21,6 @@ class Train:
 
 	def accelerate(self, leaving=False):
         # acceleration_formula(v_0, v_max, x_remaining, a)
-        # TODO klopt niet
 		distance = -1
 		time = -1
 		if leaving:
@@ -32,7 +31,6 @@ class Train:
 			distance = self.xRemaining - 1000
 			self.v, time = formulas.acceleration_formula(self.v, self.vMax, self.xRemaining, self.aMax)
 			self.xRemaining = 1000
-
 		return int(time)
 
 	def brake(self, t_poll):
