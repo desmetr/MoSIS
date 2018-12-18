@@ -31,7 +31,7 @@ class Train:
 			distance = self.xRemaining - 1000
 			self.v, time = formulas.acceleration_formula(self.v, self.vMax, self.xRemaining, self.aMax)
 			self.xRemaining = 1000
-		return int(time)
+		return time
 
 	def brake(self, t_poll):
 		# brake_formula(v_0, t_poll, x_remaining)

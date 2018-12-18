@@ -15,6 +15,7 @@ class RailwaySegment(AtomicDEVS):
         self.currentTrain = None
 
         self.timeToLeave = None
+        self.timeTo1000  = None
 
         self.qRecv = self.addInPort("qRecv")
         self.qSack = self.addOutPort("qSack")
@@ -29,11 +30,18 @@ class RailwaySegment(AtomicDEVS):
         if self.state in ["EMPTY", "QUERYING"]:
             return INFINITY
         elif self.state == "ACCELERATING":
-            if self.L < 1000:
+            if self.L < 1000:#we can immediatly see the light so don't accelerate
                 return 0
             else:
-                time = self.currentTrain.accelerate()
-                return time
+                if self.timeTo1000 is None:
+                    timeAdv = self.currentTrain.accelerate()
+                    currentTime = self.time_last[0]
+                    self.timeTo1000 = (timeAdv, currentTime)
+                    print "## timeTo1000", self.timeTo1000
+                    return timeAdv
+                else:
+                    print "## timeTo1000", self.timeTo1000
+                    return self.timeTo1000[0]
         elif self.state == "BRAKING":
             tPoll = 1#send query every 1 sec
             self.currentTrain.brake(tPoll)
@@ -46,6 +54,7 @@ class RailwaySegment(AtomicDEVS):
                 print "## timeToLeave", self.timeToLeave
                 return timeAdv
             else:
+                print "## timeToLeave", self.timeToLeave
                 return self.timeToLeave[0]
         elif self.state == "RESPONDING":
             return 0
@@ -60,6 +69,17 @@ class RailwaySegment(AtomicDEVS):
                 print "<-- {}".format("GREEN")
                 return {self.qSack: "GREEN"}
             else:
+                if self.previousState == "LEAVING":
+                    timeAdvOld, previousTime = self.timeToLeave
+                    currentTime = self.time_last[0]
+                    timeAdv = timeAdvOld - (currentTime - previousTime)
+                    self.timeToLeave = (timeAdv, currentTime)
+                elif self.previousState == "ACCELERATING":
+                    timeAdvOld, previousTime = self.timeTo1000
+                    currentTime = self.time_last[0]
+                    timeAdv = timeAdvOld - (currentTime - previousTime)
+                    self.timeTo1000 = (timeAdv, currentTime)
+                # print "timeAdvNew {}, currentTime {}, timeAdvOld {}, previousTime {}".format(timeAdv, currentTime, timeAdvOld, previousTime)
                 print "<-- {}".format("RED")
                 return {self.qSack: "RED"}
         elif self.state in ["ACCELERATING", "BRAKING"]:
@@ -73,14 +93,11 @@ class RailwaySegment(AtomicDEVS):
         if self.state == "RESPONDING":
             temp =  self.previousState
             self.previousState = None
-            if temp == "LEAVING":
-                timeAdvOld, previousTime = self.timeToLeave
-                currentTime = self.time_last[0]
-                timeAdv = timeAdvOld - (currentTime - previousTime)
-                self.timeToLeave = (timeAdv, currentTime)
-                print "timeAdvNew {}, currentTime {}, timeAdvOld {}, previousTime {}".format(timeAdv, currentTime, timeAdvOld, previousTime)
             return temp
-        elif self.state in ["ACCELERATING","BRAKING"]:
+        elif self.state == "ACCELERATING":
+            self.timeTo1000 = None
+            return "QUERYING"
+        elif self.state == "BRAKING":
             return "QUERYING"
         elif self.state == "LEAVING":
             self.timeToLeave = None
