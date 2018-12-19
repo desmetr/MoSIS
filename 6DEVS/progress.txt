@@ -1,7 +1,0 @@
-* huidige configuratie: generator <-> railwaysegment <-> collector
-
-TODO:
-
-* Algemeen: kijk of treinen niet tegelijk op segment zijn
-* performance metrics + lifetime trein
-* meer configuraties van systemen

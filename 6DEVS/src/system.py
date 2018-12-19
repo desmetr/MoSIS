@@ -54,7 +54,7 @@ sim.simulate()
 print system.getPerformance()
 # print system.collector.data()
 """
-totalLengths = [5000]#, 10000, 15000, 20000]
+totalLengths = [5000,10000, 15000, 20000]
 segmentsCount = [5, 10, 15, 20, 25, 30]
 terminationTime = 1000
 
@@ -65,6 +65,7 @@ for length in totalLengths:
 	for segCnt in segmentsCount:
 		system = TrainTrafficSystem(segCnt, length)
 		sim = Simulator(system)
+		# sim.setVerbose()
 		sim.setTerminationTime(terminationTime)
 		sim.setClassicDEVS()
 		sim.simulate()
@@ -74,6 +75,6 @@ for length in totalLengths:
 		data.append((segCnt, c, p))
 
 	with open(fileName,"w") as f:
-		f.write("segmentsCount, cost, performance\n")
+		f.write("segmentsCount,cost,performance\n")
 		for d in data:
-			f.write("{} {} {}\n".format(d[0], d[1], d[2]))
+			f.write("{},{},{}\n".format(d[0], d[1], d[2]))

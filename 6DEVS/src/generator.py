@@ -60,7 +60,7 @@ class Queue(AtomicDEVS):
 			raise DEVSException("unknown state {} in Queue timeAdvance".format(self.state))
 
 	def outputFnc(self):
-		# BEWARE: ouput is based on the OLD state
+		# BEWARE: output is based on the OLD state
         # and is produced BEFORE making the transition.
 		if self.state == "QUERYING":
 			return {self.qSend: "queryToEnter"}
