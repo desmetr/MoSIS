@@ -42,18 +42,6 @@ class TrainTrafficSystem(CoupledDEVS):
 		l = self.collector.getTrains()
 		return sum(train.getPerformance() for train in l) / len(l)
 
-"""
-### Experiment
-system = TrainTrafficSystem(20, 10000)
-sim = Simulator(system)
-# sim.setVerbose()
-sim.setTerminationTime(10000)
-sim.setClassicDEVS()
-sim.simulate()
-
-print system.getPerformance()
-# print system.collector.data()
-"""
 totalLengths = [5000,10000, 15000, 20000]
 segmentsCount = [5, 10, 15, 20, 25, 30]
 terminationTime = 1000

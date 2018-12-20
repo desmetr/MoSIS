@@ -58,15 +58,15 @@ In the file <a href="src/generator.py">generator.py</a> you can find the code us
 
 <h3>Generator</h3>
 
-The Generator class generates the trains and sends them to the queue. This class has only one output port where the new train will be sent on. This class derives the <i>AtomicDEVS</i> class of the <i>pythonPDEVS</i> library. This means we have to implement the four methods <b>timeAdvance</b>, <b>outputFnc</b>, <b>intTransition</b> and <b>extTransition</b>. Below is a list explaining the implementations of these functions.
+The Generator class generates the trains and sends them to the queue. This class has only one output port where the new train will be sent on. This class derives from the <i>AtomicDEVS</i> class of the <i>pythonPDEVS</i> library. This means we have to implement the four methods <b>timeAdvance</b>, <b>outputFnc</b>, <b>intTransition</b> and <b>extTransition</b>. Below is a list explaining the implementations of these functions.
 
 <ol>
 	<li>
-		<b>timeAdvance</b>: The time advance of the generator is the newly generated random inter arrival time (IAT), because we want to keep track of when new trains are generated. The new IAT is a random number between in the specified range [IATMin, IATMax[.
+		<b>timeAdvance</b>: The time advance of the generator is the newly generated random inter arrival time (IAT), because we want to keep track of when new trains are generated. The new IAT is a random number taken from the specified range [IATMin, IATMax[.
 	</li>
 	<br>
 	<li>
-		<b>outputFnc</b>: The output of the generator is always the new train. A new train has a random maximum acceleration, generated from the specified range [aMin, aMAx[. Every train has a unique ID, so we can keep track of the trains during the simulation. To be able to perform the performance analysis, we need to know the creation time of each train. We ask the simulation what the current time is at the generation of the train.
+		<b>outputFnc</b>: The output of the generator is always a new train. A new train has a random maximum acceleration, generated from the specified range [aMin, aMAx[. Every train has a unique ID, so we can keep track of the trains during the simulation. To be able to perform the performance analysis, we need to know the creation time of each train. For this, we ask the simulation what the current time is at the generation of the train.
 		<br>
 		The new train is then put on the output port, to be sent to the queue.
 	</li>
@@ -82,14 +82,14 @@ The Generator class generates the trains and sends them to the queue. This class
 
 <h3>Queue</h3>
 
-The Queue class is a bit more complex than the Generator class. This class has two input ports (the new train from the Generator and the acknowledgement of the query) and two output ports (one for sending the query and one for sending a train). The Queue has five possible states to be in: EMPTY, QUERYING, WAITING, SENDING or SNOOZING. Lastly there is a list named <i>q</i> that holds the queued trains.
+The Queue class is a bit more complex than the Generator class. This class has two input ports (one for the new train from the Generator and one for the acknowledgement of the query) and two output ports (one for sending the query and one for sending a train). The Queue has five possible states to be in: EMPTY, QUERYING, WAITING, SENDING or SNOOZING. Lastly there is a list named <i>q</i> that holds the queued trains.
 <br>
-The Queue class also derives from the <i>AtomicDEVS</i> class so the same four functions are implemented. Below again you can find the list with explanations of these functions.
-
+The Queue class also derives from the <i>AtomicDEVS</i> class so the same four functions are implemented. Below again you can find the list with explanations of these functions. The diagram shows the design of this class.
+<br>
 <br>
 <img src="report/queueDiagram.png">
 <br>
-
+<br>
 <ol>
 	<li>
 		<b>timeAdvance</b>: There are several possible time values depending on the current state of the Queue.
@@ -99,7 +99,7 @@ The Queue class also derives from the <i>AtomicDEVS</i> class so the same four f
 			</li>
 			<br>
 			<li>
-				SNOOZING: If the queue is snoozing, this means there are trains in the queue and the queue needs to know what the state of the following segment is. So we return 1 as the new time, because we want to send a query every second.
+				SNOOZING: If the queue is snoozing, this means there are trains in the queue and the queue needs to know what the state of the following segment is (via a query). So we return 1 as the new time, because we want to send a query every second.
 			</li>
 			<br>
 			<li>
@@ -114,11 +114,11 @@ The Queue class also derives from the <i>AtomicDEVS</i> class so the same four f
 		<b>outputFnc</b>: In this function we decide whether to put data on the output ports or not. Beware that the output is based on the old state of the Queue and is produced before the transition is made (in intTransition). Again there are several cases.
 		<ul>
 			<li>
-				QUERYING: If the state was querying we send out a new query, which will trigger a query acknowledgement to be sent in the next railway segment. This happens via the qSend port.
+				QUERYING: In this state we send out a new query, which will trigger a query acknowledgement to be sent in the next railway segment. This happens via the qSend port.
 			</li>
 			<br>
 			<li>
-				SENDING: If the state was sending, we pop the first train from the queue (FIFO) and set the departure time of this train to the current time. This happens via the trainOut port.
+				SENDING: In this state, we pop the first train from the queue (FIFO) and set the departure time of this train to the current time. This happens via the trainOut port.
 			</li>
 			<br>
 			<li>
@@ -133,15 +133,15 @@ The Queue class also derives from the <i>AtomicDEVS</i> class so the same four f
 		<b>intTransition</b>: In this function we change the (internal) state of the queue. Again there are several cases.
 		<ul>
 			<li>
-				QUERYING: If the current state was querying, we go to the WAITING state because we want to make sure nothing happens until we get the query acknowledgement.
+				QUERYING: In this state, we transition to the WAITING state because we want to make sure nothing happens until we get the query acknowledgement.
 			</li>
 			<br>
 			<li>
-				SENDING: If the current state was sending, there are two possibilities. Either the queue is empty, in which case we go the EMPTY state. If there are trains in the queue, we go the SNOOZING state. This state allows us to distinguish the situtation where the queue has trains but is not allowed to pop and send the first train.
+				SENDING: In this state, there are two possibilities. Either the queue is empty, in which case we go the EMPTY state. If there are trains in the queue, we go the SNOOZING state. This state allows us to distinguish the situtation where the queue has trains but is not allowed to pop and send the first train.
 			</li>
 			<br>
 			<li>
-				SNOOZING: If the current state was snoozing, we go to the QUERYING state because we want to know (by sending a query) if the first railway segment is empty	. This depends on the query acknowledgement of the segment.
+				SNOOZING: In this state, we go to the QUERYING state because we want to know (by sending a query) if the first railway segment is empty. This depends on the query acknowledgement of the segment.
 			</li>
 		</ul>
 		<br>
@@ -149,10 +149,10 @@ The Queue class also derives from the <i>AtomicDEVS</i> class so the same four f
 	</li>
 	<br>
 	<li>
-		<b>extTransition</b>: This functions handles the inputs. There are two input ports, so two seperate situations to take care of.
+		<b>extTransition</b>: This function handles the inputs. There are two input ports, so two separate situations to take care of.
 		<ul>
 			<li>
-				If the input is a new train, we append it to the queue and change the state to QUERYING, because we need to know what to do next (this new train may be the only train in the queue at a given moment).
+				If the input is a new train, we append it to the queue and change the state to QUERYING, because we need to know what to do next based on the next segment (this new train may be the only train in the queue at a given moment).
 			</li>
 			<br>
 			<li>
@@ -166,16 +166,16 @@ The Queue class also derives from the <i>AtomicDEVS</i> class so the same four f
 
 <h2>Railway Segment</h2>
 
-In the file <a href="src/railwaySegment.py">railwaySegment.py</a> you can find the code for the  railway segment. A segment has several attributes: the length, the current train, the timeToLeave i.e. the time needed for the train to leave (stored as a pair of timeAdvance and currentTime), and the timeTo1000 i.e. the time needed for the train to see the light of the next segment (also stored as a pair of timeAdvance and currentTime). There are three input ports (one for receiving a new query of the previous segment, one for receiving a new train of the previous segment and one for receiving the query acknowledgement of the next segment). There are three output ports (one for sending the query acknowledgement to the previous segment, one for sending a new query to the next segment and one for sending the current train to the next segment).
+In the file <a href="src/railwaySegment.py">railwaySegment.py</a> you can find the code for the railway segment. A segment has several attributes: the length, the current train, the timeToLeave i.e. the time needed for the train to leave (stored as a pair of timeAdvance and currentTime), and the timeTo1000 i.e. the time needed for the train to see the light of the next segment (also stored as a pair of timeAdvance and currentTime). There are three input ports (one for receiving a new query of the previous segment, one for receiving a new train of the previous segment and one for receiving the query acknowledgement of the next segment). There are three output ports (one for sending the query acknowledgement to the previous segment, one for sending a new query to the next segment and one for sending the current train to the next segment).
 <br>
 A segment has six possible states: EMPTY, ACCELERATING, QUERYING, BRAKING, LEAVING or RESPONDING.
 <br>
-The RailwaySegment class also derives from the <i>AtomicDEVS</i> class so the same four functions are implemented. Below again you can find the list with explanations of these functions.
-
+The RailwaySegment class also derives from the <i>AtomicDEVS</i> class so the same four functions are implemented. Below again you can find the list with explanations of these functions. The diagram shows the design of this class.
+<br>
 <br>
 <img src="report/railwaySegmentDiagram.png">
 <br>
-
+<br>
 <ol>
 	<li>
 		<b>timeAdvance</b>: There are several possible time values depending on the current state of the segment.
@@ -185,13 +185,13 @@ The RailwaySegment class also derives from the <i>AtomicDEVS</i> class so the sa
 			</li>
 			<br>
 			<li>
-				ACCELERATING: If the segment is in this state, it means that the current train is accelerating till it can see the light of the next segment.
+				ACCELERATING: In this state, it means that the current train is accelerating till it can see the light of the next segment.
 				<ul>
 					<li>
-					If the length of the segment is smaller than 1000 meters (which means we can already see the next light), we immediatly leave this state state, by returning 0.
+						If the length of the segment is smaller than 1000 meters (which means we can already see the next light), we immediately leave this state, by returning 0.
 					</li>
 					<li>
-						If the length is larger than 1000 meters, then we need to look at the time it takes to get to 1000 meters before the segment ends.
+						If the length is larger than 1000 meters, we need to look at the time it takes to get to 1000 meters before the segment ends.
 						We calculate when the train will reach the end (via the accelerate_formula) and return this as the new time advance.
 						If we already calculated this before (and were interrupted by a request), we use the value stored in timeTo1000.
 					</li>
@@ -199,18 +199,18 @@ The RailwaySegment class also derives from the <i>AtomicDEVS</i> class so the sa
 			</li>
 			<br>
 			<li>
-				BRAKING: If the segment is in this state, it means the current train is braking. The braking formula expects us to poll every tPoll second for the light (this means to send a new query). We chose to poll every second. This means that the timeAdvance is 1.
+				BRAKING: In this state, it means the current train is braking. The braking formula expects us to poll every tPoll second for the light (this means to send a new query). We chose to poll every second. This means that the timeAdvance is 1.
 			</li>
 			<br>
 			<li>
-				LEAVING: If the segment is in this state, it means the train is less than 1000m away from the end of the current segment and received a green light from the next.
+				LEAVING: In this state, it means the train is less than 1000 meters away from the end of the current segment and received a green light from the next.
 				Now it is important to note that we keep track of the timeToLeave for a train, similarly to the timeTo1000.
-				This is necessary because LEAVING can be interrupted by a request of the previous segment, to which we have to respond immediatly (RESPONDING).
+				This is necessary because LEAVING can be interrupted by a request of the previous segment, to which we have to respond immediatly (by going to RESPONDING).
 				Thus we have to set the timer correctly when we re-enter LEAVING.
 			</li>
 			<br>
 			<li>
-				RESPONDING: If the segment is in this state, it means that we are sending a query acknowledgement back to the previous segment. We want this to happen immediately, so a time advance of 0.
+				RESPONDING: In this state, it means that we are sending a query acknowledgement back to the previous segment. We want this to happen immediately, so a time advance of 0.
 			</li>
 		</ul>
 		<br>
@@ -242,15 +242,15 @@ The RailwaySegment class also derives from the <i>AtomicDEVS</i> class so the sa
 		<b>intTransition</b>: This function changes the state of the segment. There are several cases.
 		<ul>
 			<li>
-				RESPONDING: When leavinght this state we need to return to the previous state.
+				RESPONDING: When leaving this state we need to return to the previous state.
 			</li>
 			<br>
 			<li>
-				ACCELERATING: We are maximum 1000m away from the exit, so we set timeTo1000 to None and return the QUERYING state. This is because we want to know what the light of the next segment is.
+				ACCELERATING: We are maximum 1000 meters away from the exit, so we set timeTo1000 to None and return the QUERYING state. This is because we want to know what the light of the next segment is.
 			</li>
 			<br>
 			<li>
-				BRAKING: We go to the querying state to know if the train may leave.
+				BRAKING: We go to the QUERYING state to know if the train may leave.
 			</li>
 			<br>
 			<li>
@@ -284,12 +284,12 @@ The RailwaySegment class also derives from the <i>AtomicDEVS</i> class so the sa
 In the file <a href="src/collector.py">collector.py</a> you can find the code for the collector segment. The Collector class has two input ports (for receiving the query and one for receiving the train) and one output port (to send the query acknowledgement). There is a list keeping track of the collected trains. This class has two possible states, WAITING or RESPONDING.
 
 <br>
-The Collector class also derives from the <i>AtomicDEVS</i> class so the same four functions are implemented. Below again you can find the list with explanations of these functions.
-
+The Collector class also derives from the <i>AtomicDEVS</i> class so the same four functions are implemented. Below again you can find the list with explanations of these functions. The diagram shows the design of this class.
+<br>
 <br>
 <img src="report/collectorDiagram.png">
 <br>
-
+<br>
 <ol>
 	<li>
 		<b>timeAdvance</b>: There are several possible time values depending on the current state of the Collector.
@@ -352,7 +352,7 @@ In the file <a href="src/system.py">system.py</a> you can find the code which ex
 
 <h1>Performance Analysis</h1>
 
-To analyse the performance we use several configurations of segments. We have a track with total length 5000. This track is divided in different number of segments. For every run we keep track of the trains received in the Collector. We collect the cost and performance of every run.
+To analyse the performance we use several configurations of segments. We used 4 different tracks with total lengths: 5000 meters, 10000 meters, 15000 meters and 20000 meters. Each time this track is divided in different equidistant number of segments. For every run we keep track of the trains received in the Collector. We collect the cost and performance of every run.
 <br>
 The performance is calculated as
 $$\frac{\sum_{t = 1}^{number\_of\_trains}t_{performance}}{number\_of\_trains} $$
@@ -513,22 +513,25 @@ The following tables show the values we used to run the analysis.
 	</tr>
 </table>
 <br>
-In the folder <i>results</i> you can find the results. There are four files, one for every total length. The results are also in the plots below. The left abr marked with C shows the cost per number of segments, the right bar shows the performance per number of segments.
+In the folder <i>results</i> you can find the results. There are four files, one for every total length. The results are also in the plots below. Per unique number of segemnts, there are two bars. The left bar, marked with C, shows the cost per number of segments and the right bar, marked with P, shows the performance per number of segments. So for the first plot, using 5 segments results in a cost of 150 and a performance of 100.
 <br>
-
+<br>
 Plot total length = 5000.
 <br>
 <img src="report/plotLength5000.png">
+<br>
 <br>
 
 Plot total length = 10000.
 <br>
 <img src="report/plotLength10000.png">
 <br>
+<br>
 
 Plot total length = 15000.
 <br>
 <img src="report/plotLength15000.png">
+<br>
 <br>
 
 Plot total length = 20000.
@@ -541,7 +544,7 @@ Plot total length = 20000.
 We can conclude that for a total length of 5000 meter, using 5 segments of 1000 meter optimizes cost and performance.
 For a total length of 10000 meter, using 5 segments of 2000 meter is best.
 For a total length of 15000 meter, using 5 segments of 3000 meter is optimizes the cost but using 15 segments optimizes the performance, at a greater cost.
-For a total length of 20000 meter, using 5 segments of 4000 meter is best for the cost but 20 segments optimizes the performance.<, at a greater cost
+For a total length of 20000 meter, using 5 segments of 4000 meter is best for the cost but 20 segments optimizes the performance, again at a greater cost.
 
 </body>
 </html>

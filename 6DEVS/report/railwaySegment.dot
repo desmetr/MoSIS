@@ -1,0 +1,19 @@
+digraph
+{
+	rankdir=LR;
+	ACCELERATING -> QUERYING[label="intTransition"];
+	ACCELERATING -> RESPONDING[label="input = query"];
+	QUERYING -> RESPONDING[label="input = query"];
+	QUERYING -> LEAVING[label="intTransition"];
+	QUERYING -> BRAKING[label="input = RED"];
+	RESPONDING -> ACCELERATING[label="intTransition"];
+	RESPONDING -> QUERYING[label="intTransition"];
+	RESPONDING -> BRAKING[label="intTransition"];
+	RESPONDING -> LEAVING[label="intTransition"];
+	RESPONDING -> EMPTY[label="intTransition"];
+	BRAKING -> QUERYING[label="intTransition"];
+	BRAKING -> RESPONDING[label="input = query"];
+	LEAVING -> RESPONDING[label="input = query"];
+	LEAVING -> EMPTY[label="intTransition"];
+	EMPTY -> ACCELERATING[label="input = train"];
+}

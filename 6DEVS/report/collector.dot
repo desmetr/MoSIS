@@ -1,0 +1,7 @@
+digraph 
+{
+	rankdir=LR;
+	WAITING -> RESPONDING[label="input = query"];
+	WAITING -> WAITING[label="input = train"];
+	RESPONDING -> WAITING[label="intTransition"];
+}

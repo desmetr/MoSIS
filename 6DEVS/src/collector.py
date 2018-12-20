@@ -40,7 +40,6 @@ class Collector(AtomicDEVS):
 			currentTime = self.time_last[0]
 			trainIn.setArrivalTime(currentTime)
 			self.trainsCollected.append(trainIn)
-			# print "## {} arrived at time {}".format(repr(trainIn), currentTime)
 			return "WAITING"
 
 	def getTrains(self):

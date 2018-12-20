@@ -36,10 +36,8 @@ class RailwaySegment(AtomicDEVS):
                     timeAdv = self.currentTrain.accelerate()
                     currentTime = self.time_last[0]
                     self.timeTo1000 = (timeAdv, currentTime)
-                    # print "## timeTo1000", self.timeTo1000
                     return timeAdv
                 else:
-                    # print "## timeTo1000", self.timeTo1000
                     return self.timeTo1000[0]
         elif self.state == "BRAKING":
             tPoll = 1#send query every 1 sec
@@ -50,10 +48,8 @@ class RailwaySegment(AtomicDEVS):
                 timeAdv = self.currentTrain.accelerate(leaving=True)
                 currentTime = self.time_last[0]
                 self.timeToLeave = (timeAdv, currentTime)
-                # print "## timeToLeave", self.timeToLeave
                 return timeAdv
             else:
-                # print "## timeToLeave", self.timeToLeave
                 return self.timeToLeave[0]
         elif self.state == "RESPONDING":
             return 0
@@ -65,7 +61,6 @@ class RailwaySegment(AtomicDEVS):
         # and is produced BEFORE making the transition.
         if self.state == "RESPONDING":
             if self.previousState == "EMPTY":
-                # print "<-- {}".format("GREEN")
                 return {self.qSack: "GREEN"}
             else:
                 if self.previousState == "LEAVING":
@@ -78,13 +73,10 @@ class RailwaySegment(AtomicDEVS):
                     currentTime = self.time_last[0]
                     timeAdv = timeAdvOld - (currentTime - previousTime)
                     self.timeTo1000 = (timeAdv, currentTime)
-                # print "<-- {}".format("RED")
                 return {self.qSack: "RED"}
         elif self.state in ["ACCELERATING", "BRAKING"]:
-            # print "==> {}".format("queryToEnter")
             return {self.qSend: "queryToEnter"}
         elif self.state in "LEAVING":
-            # print "==> {}".format(self.currentTrain)
             return {self.trainOut: self.currentTrain}
 
     def intTransition(self):
@@ -110,12 +102,10 @@ class RailwaySegment(AtomicDEVS):
 
         #if incoming query
         if inQRecv is not None:
-            # print "--> {}".format(inQRecv)
             self.previousState = self.state
             return "RESPONDING"
         #if incoming train
         if trainIn is not None:
-            # print "--> {}".format(trainIn)
             self.currentTrain = trainIn
             self.currentTrain.resetXRemaining(self.L)
             return "ACCELERATING"

@@ -1,0 +1,11 @@
+digraph
+{
+	rankdir=LR;
+	EMPTY -> QUERYING[label="input = train"];
+	QUERYING -> WAITING[label="intTransition"];
+	WAITING -> SNOOZING[label="input = RED"];
+	WAITING -> SENDING[label="input = GREEN"];
+	SNOOZING -> QUERYING[label="input = train"];
+	SENDING -> SNOOZING[label="intTransition"];
+	SENDING -> EMPTY[label="intTransition"];
+}
