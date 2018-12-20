@@ -29,7 +29,7 @@ class RailwaySegment(AtomicDEVS):
         if self.state in ["EMPTY", "QUERYING"]:
             return INFINITY
         elif self.state == "ACCELERATING":
-            if self.L < 1000:#we can immediatly see the light so don't accelerate
+            if self.L <= 1000:#we can immediatly see the light so don't accelerate
                 return 0
             else:
                 if self.timeTo1000 is None:
